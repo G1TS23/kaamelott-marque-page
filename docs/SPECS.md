@@ -77,6 +77,7 @@ Un épisode = une fiche JSON autonome. **Pas de `end_seconds`** : la fin d'un é
   "director": "Alexandre Astier",
   "writer": "Alexandre Astier",
   "guests": [],
+  "characters": ["Arthur", "Guenièvre", "Léodagan"],
   "video_id": "REFu8UmXXE0",
   "start_seconds": null,
   "timestamp_source": null, // manual | community | auto-candidate
@@ -85,6 +86,8 @@ Un épisode = une fiche JSON autonome. **Pas de `end_seconds`** : la fin d'un é
 ```
 
 Seuls `title` et `summary` alimentent la recherche (floue et sémantique) — les autres champs Wikipédia (`channel`, `director`/`writer`, `guests`) sont capturés gratuitement à l'import et affichés comme contexte, sans entrer dans le calcul de pertinence. `start_seconds`/`timestamp_source`/`confidence` restent à `null` jusqu'au pipeline C+F (milestones 2-3).
+
+**`characters`** ✅ (issue #24) — fusion dédupliquée des personnages déjà cités dans `guests` et de tout nom de `data/characters.json` (liste canonique, ~100 entrées construites depuis [Liste des personnages de Kaamelott](https://fr.wikipedia.org/wiki/Liste_des_personnages_de_Kaamelott)) détecté par mot entier dans `summary`. Alimente la facette personnages (section 8), pas la recherche floue/sémantique. Non-exhaustif par construction — un résumé qui ne nomme personne explicitement ne remonte rien (3 épisodes sur 399, vérifié manuellement : résumés génériques sans nom propre).
 
 **Import initial depuis Wikipédia** ✅ — `scripts/import_wikipedia.py` (BeautifulSoup) extrait titre, résumé, chaîne, réalisateur/scénariste et invités pour les 399 épisodes (100+100+100+99) en une passe, vers `data/episodes/livre-{1..4}.json`. Un épisode par ailleurs cohérent (S3E1 « Le Chevalier errant ») a un numéro de production Wikipédia mal formé (`201` au lieu de `201 (3.1)`) — le script s'y adapte via l'ordre d'apparition dans la page et log un avertissement ; à vérifier manuellement en cas de futures ré-exécutions.
 
@@ -98,6 +101,8 @@ Seuls `title` et `summary` alimentent la recherche (floue et sémantique) — le
 Les deux modes partent ensemble dès le lancement, avec le modèle d'embeddings **embarqué dans le navigateur** (transformers.js, pas de serveur). Les embeddings des ~400 résumés sont précalculés une fois pour toutes ; seule la requête utilisateur est vectorisée à la volée.
 
 **Portée : recherche globale aux quatre livres**, pas seulement le livre affiché. L'index (fuzzy comme sémantique) combine les fiches des 4 fichiers JSON ; chaque résultat garde son `video_id` propre pour savoir quel livre charger au clic.
+
+**Filtre personnages (issue #24) : orthogonal, pas un 3ᵉ mode.** Le champ `characters` n'alimente ni la recherche floue ni la recherche sémantique — c'est une facette combinable (section 8) qui restreint ce qui est déjà affiché (sommaire ou résultats titre/résumé), pas une troisième façon de chercher qui rivaliserait avec les deux modes ci-dessus.
 
 ## 6. Lecture dynamique — pas de mur de vignettes
 
@@ -163,6 +168,16 @@ Affichée à la toute première visite (indicateur `localStorage`, pas de compte
 
 *(Maquettes visuelles de ces 4 états : voir l'artifact lié en tête de document.)*
 
+### Facette personnages (issue #24)
+
+Chips au-dessus du sommaire/résultats, combinables avec n'importe quel autre état de la page — **pas un 3ᵉ mode de recherche** (section 5), un filtre orthogonal.
+
+- **Sélection multiple en ET** : cocher plusieurs personnages (ex. Léodagan + Arthur + Guenièvre) restreint aux épisodes où ils apparaissent *tous ensemble* (intersection sur `characters`), pas l'union — contrairement à la convention habituelle des facettes e-commerce.
+- **Pas de mur de chips** : la liste canonique fait ~100 entrées (`data/characters.json`) — les chips n'affichent que les personnages **déjà sélectionnés**. La découverte passe par un petit champ « + ajouter un personnage » qui filtre en tapant (tag-picker), pas une liste exhaustive toujours visible.
+- Chaque chip actif est retirable individuellement (×).
+
+*(Maquette des 3 états — repos / recherche / sélection multiple : voir l'artifact.)*
+
 ## 9. Feuille de route suggérée
 
 1. **Import Wikipédia** — script qui extrait titres + résumés des 4 pages vers 4 fichiers JSON. Contenu prêt, sans timestamp.
@@ -181,6 +196,7 @@ Affichée à la toute première visite (indicateur `localStorage`, pas de compte
 - Champs conservés : titre + résumé (recherche) ; chaîne, réalisateur/scénariste, invités (contexte/affichage). Pas de date de diffusion par épisode — indisponible sur Wikipédia (voir section 4).
 - Traçabilité à 3 valeurs (manual / community / auto-candidate).
 - Un fichier JSON par livre.
+- `characters` calculé à l'import (guests + matching contre `data/characters.json`), pas en recherche à la volée. Facette combinable en ET, découverte par recherche à taper plutôt qu'un mur de ~100 chips.
 
 **Recherche et interface**
 - Passerelle B→C uniquement après échec de la recherche par titre.

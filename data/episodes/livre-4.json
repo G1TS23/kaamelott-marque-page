@@ -12,7 +12,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Guenièvre",
+      "Lancelot",
+      "Séli"
+    ]
   },
   {
     "id": "s4e02",
@@ -27,7 +33,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "La Dame du Lac",
+      "Séli"
+    ]
   },
   {
     "id": "s4e03",
@@ -42,7 +53,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Guenièvre",
+      "Lancelot"
+    ]
   },
   {
     "id": "s4e04",
@@ -57,7 +72,10 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Séli"
+    ]
   },
   {
     "id": "s4e05",
@@ -72,7 +90,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Grüdü",
+      "Merlin"
+    ]
   },
   {
     "id": "s4e06",
@@ -87,7 +110,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Karadoc",
+      "Léodagan",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e07",
@@ -102,7 +131,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Le tavernier"
+    ]
   },
   {
     "id": "s4e08",
@@ -117,7 +150,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "La Dame du Lac",
+      "Mevanwi"
+    ]
   },
   {
     "id": "s4e09",
@@ -132,7 +170,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Karadoc"
+    ]
   },
   {
     "id": "s4e10",
@@ -147,7 +189,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Léodagan",
+      "Séli",
+      "Yvain"
+    ]
   },
   {
     "id": "s4e11",
@@ -162,7 +210,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Guenièvre",
+      "Lancelot"
+    ]
   },
   {
     "id": "s4e12",
@@ -177,7 +229,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Merlin"
+    ]
   },
   {
     "id": "s4e13",
@@ -192,7 +248,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Bohort"
+    ]
   },
   {
     "id": "s4e14",
@@ -207,7 +267,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Demetra",
+      "Les jumelles"
+    ]
   },
   {
     "id": "s4e15",
@@ -222,7 +286,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Karadoc",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e16",
@@ -240,7 +308,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Dagonet",
+      "Galessin",
+      "Lancelot",
+      "Loth"
+    ]
   },
   {
     "id": "s4e17",
@@ -255,7 +329,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Karadoc",
+      "Mevanwi"
+    ]
   },
   {
     "id": "s4e18",
@@ -270,7 +349,15 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Guenièvre",
+      "Karadoc",
+      "Lancelot",
+      "Mevanwi",
+      "Père Blaise"
+    ]
   },
   {
     "id": "s4e19",
@@ -285,7 +372,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Ygerne"
+    ]
   },
   {
     "id": "s4e20",
@@ -300,7 +391,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Lancelot"
+    ]
   },
   {
     "id": "s4e21",
@@ -315,7 +410,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Les jumelles"
+    ]
   },
   {
     "id": "s4e22",
@@ -332,7 +431,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Léodagan",
+      "Yvain"
+    ]
   },
   {
     "id": "s4e23",
@@ -347,7 +451,18 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Bohort",
+      "Guenièvre",
+      "Karadoc",
+      "Léodagan",
+      "Mevanwi",
+      "Père Blaise",
+      "Séli",
+      "Yvain"
+    ]
   },
   {
     "id": "s4e24",
@@ -362,7 +477,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Léodagan",
+      "Merlin",
+      "Séli"
+    ]
   },
   {
     "id": "s4e25",
@@ -377,7 +497,10 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Perceval"
+    ]
   },
   {
     "id": "s4e26",
@@ -392,7 +515,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Mevanwi"
+    ]
   },
   {
     "id": "s4e27",
@@ -407,7 +534,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Gauvain",
+      "Yvain"
+    ]
   },
   {
     "id": "s4e28",
@@ -422,7 +553,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Guenièvre",
+      "La Dame du Lac",
+      "Lancelot"
+    ]
   },
   {
     "id": "s4e29",
@@ -437,7 +574,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Léodagan"
+    ]
   },
   {
     "id": "s4e30",
@@ -452,7 +593,17 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Angharad",
+      "Arthur",
+      "Bohort",
+      "Ferghus",
+      "Guenièvre",
+      "Lancelot",
+      "Léodagan",
+      "Mevanwi"
+    ]
   },
   {
     "id": "s4e31",
@@ -467,7 +618,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Guethenoc",
+      "Roparzh"
+    ]
   },
   {
     "id": "s4e32",
@@ -482,7 +637,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Lancelot",
+      "Venec"
+    ]
   },
   {
     "id": "s4e33",
@@ -497,7 +657,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Léodagan",
+      "Mevanwi",
+      "Séli"
+    ]
   },
   {
     "id": "s4e34",
@@ -512,7 +678,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Guenièvre",
+      "Lancelot",
+      "Séli"
+    ]
   },
   {
     "id": "s4e35",
@@ -527,7 +698,14 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Ferghus",
+      "Guenièvre",
+      "Karadoc",
+      "Lancelot",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e36",
@@ -542,7 +720,14 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Bohort",
+      "Gauvain",
+      "Léodagan",
+      "Yvain"
+    ]
   },
   {
     "id": "s4e37",
@@ -557,7 +742,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Angharad",
+      "Arthur",
+      "Karadoc",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e38",
@@ -572,7 +763,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Merlin"
+    ]
   },
   {
     "id": "s4e39",
@@ -587,7 +782,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Gauvain",
+      "Séli",
+      "Yvain"
+    ]
   },
   {
     "id": "s4e40",
@@ -602,7 +802,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Perceval",
+      "Venec"
+    ]
   },
   {
     "id": "s4e41",
@@ -619,7 +824,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Karadoc",
+      "Père Blaise"
+    ]
   },
   {
     "id": "s4e42",
@@ -636,7 +846,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "La Dame du Lac",
+      "Mevanwi",
+      "Père Blaise"
+    ]
   },
   {
     "id": "s4e43",
@@ -651,7 +866,10 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur"
+    ]
   },
   {
     "id": "s4e44",
@@ -666,7 +884,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Attila",
+      "Bohort"
+    ]
   },
   {
     "id": "s4e45",
@@ -681,7 +904,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e46",
@@ -696,7 +923,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Gauvain",
+      "Perceval",
+      "Yvain"
+    ]
   },
   {
     "id": "s4e47",
@@ -711,7 +943,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Guenièvre",
+      "Karadoc",
+      "Lancelot"
+    ]
   },
   {
     "id": "s4e48",
@@ -726,7 +964,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Karadoc",
+      "Lancelot",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e49",
@@ -741,7 +984,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Gauvain",
+      "Yvain"
+    ]
   },
   {
     "id": "s4e50",
@@ -758,7 +1005,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "La Fée Morgane",
+      "Lancelot"
+    ]
   },
   {
     "id": "s4e51",
@@ -773,7 +1024,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Karadoc",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e52",
@@ -788,7 +1044,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Gauvain",
+      "Yvain"
+    ]
   },
   {
     "id": "s4e53",
@@ -803,7 +1063,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "La Dame du Lac"
+    ]
   },
   {
     "id": "s4e54",
@@ -818,7 +1082,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Guenièvre",
+      "Lancelot"
+    ]
   },
   {
     "id": "s4e55",
@@ -833,7 +1101,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Guethenoc",
+      "Léodagan",
+      "Roparzh"
+    ]
   },
   {
     "id": "s4e56",
@@ -848,7 +1122,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Karadoc",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e57",
@@ -863,7 +1141,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Elias"
+    ]
   },
   {
     "id": "s4e58",
@@ -878,7 +1160,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Bohort",
+      "Guethenoc",
+      "Roparzh"
+    ]
   },
   {
     "id": "s4e59",
@@ -893,7 +1180,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Lancelot"
+    ]
   },
   {
     "id": "s4e60",
@@ -908,7 +1199,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Gauvain",
+      "Séli",
+      "Yvain"
+    ]
   },
   {
     "id": "s4e61",
@@ -923,7 +1220,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e62",
@@ -938,7 +1239,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Karadoc",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e63",
@@ -953,7 +1259,10 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur"
+    ]
   },
   {
     "id": "s4e64",
@@ -968,7 +1277,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Grüdü",
+      "Ygerne"
+    ]
   },
   {
     "id": "s4e65",
@@ -983,7 +1297,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Angharad",
+      "Bohort",
+      "Ferghus",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e66",
@@ -998,7 +1318,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Perceval",
+      "Venec"
+    ]
   },
   {
     "id": "s4e67",
@@ -1015,7 +1339,10 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur"
+    ]
   },
   {
     "id": "s4e68",
@@ -1030,7 +1357,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Léodagan",
+      "Merlin",
+      "Père Blaise"
+    ]
   },
   {
     "id": "s4e69",
@@ -1047,7 +1380,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Lancelot",
+      "Loth"
+    ]
   },
   {
     "id": "s4e70",
@@ -1064,7 +1401,10 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Le Répurgateur"
+    ]
   },
   {
     "id": "s4e71",
@@ -1079,7 +1419,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e72",
@@ -1094,7 +1438,10 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "La Dame du Lac"
+    ]
   },
   {
     "id": "s4e73",
@@ -1109,7 +1456,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e74",
@@ -1124,7 +1475,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Ferghus",
+      "Guenièvre",
+      "Lancelot"
+    ]
   },
   {
     "id": "s4e75",
@@ -1139,7 +1496,10 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Yvain"
+    ]
   },
   {
     "id": "s4e76",
@@ -1154,7 +1514,14 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Bohort",
+      "Karadoc",
+      "Mevanwi",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e77",
@@ -1171,7 +1538,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Guenièvre",
+      "Karadoc",
+      "Lancelot",
+      "Loth"
+    ]
   },
   {
     "id": "s4e78",
@@ -1186,7 +1559,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Gauvain",
+      "Lancelot",
+      "Loth"
+    ]
   },
   {
     "id": "s4e79",
@@ -1201,7 +1580,10 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur"
+    ]
   },
   {
     "id": "s4e80",
@@ -1216,7 +1598,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Ferghus",
+      "Lancelot",
+      "Venec"
+    ]
   },
   {
     "id": "s4e81",
@@ -1231,7 +1619,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Lancelot"
+    ]
   },
   {
     "id": "s4e82",
@@ -1246,7 +1638,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Guethenoc",
+      "Roparzh"
+    ]
   },
   {
     "id": "s4e83",
@@ -1263,7 +1660,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Cryda",
+      "Mevanwi",
+      "Ygerne"
+    ]
   },
   {
     "id": "s4e84",
@@ -1278,7 +1681,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Guenièvre",
+      "Karadoc",
+      "Lancelot"
+    ]
   },
   {
     "id": "s4e85",
@@ -1293,7 +1702,10 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Yvain"
+    ]
   },
   {
     "id": "s4e86",
@@ -1308,7 +1720,10 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur"
+    ]
   },
   {
     "id": "s4e87",
@@ -1323,7 +1738,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Merlin"
+    ]
   },
   {
     "id": "s4e88",
@@ -1338,7 +1757,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Gauvain",
+      "Léodagan",
+      "Yvain"
+    ]
   },
   {
     "id": "s4e89",
@@ -1353,7 +1777,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "La Dame du Lac"
+    ]
   },
   {
     "id": "s4e90",
@@ -1368,7 +1796,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Karadoc",
+      "Le tavernier",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e91",
@@ -1383,7 +1816,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Merlin"
+    ]
   },
   {
     "id": "s4e92",
@@ -1398,7 +1835,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Guenièvre",
+      "Karadoc",
+      "Père Blaise"
+    ]
   },
   {
     "id": "s4e93",
@@ -1413,7 +1856,12 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Bohort",
+      "Guenièvre",
+      "Mevanwi"
+    ]
   },
   {
     "id": "s4e94",
@@ -1428,7 +1876,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Karadoc",
+      "Lancelot",
+      "Mevanwi"
+    ]
   },
   {
     "id": "s4e95",
@@ -1443,7 +1897,11 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e96",
@@ -1458,7 +1916,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Karadoc",
+      "Le tavernier",
+      "Perceval"
+    ]
   },
   {
     "id": "s4e97",
@@ -1473,7 +1937,14 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Galessin",
+      "Guenièvre",
+      "Lancelot",
+      "Merlin"
+    ]
   },
   {
     "id": "s4e98",
@@ -1488,7 +1959,13 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Angharad",
+      "Arthur",
+      "Guenièvre",
+      "Lancelot"
+    ]
   },
   {
     "id": "s4e99",
@@ -1503,6 +1980,17 @@
     "video_id": "lTN7vNhawyg",
     "start_seconds": null,
     "timestamp_source": null,
-    "confidence": null
+    "confidence": null,
+    "characters": [
+      "Arthur",
+      "Dagonet",
+      "Galessin",
+      "Guenièvre",
+      "Karadoc",
+      "Lancelot",
+      "Loth",
+      "Mevanwi",
+      "Perceval"
+    ]
   }
 ]
