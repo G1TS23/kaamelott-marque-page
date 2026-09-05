@@ -41,8 +41,8 @@ def field_value(bold_tag):
         return None
     items = div.find_all("li")
     if items:
-        return [li.get_text(" ", strip=True) for li in items]
-    text = div.get_text(" ", strip=True)
+        return [re.sub(r"\s+", " ", li.get_text(" ", strip=True)).strip() for li in items]
+    text = re.sub(r"\s+", " ", div.get_text(" ", strip=True)).strip()
     return text or None
 
 
@@ -61,7 +61,14 @@ def parse_season(season: int, html: str, video_id: str):
             continue
 
         title_tag = h2.find("i")
-        title = title_tag.get_text(strip=True) if title_tag else None
+        # Pas de separator/strip par fragment ici : certains titres ("1re partie")
+        # sont scindés sur des balises imbriquées (<abbr>1<sup>re</sup></abbr> partie)
+        # où l'espace réel est un nœud de texte à part — get_text(strip=True) le
+        # supprimerait (il stripe chaque fragment avant de les coller), et un
+        # séparateur uniforme recollerait à tort "1" et "re". On concatène donc le
+        # texte brut (espaces d'origine préservées) puis on ne nettoie qu'une fois,
+        # globalement, en fin de chaîne.
+        title = re.sub(r"\s+", " ", title_tag.get_text()).strip() if title_tag else None
 
         fields = {}
         for b in section.find_all("b"):
