@@ -63,29 +63,30 @@ Quatre vidéos × ~100 épisodes ≈ 400 points de repère, dans un contenu où 
 
 Un épisode = une fiche JSON autonome. **Pas de `end_seconds`** : la fin d'un épisode est le `start_seconds` du suivant dans le même livre.
 
+> **Correction post-implémentation (issue #1)** : pas de `aired_at`. Les pages Wikipédia ne donnent une date de diffusion qu'au niveau de la saison entière (ex. « diffusé du 3 janvier au 11 mars 2005 »), jamais par épisode — le champ « Première diffusion » de chaque épisode ne contient que le(s) pays/chaîne(s), sans date. Champ abandonné plutôt que rempli avec une donnée inexistante.
+
 ```jsonc
-// un épisode — un fichier JSON par livre, ex. livre-1.json
+// un épisode — un fichier JSON par livre, ex. data/episodes/livre-1.json
 {
   "id": "s1e02",
   "season": 1,
   "episode": 2,
   "title": "Les Tartes aux myrtilles",
   "summary": "Séli a cuisiné une tarte aux myrtilles qui s'avère immangeable, mais les convives doivent la goûter…",
-  "aired_at": "2005-01-03",
   "channel": "M6",
   "director": "Alexandre Astier",
   "writer": "Alexandre Astier",
   "guests": [],
   "video_id": "REFu8UmXXE0",
-  "start_seconds": 812,
-  "timestamp_source": "manual", // manual | community | auto-candidate
-  "confidence": 1.0
+  "start_seconds": null,
+  "timestamp_source": null, // manual | community | auto-candidate
+  "confidence": null
 }
 ```
 
-Seuls `title` et `summary` alimentent la recherche (floue et sémantique) — les autres champs Wikipédia (`aired_at`, `director`/`writer`, `guests`) sont capturés gratuitement à l'import et affichés comme contexte, sans entrer dans le calcul de pertinence.
+Seuls `title` et `summary` alimentent la recherche (floue et sémantique) — les autres champs Wikipédia (`channel`, `director`/`writer`, `guests`) sont capturés gratuitement à l'import et affichés comme contexte, sans entrer dans le calcul de pertinence. `start_seconds`/`timestamp_source`/`confidence` restent à `null` jusqu'au pipeline C+F (milestones 2-3).
 
-**Import initial depuis Wikipédia** : script Python ponctuel (BeautifulSoup) qui extrait titre + résumé + numéro pour les ~400 épisodes en une passe, à partir des 4 pages de saison (structure HTML stable).
+**Import initial depuis Wikipédia** ✅ — `scripts/import_wikipedia.py` (BeautifulSoup) extrait titre, résumé, chaîne, réalisateur/scénariste et invités pour les 399 épisodes (100+100+100+99) en une passe, vers `data/episodes/livre-{1..4}.json`. Un épisode par ailleurs cohérent (S3E1 « Le Chevalier errant ») a un numéro de production Wikipédia mal formé (`201` au lieu de `201 (3.1)`) — le script s'y adapte via l'ordre d'apparition dans la page et log un avertissement ; à vérifier manuellement en cas de futures ré-exécutions.
 
 ## 5. Recherche : titre et résumé
 
@@ -177,7 +178,7 @@ Affichée à la toute première visite (indicateur `localStorage`, pas de compte
 
 **Modèle de données**
 - Pas de `end_seconds`.
-- Champs conservés : titre + résumé (recherche) ; date de diffusion, réalisateur/scénariste, invités (contexte/affichage).
+- Champs conservés : titre + résumé (recherche) ; chaîne, réalisateur/scénariste, invités (contexte/affichage). Pas de date de diffusion par épisode — indisponible sur Wikipédia (voir section 4).
 - Traçabilité à 3 valeurs (manual / community / auto-candidate).
 - Un fichier JSON par livre.
 
