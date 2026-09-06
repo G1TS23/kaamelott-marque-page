@@ -37,42 +37,52 @@ def guest_character(guest: str) -> str | None:
     return guest.rsplit(":", 1)[1].strip() or None
 
 
-def main():
-    canonical = json.loads(CHARACTERS_PATH.read_text(encoding="utf-8"))
+def build_patterns(canonical: list[dict]) -> list[tuple[str, re.Pattern]]:
     # noms les plus longs en premier : évite qu'un nom court contenu dans un nom plus
     # long empêche de voir le second (peu de cas ici, mais gratuit à garantir)
-    patterns = [
+    eligible = [c for c in canonical if c["name"] not in _EXCLUDED_FROM_TEXT_MATCH]
+    eligible.sort(key=lambda c: len(c["name"]), reverse=True)
+    return [
         (c["name"], re.compile(r"\b" + re.escape(c["name"]) + r"\b", re.IGNORECASE))
-        for c in sorted(canonical, key=lambda c: len(c["name"]), reverse=True)
-        if c["name"] not in _EXCLUDED_FROM_TEXT_MATCH
+        for c in eligible
     ]
 
+
+def characters_for_episode(ep: dict, patterns: list[tuple[str, re.Pattern]]) -> list[str]:
+    found = set()
+    for guest in ep.get("guests") or []:
+        character = guest_character(guest)
+        if character:
+            found.add(character)
+
+    summary = ep.get("summary") or ""
+    for name, pattern in patterns:
+        if pattern.search(summary):
+            found.add(name)
+
+    return sorted(found)
+
+
+def process_book(season: int, patterns: list[tuple[str, re.Pattern]]) -> None:
+    path = EPISODES_DIR / f"livre-{season}.json"
+    episodes = json.loads(path.read_text(encoding="utf-8"))
+
+    for ep in episodes:
+        ep["characters"] = characters_for_episode(ep, patterns)
+
+    path.write_text(
+        json.dumps(episodes, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    with_characters = sum(1 for ep in episodes if ep["characters"])
+    print(f"Livre {season} : {with_characters}/{len(episodes)} épisodes avec au moins un personnage détecté")
+
+
+def main():
+    canonical = json.loads(CHARACTERS_PATH.read_text(encoding="utf-8"))
+    patterns = build_patterns(canonical)
     for season in range(1, 5):
-        path = EPISODES_DIR / f"livre-{season}.json"
-        episodes = json.loads(path.read_text(encoding="utf-8"))
-
-        total_with_characters = 0
-        for ep in episodes:
-            found = set()
-            for guest in ep.get("guests") or []:
-                character = guest_character(guest)
-                if character:
-                    found.add(character)
-
-            summary = ep.get("summary") or ""
-            for name, pattern in patterns:
-                if pattern.search(summary):
-                    found.add(name)
-
-            ep["characters"] = sorted(found)
-            if found:
-                total_with_characters += 1
-
-        path.write_text(
-            json.dumps(episodes, ensure_ascii=False, indent=2) + "\n",
-            encoding="utf-8",
-        )
-        print(f"Livre {season} : {total_with_characters}/{len(episodes)} épisodes avec au moins un personnage détecté")
+        process_book(season, patterns)
 
 
 if __name__ == "__main__":

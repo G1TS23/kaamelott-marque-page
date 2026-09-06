@@ -17,13 +17,14 @@ FANDOM_RAW_DIR = DATA_DIR / "fandom_raw"
 # Variantes de noms trouvées sur le Fandom -> forme canonique utilisée dans
 # data/characters.json (ou forme déjà stable côté heuristique). Découvert par
 # relecture manuelle des noms non reconnus après le scraping (issue #24).
+_LE_MAITRE_DARMES = "Le maître d’armes"
 ALIASES = {
     "Arthur Pendragon": "Arthur",
     "Lancelot du Lac": "Lancelot",
     "Tavernier": "Le Tavernier",
-    "Le maître d'armes": "Le maître d’armes",
-    "Le Maître d'Armes": "Le maître d’armes",
-    "Maître d'armes": "Le maître d’armes",
+    "Le maître d'armes": _LE_MAITRE_DARMES,
+    "Le Maître d'Armes": _LE_MAITRE_DARMES,
+    "Maître d'armes": _LE_MAITRE_DARMES,
     "Élias": "Elias",
     "Élias de Kelliwic'h": "Elias",
     "La fée Morgane": "La Fée Morgane",
@@ -47,7 +48,7 @@ def main():
     total_replaced = 0
     for season in range(1, 5):
         fandom_path = FANDOM_RAW_DIR / f"livre-{season}.json"
-        fandom_data = {ep: chars for ep, chars in json.loads(fandom_path.read_text(encoding="utf-8"))}
+        fandom_data = dict(json.loads(fandom_path.read_text(encoding="utf-8")))
 
         episodes_path = DATA_DIR / "episodes" / f"livre-{season}.json"
         episodes = json.loads(episodes_path.read_text(encoding="utf-8"))

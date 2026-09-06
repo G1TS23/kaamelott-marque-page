@@ -79,13 +79,13 @@ def short_name(full_name: str):
     return candidate
 
 
-def parse_season(season: int, html: str):
+def parse_season(html: str):
     soup = BeautifulSoup(html, "html.parser")
     entries = []
     for row in soup.select("div.md-table-row"):
         char_span = row.select_one("span.item.light")
         ep_div = row.select_one("div.item-episodes")
-        if not char_span or not ep_div:
+        if char_span is None or ep_div is None:
             continue  # rôle principal sans détail par épisode
         full_name = char_span.get_text(strip=True)
         # le texte est "- N Episodes : 20 - 28 - ...", le "N" avant ":" est un
@@ -110,7 +110,7 @@ def main():
         print(f"Livre {season} : téléchargement de {url}")
         resp = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=30)
         resp.raise_for_status()
-        entries = parse_season(season, resp.text)
+        entries = parse_season(resp.text)
         print(f"  -> {len(entries)} personnages avec épisodes précis")
 
         out_path = OUTPUT_DIR / f"livre-{season}.json"
