@@ -77,7 +77,8 @@ Un épisode = une fiche JSON autonome. **Pas de `end_seconds`** : la fin d'un é
   "director": "Alexandre Astier",
   "writer": "Alexandre Astier",
   "guests": [],
-  "characters": ["Arthur", "Guenièvre", "Léodagan"],
+  "characters": ["Arthur", "Guenièvre", "Léodagan", "Séli"],
+  "characters_source": "fandom", // fandom | heuristic
   "video_id": "REFu8UmXXE0",
   "start_seconds": null,
   "timestamp_source": null, // manual | community | auto-candidate
@@ -87,7 +88,11 @@ Un épisode = une fiche JSON autonome. **Pas de `end_seconds`** : la fin d'un é
 
 Seuls `title` et `summary` alimentent la recherche (floue et sémantique) — les autres champs Wikipédia (`channel`, `director`/`writer`, `guests`) sont capturés gratuitement à l'import et affichés comme contexte, sans entrer dans le calcul de pertinence. `start_seconds`/`timestamp_source`/`confidence` restent à `null` jusqu'au pipeline C+F (milestones 2-3).
 
-**`characters`** ✅ (issue #24) — fusion dédupliquée des personnages déjà cités dans `guests` et de tout nom de `data/characters.json` (liste canonique, ~100 entrées construites depuis [Liste des personnages de Kaamelott](https://fr.wikipedia.org/wiki/Liste_des_personnages_de_Kaamelott)) détecté par mot entier dans `summary`. Alimente la facette personnages (section 8), pas la recherche floue/sémantique. Non-exhaustif par construction — un résumé qui ne nomme personne explicitement ne remonte rien (3 épisodes sur 399, vérifié manuellement : résumés génériques sans nom propre).
+**`characters`** ✅ (issue #24) — deux sources combinées, priorité à la plus fiable :
+1. **Wiki Kaamelott (Fandom)** — casting exact par épisode (tableau « Distribution »), scrapé manuellement (voir `docs/qc-characters-fandom.md`, contrainte Cloudflare). Couverture réelle : seulement **100/399 épisodes (25 %)**, très concentrée sur le Livre I — le wiki communautaire n'a pas de page complète pour tous les épisodes.
+2. **Heuristique** (fallback, 299/399 épisodes) — fusion dédupliquée des personnages déjà cités dans `guests` et de tout nom de `data/characters.json` (liste canonique, ~100 entrées construites depuis [Liste des personnages de Kaamelott](https://fr.wikipedia.org/wiki/Liste_des_personnages_de_Kaamelott)) détecté par mot entier dans `summary`.
+
+Le champ `characters_source` (`fandom` | `heuristic`) trace laquelle des deux a produit la valeur finale. Alimente la facette personnages (section 8), pas la recherche floue/sémantique. Non-exhaustif par construction — 1 épisode sur 399 reste sans personnage détecté (résumé générique sans nom propre).
 
 **Import initial depuis Wikipédia** ✅ — `scripts/import_wikipedia.py` (BeautifulSoup) extrait titre, résumé, chaîne, réalisateur/scénariste et invités pour les 399 épisodes (100+100+100+99) en une passe, vers `data/episodes/livre-{1..4}.json`. Un épisode par ailleurs cohérent (S3E1 « Le Chevalier errant ») a un numéro de production Wikipédia mal formé (`201` au lieu de `201 (3.1)`) — le script s'y adapte via l'ordre d'apparition dans la page et log un avertissement ; à vérifier manuellement en cas de futures ré-exécutions.
 

@@ -17,7 +17,8 @@
       "Arthur",
       "Calogrenant",
       "Lancelot"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e02",
@@ -36,7 +37,8 @@
     "characters": [
       "Arthur",
       "Bohort"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e03",
@@ -53,8 +55,15 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
-      "Léodagan"
-    ]
+      "Arthur",
+      "Guenièvre",
+      "Karadoc",
+      "Lancelot",
+      "Le Tavernier",
+      "Léodagan",
+      "Perceval"
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s3e04",
@@ -73,7 +82,8 @@
     "characters": [
       "Karadoc",
       "Lancelot"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e05",
@@ -95,7 +105,8 @@
       "Arthur",
       "Bohort",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e06",
@@ -113,7 +124,8 @@
     "confidence": null,
     "characters": [
       "Arthur"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e07",
@@ -136,7 +148,8 @@
       "Kay",
       "Lancelot",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e08",
@@ -155,7 +168,8 @@
     "characters": [
       "Arthur",
       "Merlin"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e09",
@@ -174,7 +188,8 @@
     "characters": [
       "Arthur",
       "Merlin"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e10",
@@ -194,7 +209,8 @@
     "confidence": null,
     "characters": [
       "Arthur"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e11",
@@ -214,7 +230,8 @@
       "Arthur",
       "Karadoc",
       "Mevanwi"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e12",
@@ -233,7 +250,8 @@
     "characters": [
       "Arthur",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e13",
@@ -252,7 +270,8 @@
     "characters": [
       "Arthur",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e14",
@@ -271,7 +290,8 @@
     "characters": [
       "Arthur",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e15",
@@ -290,7 +310,8 @@
     "characters": [
       "Arthur",
       "Guenièvre"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e16",
@@ -310,7 +331,8 @@
       "Arthur",
       "Karadoc",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e17",
@@ -328,7 +350,8 @@
     "confidence": null,
     "characters": [
       "Attila"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e18",
@@ -350,7 +373,8 @@
       "Arthur",
       "Cryda",
       "Ygerne"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e19",
@@ -369,7 +393,8 @@
     "characters": [
       "Arthur",
       "Lancelot"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e20",
@@ -387,8 +412,11 @@
     "confidence": null,
     "characters": [
       "Arthur",
-      "Karadoc"
-    ]
+      "Karadoc",
+      "Le Petit Garçon",
+      "Mevanwi"
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s3e21",
@@ -407,7 +435,8 @@
     "characters": [
       "Arthur",
       "Merlin"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e22",
@@ -425,7 +454,8 @@
     "confidence": null,
     "characters": [
       "Arthur"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e23",
@@ -446,7 +476,8 @@
     "characters": [
       "Urgan",
       "Venec"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e24",
@@ -466,7 +497,8 @@
       "Arthur",
       "Kadoc",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e25",
@@ -486,7 +518,8 @@
       "Arthur",
       "Aélis",
       "Guenièvre"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e26",
@@ -513,7 +546,8 @@
       "Le maître d’armes",
       "Loth",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s3e27",
@@ -532,7 +566,8 @@
     "characters": [
       "Arthur",
       "Grüdü"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e28",
@@ -553,7 +588,8 @@
       "Lancelot",
       "Merlin",
       "Perceval"
-    ]
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s3e29",
@@ -572,7 +608,8 @@
     "characters": [
       "Bohort",
       "Lancelot"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e30",
@@ -591,7 +628,8 @@
     "characters": [
       "Arthur",
       "Mevanwi"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e31",
@@ -612,7 +650,8 @@
       "Guenièvre",
       "Kay",
       "Yvain"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e32",
@@ -630,7 +669,8 @@
     "confidence": null,
     "characters": [
       "Merlin"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e33",
@@ -649,7 +689,8 @@
     "characters": [
       "Arthur",
       "Guenièvre"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e34",
@@ -667,7 +708,8 @@
     "confidence": null,
     "characters": [
       "Arthur"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e35",
@@ -690,7 +732,8 @@
       "Lancelot",
       "Mevanwi",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e36",
@@ -709,7 +752,8 @@
     "characters": [
       "Guethenoc",
       "Roparzh"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e37",
@@ -726,9 +770,12 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Arthur",
       "Karadoc",
+      "Lancelot",
       "Perceval"
-    ]
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s3e38",
@@ -748,7 +795,8 @@
       "Arthur",
       "Le Marchand",
       "Venec"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e39",
@@ -766,7 +814,8 @@
     "confidence": null,
     "characters": [
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e40",
@@ -786,7 +835,8 @@
       "Arthur",
       "Karadoc",
       "La Dame du Lac"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e41",
@@ -805,7 +855,8 @@
     "characters": [
       "Gauvain",
       "Yvain"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e42",
@@ -825,7 +876,8 @@
       "Arthur",
       "Le Roi Burgonde",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e43",
@@ -845,7 +897,8 @@
       "Arthur",
       "Karadoc",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e44",
@@ -864,7 +917,8 @@
     "characters": [
       "Arthur",
       "Guenièvre"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e45",
@@ -883,7 +937,8 @@
     "characters": [
       "Arthur",
       "La Dame du Lac"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e46",
@@ -904,7 +959,8 @@
       "Elias",
       "Guenièvre",
       "Séli"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e47",
@@ -924,7 +980,8 @@
       "Arthur",
       "Bohort",
       "Lancelot"
-    ]
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s3e48",
@@ -943,7 +1000,8 @@
     "characters": [
       "Gauvain",
       "Yvain"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e49",
@@ -959,7 +1017,8 @@
     "start_seconds": null,
     "timestamp_source": null,
     "confidence": null,
-    "characters": []
+    "characters": [],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e50",
@@ -977,7 +1036,8 @@
     "confidence": null,
     "characters": [
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e51",
@@ -996,7 +1056,8 @@
     "characters": [
       "Arthur",
       "Bohort"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e52",
@@ -1015,7 +1076,8 @@
     "characters": [
       "Léodagan",
       "Séli"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e53",
@@ -1035,7 +1097,8 @@
       "Arthur",
       "Karadoc",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e54",
@@ -1054,7 +1117,8 @@
     "characters": [
       "Bohort",
       "Venec"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e55",
@@ -1076,7 +1140,8 @@
       "Bohort",
       "Guenièvre",
       "Séli"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e56",
@@ -1096,7 +1161,8 @@
       "Arthur",
       "Bohort",
       "Guethenoc"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e57",
@@ -1115,7 +1181,8 @@
     "characters": [
       "Arthur",
       "Guenièvre"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e58",
@@ -1134,7 +1201,8 @@
     "characters": [
       "Arthur",
       "Bohort"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e59",
@@ -1156,7 +1224,8 @@
       "Guenièvre",
       "Lancelot",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e60",
@@ -1176,7 +1245,8 @@
       "Bohort",
       "Léodagan",
       "Séli"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e61",
@@ -1195,7 +1265,8 @@
     "characters": [
       "Karadoc",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e62",
@@ -1214,7 +1285,8 @@
     "characters": [
       "Elias",
       "Merlin"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e63",
@@ -1234,7 +1306,8 @@
       "Angharad",
       "Guenièvre",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e64",
@@ -1253,7 +1326,8 @@
     "characters": [
       "Arthur",
       "Guenièvre"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e65",
@@ -1274,7 +1348,8 @@
       "Karadoc",
       "La Dame du Lac",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e66",
@@ -1292,7 +1367,8 @@
     "confidence": null,
     "characters": [
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e67",
@@ -1314,7 +1390,8 @@
       "Karadoc",
       "Le tavernier",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e68",
@@ -1334,7 +1411,8 @@
       "Arthur",
       "Guenièvre",
       "Ygerne"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e69",
@@ -1353,7 +1431,8 @@
     "characters": [
       "Karadoc",
       "Mevanwi"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e70",
@@ -1373,7 +1452,8 @@
       "Léodagan",
       "Merlin",
       "Séli"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e71",
@@ -1393,7 +1473,8 @@
       "Arthur",
       "Lancelot",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e72",
@@ -1415,7 +1496,8 @@
       "Léodagan",
       "Père Blaise",
       "Séli"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e73",
@@ -1435,7 +1517,8 @@
       "Arthur",
       "Elias",
       "Merlin"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e74",
@@ -1453,7 +1536,8 @@
     "confidence": null,
     "characters": [
       "Arthur"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e75",
@@ -1473,7 +1557,8 @@
     "confidence": null,
     "characters": [
       "Arthur"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e76",
@@ -1493,7 +1578,8 @@
       "Arthur",
       "Karadoc",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e77",
@@ -1512,7 +1598,8 @@
     "characters": [
       "Arthur",
       "Mevanwi"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e78",
@@ -1533,7 +1620,8 @@
       "Karadoc",
       "Perceval",
       "Venec"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e79",
@@ -1552,7 +1640,8 @@
     "characters": [
       "Arthur",
       "Ygerne"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e80",
@@ -1571,7 +1660,8 @@
     "characters": [
       "Arthur",
       "Lancelot"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e81",
@@ -1590,7 +1680,8 @@
     "characters": [
       "Arthur",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e82",
@@ -1610,7 +1701,8 @@
       "Arthur",
       "Kadoc",
       "Lancelot"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e83",
@@ -1629,7 +1721,8 @@
     "characters": [
       "Arthur",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e84",
@@ -1648,7 +1741,8 @@
     "characters": [
       "Arthur",
       "La Dame du Lac"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e85",
@@ -1668,7 +1762,8 @@
       "Arthur",
       "Calogrenant",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e86",
@@ -1688,7 +1783,8 @@
       "Arthur",
       "Gauvain",
       "Yvain"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e87",
@@ -1708,7 +1804,8 @@
       "Arthur",
       "Prisca",
       "Séli"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e88",
@@ -1728,7 +1825,8 @@
       "Arthur",
       "Léodagan",
       "Père Blaise"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e89",
@@ -1748,7 +1846,8 @@
       "Arthur",
       "Karadoc",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e90",
@@ -1768,7 +1867,8 @@
       "Demetra",
       "Karadoc",
       "Mevanwi"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e91",
@@ -1786,7 +1886,8 @@
     "confidence": null,
     "characters": [
       "Hervé"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e92",
@@ -1804,7 +1905,8 @@
     "confidence": null,
     "characters": [
       "Karadoc"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e93",
@@ -1824,7 +1926,8 @@
       "Arthur",
       "Guenièvre",
       "Mevanwi"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e94",
@@ -1843,7 +1946,8 @@
     "characters": [
       "Arthur",
       "Guenièvre"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e95",
@@ -1862,7 +1966,8 @@
     "characters": [
       "Arthur",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e96",
@@ -1882,7 +1987,8 @@
       "Arthur",
       "Lancelot",
       "Père Blaise"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e97",
@@ -1901,7 +2007,8 @@
     "characters": [
       "Arthur",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e98",
@@ -1924,7 +2031,8 @@
       "La Dame du Lac",
       "Lancelot",
       "Merlin"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e99",
@@ -1943,7 +2051,8 @@
     "characters": [
       "Arthur",
       "Lancelot"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s3e100",
@@ -1965,6 +2074,7 @@
       "Guenièvre",
       "Lancelot",
       "Mevanwi"
-    ]
+    ],
+    "characters_source": "heuristic"
   }
 ]

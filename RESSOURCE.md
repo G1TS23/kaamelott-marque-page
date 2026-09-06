@@ -17,3 +17,4 @@
 ## Liens des personnages
 
 - [Liste des personnages de Kaamelott](https://fr.wikipedia.org/wiki/Liste_des_personnages_de_Kaamelott) — source de référence pour le champ `characters` (voir docs/SPECS.md section 4, issue #24)
+- [Wiki Kaamelott Officiel (Fandom)](https://kaamelott.fandom.com/fr/) — casting exact par épisode quand une page existe (~25 % des épisodes seulement, voir docs/qc-characters-fandom.md)

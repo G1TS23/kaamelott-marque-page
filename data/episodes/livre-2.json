@@ -13,7 +13,20 @@
     "start_seconds": null,
     "timestamp_source": null,
     "confidence": null,
-    "characters": []
+    "characters": [
+      "Arthur",
+      "Bohort",
+      "Calogrenant",
+      "Galessin",
+      "Guenièvre",
+      "Hervé",
+      "Karadoc",
+      "Lancelot",
+      "Léodagan",
+      "Perceval",
+      "Père Blaise"
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s2e02",
@@ -30,10 +43,14 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Arthur",
       "Karadoc",
+      "Lancelot",
+      "Le Tavernier",
       "Merlin",
       "Perceval"
-    ]
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s2e03",
@@ -51,7 +68,8 @@
     "confidence": null,
     "characters": [
       "Arthur"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e04",
@@ -72,7 +90,8 @@
       "Bohort",
       "Léodagan",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e05",
@@ -94,7 +113,8 @@
       "Guethenoc",
       "Léodagan",
       "Séli"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e06",
@@ -117,7 +137,8 @@
       "Caius Camillus",
       "Lancelot",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e07",
@@ -136,7 +157,8 @@
     "characters": [
       "Arthur",
       "Merlin"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e08",
@@ -158,7 +180,8 @@
       "Lancelot",
       "Merlin",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e09",
@@ -179,7 +202,8 @@
     "characters": [
       "Arthur",
       "Uther Pendragon"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e10",
@@ -201,7 +225,8 @@
       "Léodagan",
       "Mevanwi",
       "Séli"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e11",
@@ -222,7 +247,8 @@
       "Karadoc",
       "Lancelot",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e12",
@@ -240,7 +266,8 @@
     "confidence": null,
     "characters": [
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e13",
@@ -262,7 +289,8 @@
       "Lancelot",
       "Léodagan",
       "Séli"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e14",
@@ -281,7 +309,8 @@
     "characters": [
       "Arthur",
       "Bohort"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e15",
@@ -299,7 +328,8 @@
     "confidence": null,
     "characters": [
       "Arthur"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e16",
@@ -322,7 +352,8 @@
       "Lancelot",
       "Venec",
       "Yvain"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e17",
@@ -340,7 +371,8 @@
     "confidence": null,
     "characters": [
       "Arthur"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e18",
@@ -359,7 +391,8 @@
     "characters": [
       "Karadoc",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e19",
@@ -380,7 +413,8 @@
     "characters": [
       "Arthur",
       "Le Répurgateur"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e20",
@@ -401,7 +435,8 @@
       "Le tavernier",
       "Merlin",
       "Séli"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e21",
@@ -420,7 +455,8 @@
     "characters": [
       "Karadoc",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e22",
@@ -440,7 +476,8 @@
       "Arthur",
       "Père Blaise",
       "Venec"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e23",
@@ -460,7 +497,8 @@
       "Arthur",
       "Guethenoc",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e24",
@@ -479,7 +517,8 @@
     "characters": [
       "Arthur",
       "Yvain"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e25",
@@ -500,7 +539,8 @@
       "Léodagan",
       "Perceval",
       "Séli"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e26",
@@ -521,7 +561,8 @@
       "Karadoc",
       "Le tavernier",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e27",
@@ -540,7 +581,8 @@
     "characters": [
       "Arthur",
       "Ygerne"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e28",
@@ -560,7 +602,8 @@
       "Arthur",
       "Bohort",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e29",
@@ -581,7 +624,8 @@
       "Léodagan",
       "Séli",
       "Yvain"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e30",
@@ -599,7 +643,8 @@
     "confidence": null,
     "characters": [
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e31",
@@ -621,9 +666,13 @@
       "Guenièvre",
       "Karadoc",
       "Lancelot",
+      "Le maître d’armes",
       "Léodagan",
-      "Perceval"
-    ]
+      "Perceval",
+      "Père Blaise",
+      "Séli"
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s2e32",
@@ -642,7 +691,8 @@
     "characters": [
       "Arthur",
       "Ygerne"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e33",
@@ -663,7 +713,8 @@
       "Belt",
       "Guethenoc",
       "Roparzh"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e34",
@@ -681,7 +732,8 @@
     "confidence": null,
     "characters": [
       "Arthur"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e35",
@@ -702,7 +754,8 @@
       "Guenièvre",
       "Lancelot",
       "Merlin"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e36",
@@ -722,7 +775,8 @@
       "Arthur",
       "Karadoc",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e37",
@@ -743,7 +797,8 @@
       "Guenièvre",
       "Lancelot",
       "Séli"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e38",
@@ -760,10 +815,12 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
-      "Angharad",
+      "Arthur",
       "Bohort",
+      "Guenièvre",
       "Venec"
-    ]
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s2e39",
@@ -783,7 +840,8 @@
       "Arthur",
       "Séli",
       "Ygerne"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e40",
@@ -801,9 +859,12 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Gauvain",
       "Lancelot",
-      "Léodagan"
-    ]
+      "Léodagan",
+      "Yvain"
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s2e41",
@@ -823,7 +884,8 @@
       "Arthur",
       "Kadoc",
       "Karadoc"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e42",
@@ -840,14 +902,17 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Arthur",
       "Bohort",
       "Gauvain",
       "Karadoc",
       "Léodagan",
       "Perceval",
       "Séli",
+      "Venec",
       "Yvain"
-    ]
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s2e43",
@@ -866,7 +931,8 @@
     "characters": [
       "Arthur",
       "La Dame du Lac"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e44",
@@ -887,7 +953,8 @@
       "Lancelot",
       "Merlin",
       "Mevanwi"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e45",
@@ -907,7 +974,8 @@
       "Arthur",
       "Lancelot",
       "Père Blaise"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e46",
@@ -927,7 +995,8 @@
       "Arthur",
       "Demetra",
       "Ferme-Ta-Gueule"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e47",
@@ -946,7 +1015,8 @@
     "characters": [
       "Arthur",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e48",
@@ -965,7 +1035,8 @@
     "characters": [
       "Arthur",
       "Lancelot"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e49",
@@ -985,7 +1056,8 @@
       "Arthur",
       "Attila",
       "Galessin"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e50",
@@ -1008,7 +1080,8 @@
       "Léodagan",
       "Perceval",
       "Yvain"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e51",
@@ -1026,8 +1099,11 @@
     "confidence": null,
     "characters": [
       "Arthur",
-      "Guethenoc"
-    ]
+      "Guenièvre",
+      "Guethenoc",
+      "Tegeirian"
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s2e52",
@@ -1045,10 +1121,13 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Guenièvre",
       "Karadoc",
       "La Dame du Lac",
+      "Le maître d’armes",
       "Perceval"
-    ]
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s2e53",
@@ -1067,7 +1146,8 @@
     "characters": [
       "Arthur",
       "Lancelot"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e54",
@@ -1088,7 +1168,8 @@
       "Lancelot",
       "Léodagan",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e55",
@@ -1108,7 +1189,8 @@
       "Arthur",
       "Bohort",
       "Père Blaise"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e56",
@@ -1130,7 +1212,8 @@
       "Gauvain",
       "Lancelot",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e57",
@@ -1150,7 +1233,8 @@
       "Arthur",
       "Karadoc",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e58",
@@ -1170,7 +1254,8 @@
       "Angharad",
       "Arthur",
       "Guenièvre"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e59",
@@ -1192,7 +1277,8 @@
       "Karadoc",
       "Perceval",
       "Père Blaise"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e60",
@@ -1214,7 +1300,8 @@
       "Karadoc",
       "Lancelot",
       "Père Blaise"
-    ]
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s2e61",
@@ -1232,7 +1319,8 @@
     "confidence": null,
     "characters": [
       "Arthur"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e62",
@@ -1253,7 +1341,8 @@
       "Léodagan",
       "Séli",
       "Ygerne"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e63",
@@ -1273,7 +1362,8 @@
       "Bohort",
       "La Dame du Lac",
       "Lancelot"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e64",
@@ -1293,7 +1383,8 @@
       "Arthur",
       "Karadoc",
       "Mevanwi"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e65",
@@ -1314,7 +1405,8 @@
       "Demetra",
       "Lancelot",
       "Merlin"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e66",
@@ -1333,7 +1425,8 @@
     "characters": [
       "Arthur",
       "Bohort"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e67",
@@ -1352,7 +1445,8 @@
     "characters": [
       "Arthur",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e68",
@@ -1374,7 +1468,8 @@
       "La Dame du Lac",
       "Lancelot",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e69",
@@ -1391,9 +1486,12 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Arthur",
       "Guethenoc",
+      "Karadoc",
       "Roparzh"
-    ]
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s2e70",
@@ -1412,7 +1510,8 @@
     "characters": [
       "Arthur",
       "Père Blaise"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e71",
@@ -1434,7 +1533,8 @@
       "Merlin",
       "Séli",
       "Yvain"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e72",
@@ -1453,7 +1553,8 @@
     "characters": [
       "Karadoc",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e73",
@@ -1472,7 +1573,8 @@
     "characters": [
       "Arthur",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e74",
@@ -1492,7 +1594,8 @@
       "Guethenoc",
       "Lancelot",
       "Père Blaise"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e75",
@@ -1511,7 +1614,8 @@
     "characters": [
       "Arthur",
       "Guenièvre"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e76",
@@ -1533,7 +1637,8 @@
       "Karadoc",
       "Le maître d’armes",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e77",
@@ -1552,7 +1657,8 @@
     "characters": [
       "Arthur",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e78",
@@ -1572,7 +1678,8 @@
       "Arthur",
       "Guenièvre",
       "Lancelot"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e79",
@@ -1592,7 +1699,8 @@
       "Arthur",
       "Karadoc",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e80",
@@ -1612,7 +1720,8 @@
       "Arthur",
       "Léodagan",
       "Merlin"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e81",
@@ -1631,7 +1740,8 @@
     "characters": [
       "Arthur",
       "Tegeirian"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e82",
@@ -1651,7 +1761,8 @@
       "Arthur",
       "Gauvain",
       "Yvain"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e83",
@@ -1673,7 +1784,8 @@
       "Guenièvre",
       "Karadoc",
       "Lancelot"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e84",
@@ -1692,7 +1804,8 @@
     "characters": [
       "Arthur",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e85",
@@ -1711,7 +1824,8 @@
     "characters": [
       "Arthur",
       "Lancelot"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e86",
@@ -1734,7 +1848,8 @@
       "Lancelot",
       "Perceval",
       "Yvain"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e87",
@@ -1754,7 +1869,8 @@
       "Karadoc",
       "Le tavernier",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e88",
@@ -1775,7 +1891,8 @@
       "Bohort",
       "Grüdü",
       "Venec"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e89",
@@ -1795,7 +1912,8 @@
     "confidence": null,
     "characters": [
       "Bohort"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e90",
@@ -1815,7 +1933,8 @@
       "Arthur",
       "Gauvain",
       "Yvain"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e91",
@@ -1835,7 +1954,8 @@
       "Arthur",
       "Léodagan",
       "Merlin"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e92",
@@ -1854,8 +1974,10 @@
     "characters": [
       "Arthur",
       "Karadoc",
-      "Léodagan"
-    ]
+      "Léodagan",
+      "Torri"
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s2e93",
@@ -1876,7 +1998,8 @@
       "Calogrenant",
       "Lancelot",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e94",
@@ -1895,7 +2018,8 @@
     "characters": [
       "Arthur",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e95",
@@ -1915,8 +2039,10 @@
       "Arthur",
       "Guethenoc",
       "Karadoc",
+      "Léodagan",
       "Roparzh"
-    ]
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s2e96",
@@ -1936,7 +2062,8 @@
       "Arthur",
       "Bohort",
       "Lancelot"
-    ]
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s2e97",
@@ -1955,7 +2082,8 @@
     "characters": [
       "Arthur",
       "Perceval"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e98",
@@ -1973,8 +2101,10 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Caius Camillus",
       "Perceval"
-    ]
+    ],
+    "characters_source": "fandom"
   },
   {
     "id": "s2e99",
@@ -1992,7 +2122,8 @@
     "confidence": null,
     "characters": [
       "Arthur"
-    ]
+    ],
+    "characters_source": "heuristic"
   },
   {
     "id": "s2e100",
@@ -2012,6 +2143,7 @@
       "Arthur",
       "Lancelot",
       "Léodagan"
-    ]
+    ],
+    "characters_source": "heuristic"
   }
 ]
