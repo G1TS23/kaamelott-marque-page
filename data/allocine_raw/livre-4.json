@@ -1,0 +1,286 @@
+[
+  {
+    "name": "Ferghus",
+    "episodes": [
+      3,
+      7,
+      11,
+      20,
+      30,
+      35,
+      47,
+      48,
+      50,
+      59,
+      65,
+      69,
+      74,
+      77,
+      80,
+      81,
+      98
+    ]
+  },
+  {
+    "name": "Mevanwi",
+    "episodes": [
+      8,
+      9,
+      17,
+      18,
+      23,
+      24,
+      26,
+      30,
+      33,
+      41,
+      42,
+      76,
+      86,
+      93,
+      94,
+      99
+    ]
+  },
+  {
+    "name": "Angharad",
+    "episodes": [
+      1,
+      2,
+      26,
+      30,
+      35,
+      37,
+      59,
+      65,
+      98
+    ]
+  },
+  {
+    "name": "Le tavernier",
+    "episodes": [
+      7,
+      25,
+      56,
+      66,
+      71,
+      81,
+      90,
+      96
+    ]
+  },
+  {
+    "name": "Venec",
+    "episodes": [
+      13,
+      20,
+      32,
+      40,
+      43,
+      66,
+      80,
+      81
+    ]
+  },
+  {
+    "name": "Calogrenant",
+    "episodes": [
+      10,
+      20,
+      27,
+      32,
+      56,
+      78
+    ]
+  },
+  {
+    "name": "Le maître d’armes",
+    "episodes": [
+      1,
+      2,
+      41,
+      42,
+      70,
+      86
+    ]
+  },
+  {
+    "name": "Elias",
+    "episodes": [
+      12,
+      38,
+      53,
+      57,
+      68,
+      91
+    ]
+  },
+  {
+    "name": "Hervé",
+    "episodes": [
+      10,
+      20,
+      27,
+      32,
+      56,
+      78
+    ]
+  },
+  {
+    "name": "Loth",
+    "episodes": [
+      16,
+      54,
+      69,
+      77,
+      99
+    ]
+  },
+  {
+    "name": "Caius Camillus",
+    "episodes": [
+      22,
+      67,
+      79,
+      85
+    ]
+  },
+  {
+    "name": "Roparzh",
+    "episodes": [
+      31,
+      55,
+      58,
+      82
+    ]
+  },
+  {
+    "name": "Kay",
+    "episodes": [
+      47,
+      48,
+      97,
+      99
+    ]
+  },
+  {
+    "name": "Nathair",
+    "episodes": [
+      20,
+      32,
+      59,
+      99
+    ]
+  },
+  {
+    "name": "Nessa",
+    "episodes": [
+      45,
+      62,
+      93
+    ]
+  },
+  {
+    "name": "Demetra",
+    "episodes": [
+      14,
+      21,
+      94
+    ]
+  },
+  {
+    "name": "Ygerne",
+    "episodes": [
+      19,
+      64,
+      83
+    ]
+  },
+  {
+    "name": "Aélis",
+    "episodes": [
+      14,
+      21,
+      94
+    ]
+  },
+  {
+    "name": "Tumet",
+    "episodes": [
+      14,
+      21,
+      94
+    ]
+  },
+  {
+    "name": "Aziliz",
+    "episodes": [
+      14,
+      21,
+      94
+    ]
+  },
+  {
+    "name": "Dagonet",
+    "episodes": [
+      16,
+      99
+    ]
+  },
+  {
+    "name": "Grüdü",
+    "episodes": [
+      5,
+      64
+    ]
+  },
+  {
+    "name": "Le Roi Burgonde",
+    "episodes": [
+      44,
+      63
+    ]
+  },
+  {
+    "name": "Cryda",
+    "episodes": [
+      83
+    ]
+  },
+  {
+    "name": "La Fée Morgane",
+    "episodes": [
+      50
+    ]
+  },
+  {
+    "name": "Le Marchand",
+    "episodes": [
+      61
+    ]
+  },
+  {
+    "name": "L'homme en noir",
+    "episodes": [
+      99
+    ]
+  },
+  {
+    "name": "Attila",
+    "episodes": [
+      44
+    ]
+  },
+  {
+    "name": "Le Répurgateur",
+    "episodes": [
+      70
+    ]
+  },
+  {
+    "name": "Kadoc",
+    "episodes": [
+      70
+    ]
+  }
+]

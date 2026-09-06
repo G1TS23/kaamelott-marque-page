@@ -1,0 +1,224 @@
+[
+  {
+    "name": "Calogrenant",
+    "episodes": [
+      40,
+      43,
+      45,
+      47,
+      53,
+      57,
+      59,
+      64,
+      78,
+      80,
+      85,
+      86,
+      90,
+      94,
+      99,
+      100
+    ]
+  },
+  {
+    "name": "Le tavernier",
+    "episodes": [
+      8,
+      13,
+      19,
+      21,
+      22,
+      25,
+      36,
+      42,
+      54,
+      58
+    ]
+  },
+  {
+    "name": "Guethenoc",
+    "episodes": [
+      9,
+      11,
+      15,
+      41,
+      51,
+      68,
+      84,
+      99
+    ]
+  },
+  {
+    "name": "Demetra",
+    "episodes": [
+      39,
+      43,
+      61,
+      72,
+      77,
+      78,
+      91
+    ]
+  },
+  {
+    "name": "Venec",
+    "episodes": [
+      18,
+      24,
+      26,
+      34,
+      55,
+      62
+    ]
+  },
+  {
+    "name": "Hervé",
+    "episodes": [
+      45,
+      47,
+      59,
+      60,
+      64
+    ]
+  },
+  {
+    "name": "Mevanwi",
+    "episodes": [
+      3,
+      20,
+      23,
+      67
+    ]
+  },
+  {
+    "name": "Le maître d’armes",
+    "episodes": [
+      23,
+      28,
+      35,
+      92
+    ]
+  },
+  {
+    "name": "Ygerne",
+    "episodes": [
+      33,
+      69,
+      77,
+      91
+    ]
+  },
+  {
+    "name": "Kadoc",
+    "episodes": [
+      50,
+      53,
+      81,
+      90
+    ]
+  },
+  {
+    "name": "Angharad",
+    "episodes": [
+      17,
+      37,
+      54
+    ]
+  },
+  {
+    "name": "Grüdü",
+    "episodes": [
+      52,
+      55,
+      67
+    ]
+  },
+  {
+    "name": "Roparzh",
+    "episodes": [
+      41,
+      68,
+      84
+    ]
+  },
+  {
+    "name": "Caius Camillus",
+    "episodes": [
+      12,
+      98
+    ]
+  },
+  {
+    "name": "Tegeirian",
+    "episodes": [
+      51,
+      88
+    ]
+  },
+  {
+    "name": "Fearmac",
+    "episodes": [
+      5
+    ]
+  },
+  {
+    "name": "Le Chef Maure",
+    "episodes": [
+      27
+    ]
+  },
+  {
+    "name": "Le maître d’armes",
+    "episodes": [
+      31
+    ]
+  },
+  {
+    "name": "Le Roi Burgonde",
+    "episodes": [
+      40
+    ]
+  },
+  {
+    "name": "Le Répurgateur",
+    "episodes": [
+      62
+    ]
+  },
+  {
+    "name": "Torri",
+    "episodes": [
+      66
+    ]
+  },
+  {
+    "name": "Belt",
+    "episodes": [
+      68
+    ]
+  },
+  {
+    "name": "Herveig",
+    "episodes": [
+      71
+    ]
+  },
+  {
+    "name": "Le Jeune Maure",
+    "episodes": [
+      27
+    ]
+  },
+  {
+    "name": "Tumet",
+    "episodes": [
+      39
+    ]
+  },
+  {
+    "name": "Aziliz",
+    "episodes": [
+      39
+    ]
+  }
+]

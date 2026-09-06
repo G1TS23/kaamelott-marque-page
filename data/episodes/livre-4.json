@@ -14,9 +14,11 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Angharad",
       "Arthur",
       "Guenièvre",
       "Lancelot",
+      "Le maître d’armes",
       "Séli"
     ],
     "characters_source": "heuristic"
@@ -36,8 +38,10 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Angharad",
       "Arthur",
       "La Dame du Lac",
+      "Le maître d’armes",
       "Séli"
     ],
     "characters_source": "heuristic"
@@ -57,6 +61,7 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Ferghus",
       "Guenièvre",
       "Lancelot"
     ],
@@ -140,6 +145,7 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Ferghus",
       "Le tavernier"
     ],
     "characters_source": "heuristic"
@@ -181,7 +187,8 @@
     "confidence": null,
     "characters": [
       "Arthur",
-      "Karadoc"
+      "Karadoc",
+      "Mevanwi"
     ],
     "characters_source": "heuristic"
   },
@@ -201,6 +208,8 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Calogrenant",
+      "Hervé",
       "Léodagan",
       "Séli",
       "Yvain"
@@ -222,6 +231,7 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Ferghus",
       "Guenièvre",
       "Lancelot"
     ],
@@ -243,6 +253,7 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Elias",
       "Merlin"
     ],
     "characters_source": "heuristic"
@@ -263,7 +274,8 @@
     "confidence": null,
     "characters": [
       "Arthur",
-      "Bohort"
+      "Bohort",
+      "Venec"
     ],
     "characters_source": "heuristic"
   },
@@ -416,7 +428,12 @@
     "confidence": null,
     "characters": [
       "Arthur",
-      "Lancelot"
+      "Calogrenant",
+      "Ferghus",
+      "Hervé",
+      "Lancelot",
+      "Nathair",
+      "Venec"
     ],
     "characters_source": "heuristic"
   },
@@ -436,7 +453,11 @@
     "confidence": null,
     "characters": [
       "Arthur",
-      "Les jumelles"
+      "Aziliz",
+      "Aélis",
+      "Demetra",
+      "Les jumelles",
+      "Tumet"
     ],
     "characters_source": "heuristic"
   },
@@ -458,6 +479,7 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Caius Camillus",
       "Léodagan",
       "Yvain"
     ],
@@ -507,6 +529,7 @@
     "characters": [
       "Léodagan",
       "Merlin",
+      "Mevanwi",
       "Séli"
     ],
     "characters_source": "heuristic"
@@ -526,6 +549,7 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Le tavernier",
       "Perceval"
     ],
     "characters_source": "heuristic"
@@ -545,6 +569,7 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Angharad",
       "Arthur",
       "Mevanwi"
     ],
@@ -565,7 +590,9 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Calogrenant",
       "Gauvain",
+      "Hervé",
       "Yvain"
     ],
     "characters_source": "heuristic"
@@ -674,7 +701,10 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Calogrenant",
+      "Hervé",
       "Lancelot",
+      "Nathair",
       "Venec"
     ],
     "characters_source": "heuristic"
@@ -737,6 +767,7 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Angharad",
       "Ferghus",
       "Guenièvre",
       "Karadoc",
@@ -806,6 +837,7 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Elias",
       "Merlin"
     ],
     "characters_source": "heuristic"
@@ -871,6 +903,8 @@
     "characters": [
       "Arthur",
       "Karadoc",
+      "Le maître d’armes",
+      "Mevanwi",
       "Père Blaise"
     ],
     "characters_source": "heuristic"
@@ -893,6 +927,7 @@
     "confidence": null,
     "characters": [
       "La Dame du Lac",
+      "Le maître d’armes",
       "Mevanwi",
       "Père Blaise"
     ],
@@ -913,7 +948,8 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
-      "Arthur"
+      "Arthur",
+      "Venec"
     ],
     "characters_source": "heuristic"
   },
@@ -934,7 +970,8 @@
     "characters": [
       "Arthur",
       "Attila",
-      "Bohort"
+      "Bohort",
+      "Le Roi Burgonde"
     ],
     "characters_source": "heuristic"
   },
@@ -954,6 +991,7 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Nessa",
       "Perceval"
     ],
     "characters_source": "heuristic"
@@ -997,8 +1035,10 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Ferghus",
       "Guenièvre",
       "Karadoc",
+      "Kay",
       "Lancelot"
     ],
     "characters_source": "heuristic"
@@ -1018,7 +1058,9 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Ferghus",
       "Karadoc",
+      "Kay",
       "Lancelot",
       "Perceval"
     ],
@@ -1061,6 +1103,7 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Ferghus",
       "La Fée Morgane",
       "Lancelot"
     ],
@@ -1123,6 +1166,7 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Elias",
       "La Dame du Lac"
     ],
     "characters_source": "heuristic"
@@ -1143,7 +1187,8 @@
     "confidence": null,
     "characters": [
       "Guenièvre",
-      "Lancelot"
+      "Lancelot",
+      "Loth"
     ],
     "characters_source": "heuristic"
   },
@@ -1184,7 +1229,10 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Calogrenant",
+      "Hervé",
       "Karadoc",
+      "Le tavernier",
       "Perceval"
     ],
     "characters_source": "heuristic"
@@ -1245,8 +1293,11 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Angharad",
       "Arthur",
-      "Lancelot"
+      "Ferghus",
+      "Lancelot",
+      "Nathair"
     ],
     "characters_source": "heuristic"
   },
@@ -1288,6 +1339,7 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Le Marchand",
       "Perceval"
     ],
     "characters_source": "heuristic"
@@ -1309,6 +1361,7 @@
     "characters": [
       "Arthur",
       "Karadoc",
+      "Nessa",
       "Perceval"
     ],
     "characters_source": "heuristic"
@@ -1328,7 +1381,8 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
-      "Arthur"
+      "Arthur",
+      "Le Roi Burgonde"
     ],
     "characters_source": "heuristic"
   },
@@ -1390,6 +1444,7 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Le tavernier",
       "Perceval",
       "Venec"
     ],
@@ -1412,7 +1467,8 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
-      "Arthur"
+      "Arthur",
+      "Caius Camillus"
     ],
     "characters_source": "heuristic"
   },
@@ -1432,6 +1488,7 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Elias",
       "Léodagan",
       "Merlin",
       "Père Blaise"
@@ -1455,6 +1512,7 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Ferghus",
       "Lancelot",
       "Loth"
     ],
@@ -1477,7 +1535,9 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
-      "Le Répurgateur"
+      "Kadoc",
+      "Le Répurgateur",
+      "Le maître d’armes"
     ],
     "characters_source": "heuristic"
   },
@@ -1499,6 +1559,7 @@
       "Arthur",
       "Karadoc",
       "Le Tavernier",
+      "Le tavernier",
       "Perceval",
       "Père Blaise"
     ],
@@ -1624,6 +1685,7 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Ferghus",
       "Guenièvre",
       "Karadoc",
       "Lancelot",
@@ -1647,7 +1709,9 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Calogrenant",
       "Gauvain",
+      "Hervé",
       "Lancelot",
       "Loth"
     ],
@@ -1668,7 +1732,8 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
-      "Arthur"
+      "Arthur",
+      "Caius Camillus"
     ],
     "characters_source": "heuristic"
   },
@@ -1710,10 +1775,13 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Ferghus",
       "Karadoc",
       "Lancelot",
       "Le Tavernier",
-      "Perceval"
+      "Le tavernier",
+      "Perceval",
+      "Venec"
     ],
     "characters_source": "fandom"
   },
@@ -1799,6 +1867,7 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
+      "Caius Camillus",
       "Yvain"
     ],
     "characters_source": "heuristic"
@@ -1818,7 +1887,9 @@
     "timestamp_source": null,
     "confidence": null,
     "characters": [
-      "Arthur"
+      "Arthur",
+      "Le maître d’armes",
+      "Mevanwi"
     ],
     "characters_source": "heuristic"
   },
@@ -1923,6 +1994,7 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Elias",
       "Merlin"
     ],
     "characters_source": "heuristic"
@@ -1966,7 +2038,8 @@
     "characters": [
       "Bohort",
       "Guenièvre",
-      "Mevanwi"
+      "Mevanwi",
+      "Nessa"
     ],
     "characters_source": "heuristic"
   },
@@ -1986,9 +2059,13 @@
     "confidence": null,
     "characters": [
       "Arthur",
+      "Aziliz",
+      "Aélis",
+      "Demetra",
       "Karadoc",
       "Lancelot",
-      "Mevanwi"
+      "Mevanwi",
+      "Tumet"
     ],
     "characters_source": "heuristic"
   },
@@ -2052,6 +2129,7 @@
       "Arthur",
       "Galessin",
       "Guenièvre",
+      "Kay",
       "Lancelot",
       "Merlin"
     ],
@@ -2074,6 +2152,7 @@
     "characters": [
       "Angharad",
       "Arthur",
+      "Ferghus",
       "Guenièvre",
       "Lancelot"
     ],
@@ -2099,9 +2178,12 @@
       "Galessin",
       "Guenièvre",
       "Karadoc",
+      "Kay",
+      "L'homme en noir",
       "Lancelot",
       "Loth",
       "Mevanwi",
+      "Nathair",
       "Perceval"
     ],
     "characters_source": "heuristic"
