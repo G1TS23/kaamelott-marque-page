@@ -169,16 +169,27 @@ function renderExpectedEpisodes() {
   const lo = g.checkpoint_start !== null ? g.checkpoint_start + 1 : null;
   const hi = g.checkpoint_end !== null ? g.checkpoint_end - 1 : null;
   let html = "<h4>Épisodes attendus dans ce trou (référence Wikipédia)</h4>";
+  if (g.checkpoint_start !== null) {
+    html += `<p class="hint">⚠ L'épisode ${g.checkpoint_start} (juste avant ce trou) est <b>déjà confirmé</b> par le pipeline — ce n'est PAS lui qu'il faut pointer. Continue à regarder après pour trouver le suivant.</p>`;
+  }
   if (lo === null || hi === null || lo > hi) {
     html += `<p class="hint">Pas de plage fiable des deux côtés — identifie les épisodes directement au fil du résumé pendant le visionnage.</p>`;
   } else {
     for (let n = lo; n <= hi; n++) {
       const ep = episodes.find(e => e.episode === n);
       const details = ep ? ` — ${ep.title}<br>${ep.summary}` : " — (introuvable dans les données)";
-      html += `<div class="episode-card"><b>Épisode ${n}</b>${details}</div>`;
+      const hint = (g.mention_hints || []).find(h => h.episode === n);
+      const hintHtml = hint
+        ? `<div class="hint">🎯 Numéro annoncé repéré dans la transcription vers ${(hint.time_s / 60).toFixed(2)} min (pas de jingle détecté à cet endroit — vérifie quand même l'audio/vidéo à cet instant).
+             <button class="btn-hint-seek" data-time="${hint.time_s}">▶ Aller à cet indice (-5s)</button></div>`
+        : "";
+      html += `<div class="episode-card"><b>Épisode ${n}</b>${details}${hintHtml}</div>`;
     }
   }
   box.innerHTML = html;
+  box.querySelectorAll(".btn-hint-seek").forEach(btn => {
+    btn.onclick = () => seekTo(Number.parseFloat(btn.dataset.time) - 5);
+  });
 }
 
 function nextExpectedNumber() {
@@ -240,11 +251,15 @@ function markNow() {
   renderGaps();
 }
 
-function seekToGap() {
-  if (activeGap === null || !playerReady) return;
-  const g = resolution.gaps[activeGap];
-  player.seekTo(Math.max(0, g.time_start_s - 20), true);
+function seekTo(t) {
+  if (!playerReady) return;
+  player.seekTo(Math.max(0, t), true);
   player.playVideo();
+}
+
+function seekToGap() {
+  if (activeGap === null) return;
+  seekTo(resolution.gaps[activeGap].time_start_s - 20);
 }
 
 function cueVideo(book) {

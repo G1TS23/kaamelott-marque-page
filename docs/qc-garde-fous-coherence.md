@@ -83,6 +83,23 @@ disponibles contre le nombre d'épisodes attendu — l'information nécessaire
 pour l'outil de pointage manuel (issue #11) sans avoir à retraiter tout le
 livre.
 
+**Piège relevé en testant l'outil #11** : le checkpoint de *début* d'un trou
+(`checkpoint_start`) est l'épisode juste **avant** le trou — déjà résolu
+ailleurs, pas celui à pointer. En sautant au début du trou, la première
+chose visible/entendue est cet épisode déjà connu ; il faut continuer à
+regarder au-delà pour trouver le vrai épisode manquant
+(`checkpoint_start + 1`). Deux fois signalé comme "faux" en pratique
+(Livre 2, trous 1 et 2) alors que les données étaient correctes — l'outil
+#11 affiche maintenant un avertissement explicite pour éviter la confusion.
+
+**`mention_hints`** : pour chaque trou, les mentions "épisode N" trouvées
+dans la transcription (piste C) pour un numéro attendu dans la plage du
+trou, même sans jingle associé — un jingle a pu être manqué par la
+corrélation audio alors que le numéro, lui, a bien été annoncé. Donne un
+timestamp précis où chercher plutôt que de visionner toute la fenêtre en
+aveugle (vérifié : Livre 2 trou 1, "épisode 45" trouvé à 169.73 min sans
+jingle correspondant — exactement l'épisode manquant attendu).
+
 Liste complète par livre : sortie de
 `python scripts/resolve_episode_numbers.py <1|2|3|4>`.
 

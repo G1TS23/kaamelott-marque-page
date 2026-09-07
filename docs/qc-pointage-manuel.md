@@ -27,9 +27,16 @@ python3 -m http.server 8000
 2. Cliquer un trou dans le panneau de gauche : affiche les checkpoints
    encadrants (avec alerte si l'un des deux est probablement erroné, cf.
    `docs/qc-garde-fous-coherence.md`) et la fiche Wikipedia de chaque
-   épisode attendu dans la plage.
+   épisode attendu dans la plage. **Attention** : l'épisode juste avant le
+   trou (`checkpoint_start`) est déjà résolu ailleurs — ce n'est jamais
+   celui à pointer, l'outil l'indique explicitement pour éviter la
+   confusion (rencontrée en test : voir `docs/qc-garde-fous-coherence.md`
+   « piège relevé en testant l'outil »).
 3. « Aller au début du trou » place la vidéo 20s avant le premier jingle
-   du trou (marge de contexte).
+   du trou (marge de contexte). Si un indice de transcription existe pour
+   un épisode attendu (mention "épisode N" trouvée sans jingle associé),
+   un bouton « Aller à cet indice » saute directement 5s avant ce timestamp
+   plutôt que de devoir visionner toute la fenêtre du trou.
 4. Pendant la lecture, touche **M** (ou bouton) au début de chaque épisode
    repéré : capture le timestamp exact du lecteur, propose le numéro
    attendu suivant (éditable si besoin — utile quand les checkpoints
