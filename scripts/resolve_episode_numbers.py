@@ -48,6 +48,9 @@ from cross_reference_book import CONFIRMED_EXTRA_JINGLES_S, load_mentions
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 MATCH_WINDOW_S = 90
 
+CONFIRME = "confirmé"
+A_REPOINTER = "à repointer"
+
 
 def episode_count(book_num):
     episodes = json.loads((DATA_DIR / "episodes" / f"livre-{book_num}.json").read_text(encoding="utf-8"))
@@ -91,6 +94,38 @@ def raw_checkpoints(jingle_times, mentions):
             _, num, source = min(candidates)
             checkpoints[i] = (num, source)
     return checkpoints
+
+
+def _confidence(src):
+    return CONFIRME if src == "relatif" else A_REPOINTER
+
+
+def _resolve_pair(anchor_a, anchor_b, resolved):
+    """Si la paire d'ancres est cohérente (écart de jingles == écart de
+    numéros), numérote les jingles idx_a..idx_b (bornes incluses) dans
+    `resolved` et renvoie True. Sinon ne touche pas `resolved` et renvoie
+    False (la paire est incohérente, à traiter comme un trou par l'appelant).
+
+    Les deux ancres elles-mêmes ont un numéro directement observé (leur
+    propre mention) : leur confiance ne dépend que de leur propre source,
+    pas de l'autre ancre de la paire — sans quoi, pour une ancre partagée
+    entre deux paires consécutives, la confiance retenue dépendrait
+    arbitrairement de l'ordre de traitement plutôt que de refléter la
+    fiabilité réelle de cette ancre. Les points strictement entre les deux
+    ancres sont, eux, de vrais numéros interpolés (aucune mention propre) :
+    leur confiance dépend bien des deux ancres encadrantes."""
+    idx_a, (num_a, src_a) = anchor_a
+    idx_b, (num_b, src_b) = anchor_b
+    jingle_gap = idx_b - idx_a
+    if num_b - num_a != jingle_gap:
+        return False
+
+    resolved[idx_a] = (num_a, _confidence(src_a))
+    resolved[idx_b] = (num_b, _confidence(src_b))
+    interior_confidence = CONFIRME if src_a == src_b == "relatif" else A_REPOINTER
+    for offset in range(1, jingle_gap):
+        resolved[idx_a + offset] = (num_a + offset, interior_confidence)
+    return True
 
 
 def resolve_segments(jingle_times, checkpoints):
@@ -139,26 +174,10 @@ def resolve_segments(jingle_times, checkpoints):
     if anchors[0][0] > 0:
         unresolved_ranges.append({"start": 0, "end": anchors[0][0] - 1, "checkpoint_start": None, "checkpoint_end": anchors[0][1][0]})
 
-    for (idx_a, (num_a, src_a)), (idx_b, (num_b, src_b)) in zip(anchors, anchors[1:]):
-        jingle_gap = idx_b - idx_a
-        number_gap = num_b - num_a
-        if number_gap == jingle_gap:
-            # Les deux ancres elles-mêmes ont un numéro directement observé
-            # (leur propre mention) : leur confiance ne dépend que de leur
-            # propre source, pas de l'autre ancre de la paire — sans quoi,
-            # pour une ancre partagée entre deux paires consécutives, la
-            # confiance retenue dépendrait arbitrairement de l'ordre de
-            # traitement (la seconde paire écraserait la première) plutôt
-            # que de refléter la fiabilité réelle de cette ancre.
-            resolved[idx_a] = (num_a, "confirmé" if src_a == "relatif" else "à repointer")
-            resolved[idx_b] = (num_b, "confirmé" if src_b == "relatif" else "à repointer")
-            # Les points strictement entre les deux ancres sont, eux, de
-            # vrais numéros interpolés (aucune mention propre) : leur
-            # confiance dépend bien des deux ancres encadrantes.
-            interior_confidence = "confirmé" if src_a == src_b == "relatif" else "à repointer"
-            for offset in range(1, jingle_gap):
-                resolved[idx_a + offset] = (num_a + offset, interior_confidence)
-        else:
+    for anchor_a, anchor_b in zip(anchors, anchors[1:]):
+        if not _resolve_pair(anchor_a, anchor_b, resolved):
+            idx_a, (num_a, _) = anchor_a
+            idx_b, (num_b, _) = anchor_b
             unresolved_ranges.append({"start": idx_a, "end": idx_b, "checkpoint_start": num_a, "checkpoint_end": num_b})
 
     # après le dernier checkpoint : pas de checkpoint de fin pour valider
@@ -169,11 +188,11 @@ def resolve_segments(jingle_times, checkpoints):
 
 
 def print_resolved(book_num, resolved, jingle_times):
-    n_a_repointer = sum(1 for _, conf in resolved.values() if conf == "à repointer")
+    n_a_repointer = sum(1 for _, conf in resolved.values() if conf == A_REPOINTER)
     print(f"\n[Livre {book_num}] {len(resolved)}/{len(jingle_times)} jingles résolus (dont {n_a_repointer} à repointer) :\n")
     for idx in sorted(resolved):
         num, confidence = resolved[idx]
-        flag = "" if confidence == "confirmé" else "  [à repointer : checkpoint issu d'une numérotation absolue]"
+        flag = "" if confidence == CONFIRME else "  [à repointer : checkpoint issu d'une numérotation absolue]"
         print(f"  jingle {jingle_times[idx]/60:6.2f} min  ->  épisode {num:3d}{flag}")
 
 
