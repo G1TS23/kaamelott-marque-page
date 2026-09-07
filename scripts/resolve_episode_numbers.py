@@ -117,7 +117,15 @@ def resolve_segments(jingle_times, checkpoints):
     `checkpoint_start` < `checkpoint_end`** : l'une des deux peut être une
     mention parasite (rappel, aparté), c'est précisément pourquoi ce
     segment est signalé plutôt qu'accepté tel quel (cf. le cas "épisode 6"
-    de l'issue #8, qui ressort naturellement ici)."""
+    de l'issue #8, qui ressort naturellement ici).
+
+    Un même indice de jingle peut apparaître à la fois dans `resolved` et
+    comme borne d'un trou de `unresolved_ranges` : une ancre est validée
+    indépendamment avec chacun de ses deux voisins, donc elle peut être
+    confirmée via l'un (et entrer dans `resolved`) tout en étant la borne
+    d'un trou avec l'autre (parce que CET AUTRE couple, lui, est
+    incohérent) — ce n'est pas contradictoire, `resolved` reste la valeur
+    de référence pour cette ancre précise."""
     anchors = sorted(checkpoints.items())
     resolved = {}
     unresolved_ranges = []
@@ -177,7 +185,10 @@ def gap_hint(cp_start, cp_end, n_jingles):
     "épisode 6"."""
     if cp_start is not None and cp_end is not None:
         suspect = "" if cp_end > cp_start else " — au moins un des deux checkpoints est probablement erroné"
-        return f" (checkpoints épisode {cp_start} puis épisode {cp_end}, {n_jingles - 1} jingle(s) intermédiaire(s) pour {cp_end - cp_start - 1} épisode(s) attendu(s){suspect})"
+        # n_jingles compte les deux bornes (les ancres elles-mêmes) ; les
+        # jingles réellement "intermédiaires" (ni l'un ni l'autre checkpoint)
+        # sont n_jingles - 2, pas n_jingles - 1.
+        return f" (checkpoints épisode {cp_start} puis épisode {cp_end}, {n_jingles - 2} jingle(s) intermédiaire(s) pour {cp_end - cp_start - 1} épisode(s) attendu(s){suspect})"
     if cp_start is not None:
         return f" (après épisode {cp_start}, pas de checkpoint de fin)"
     if cp_end is not None:
