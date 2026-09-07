@@ -58,6 +58,19 @@ Le croisement avec les timestamps de jingle (issue #8) doit permettre de
 filtrer ces mentions isolées (pas de jingle proche) des vraies annonces de
 début d'épisode.
 
+## Cas particulier : « premier épisode »
+
+Pour le tout premier épisode d'un livre, Shisheyu dit parfois « premier
+épisode » plutôt que « épisode 1 » (remarqué en visionnant la vidéo) — le
+motif `épisode\s+(\d+)` ne peut pas le capturer. Plusieurs mentions de
+« premier épisode » trouvées entre 8:15 et 12:00 dans le Livre 1, mais elles
+ressemblent à du bavardage d'introduction (« Allez, premier épisode. Bon, je
+vais... », « ça c'est un épisode... premier épisode. Il reste 4h11 ») plutôt
+qu'à l'annonce du vrai début de lecture — impossible à trancher avec
+certitude sans un repère temporel humain (timestamp confirmé par visionnage)
+pour chaque livre. Non résolu dans cette issue, à traiter avec les timestamps
+de première épisode fournis pour chacun des 4 livres.
+
 ## Limites connues
 
 - Testé sur le Livre 1 uniquement — à généraliser aux 4 livres en issue #9. Le

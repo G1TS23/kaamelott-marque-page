@@ -19,7 +19,10 @@ from pathlib import Path
 DEFAULT_VTT = Path(__file__).resolve().parent.parent / "data" / "transcripts" / "livre-1.fr.vtt"
 
 _CUE_TIME_RE = re.compile(
-    r"^(\d{2}):(\d{2}):(\d{2})\.(\d{3}) --> \d{2}:\d{2}:\d{2}\.\d{3}", re.MULTILINE
+    # le "[^\n]*" final consomme les réglages de cue optionnels sur la même
+    # ligne (ex. "align:start position:0%"), sans quoi ce texte de mise en
+    # forme se retrouvait mélangé aux mots reconnus (bug trouvé en QC)
+    r"^(\d{2}):(\d{2}):(\d{2})\.(\d{3}) --> \d{2}:\d{2}:\d{2}\.\d{3}[^\n]*", re.MULTILINE
 )
 _WORD_TIME_RE = re.compile(r"<(\d{2}):(\d{2}):(\d{2})\.(\d{3})>")
 _TAG_RE = re.compile(r"</?c>")
