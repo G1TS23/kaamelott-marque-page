@@ -1,5 +1,6 @@
 .idea/
 .venv/
+.claude/settings.local.json
 node_modules/
 dist/
 .env

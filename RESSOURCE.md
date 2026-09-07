@@ -13,3 +13,9 @@
 2. [Livre 2](https://fr.wikipedia.org/wiki/Saison_2_de_Kaamelott)
 3. [Livre 3](https://fr.wikipedia.org/wiki/Saison_3_de_Kaamelott)
 4. [Livre 4](https://fr.wikipedia.org/wiki/Saison_4_de_Kaamelott)
+
+## Liens des personnages
+
+- [Liste des personnages de Kaamelott](https://fr.wikipedia.org/wiki/Liste_des_personnages_de_Kaamelott) — source de référence pour le champ `characters` (voir docs/SPECS.md section 4, issue #24)
+- [Wiki Kaamelott Officiel (Fandom)](https://kaamelott.fandom.com/fr/) — casting exact par épisode quand une page existe (~25 % des épisodes seulement, voir docs/qc-characters-fandom.md)
+- [Casting AlloCiné par saison](https://www.allocine.fr/series/ficheserie-334/casting/saison-1176/) — liste précise des épisodes par personnage secondaire/récurrent, en enrichissement (voir docs/qc-characters-allocine.md)
