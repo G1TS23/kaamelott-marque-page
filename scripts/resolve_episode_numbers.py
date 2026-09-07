@@ -141,6 +141,43 @@ def resolve_segments(jingle_times, checkpoints):
     return resolved, unresolved_ranges
 
 
+def print_resolved(book_num, resolved, jingle_times):
+    n_a_repointer = sum(1 for _, conf in resolved.values() if conf == "à repointer")
+    print(f"\n[Livre {book_num}] {len(resolved)}/{len(jingle_times)} jingles résolus (dont {n_a_repointer} à repointer) :\n")
+    for idx in sorted(resolved):
+        num, confidence = resolved[idx]
+        flag = "" if confidence == "confirmé" else "  [à repointer : checkpoint issu d'une numérotation absolue]"
+        print(f"  jingle {jingle_times[idx]/60:6.2f} min  ->  épisode {num:3d}{flag}")
+
+
+def gap_hint(cp_start, cp_end, n_jingles):
+    """Message explicatif pour un trou : les checkpoints trouvés aux deux
+    bornes (ordre chronologique, pas forcément numérique) — s'ils ne sont
+    PAS croissants, l'un des deux est probablement une mention parasite
+    (rappel, aparté) plutôt qu'une vraie annonce, cf. issue #8, cas
+    "épisode 6"."""
+    if cp_start is not None and cp_end is not None:
+        suspect = "" if cp_end > cp_start else " — au moins un des deux checkpoints est probablement erroné"
+        return f" (checkpoints épisode {cp_start} puis épisode {cp_end}, {n_jingles - 1} jingle(s) intermédiaire(s) pour {cp_end - cp_start - 1} épisode(s) attendu(s){suspect})"
+    if cp_start is not None:
+        return f" (après épisode {cp_start}, pas de checkpoint de fin)"
+    if cp_end is not None:
+        return f" (avant épisode {cp_end}, pas de checkpoint de début)"
+    return " (aucun checkpoint dans tout le livre)"
+
+
+def print_gaps(unresolved_ranges, jingle_times):
+    if not unresolved_ranges:
+        return
+    print(f"\n{len(unresolved_ranges)} trou(s) à vérifier à la main (issue #11) :")
+    for r in unresolved_ranges:
+        start, end = r["start"], r["end"]
+        t0, t1 = jingle_times[start] / 60, jingle_times[end] / 60
+        n_jingles = end - start + 1
+        hint = gap_hint(r["checkpoint_start"], r["checkpoint_end"], n_jingles)
+        print(f"  jingles {start}-{end} ({n_jingles}), {t0:.2f}-{t1:.2f} min{hint}")
+
+
 def resolve_book(book_num, reference_path=REFERENCE_PATH):
     audio_path = DATA_DIR / "audio_samples" / f"livre-{book_num}-full.wav"
     total_episodes = episode_count(book_num)
@@ -162,35 +199,8 @@ def resolve_book(book_num, reference_path=REFERENCE_PATH):
 
     resolved, unresolved_ranges = resolve_segments(jingle_times, checkpoints)
 
-    n_a_repointer = sum(1 for _, conf in resolved.values() if conf == "à repointer")
-    print(f"\n[Livre {book_num}] {len(resolved)}/{len(jingle_times)} jingles résolus (dont {n_a_repointer} à repointer) :\n")
-    for idx in sorted(resolved):
-        num, confidence = resolved[idx]
-        flag = "" if confidence == "confirmé" else "  [à repointer : checkpoint issu d'une numérotation absolue]"
-        print(f"  jingle {jingle_times[idx]/60:6.2f} min  ->  épisode {num:3d}{flag}")
-
-    if unresolved_ranges:
-        print(f"\n{len(unresolved_ranges)} trou(s) à vérifier à la main (issue #11) :")
-        for r in unresolved_ranges:
-            start, end = r["start"], r["end"]
-            cp_start, cp_end = r["checkpoint_start"], r["checkpoint_end"]
-            t0, t1 = jingle_times[start] / 60, jingle_times[end] / 60
-            n_jingles = end - start + 1
-            if cp_start is not None and cp_end is not None:
-                # cp_start/cp_end sont les checkpoints trouvés respectivement
-                # aux deux bornes (ordre chronologique, pas forcément
-                # numérique) : s'ils ne sont PAS croissants, l'un des deux est
-                # probablement une mention parasite (rappel, aparté) plutôt
-                # qu'une vraie annonce — cf. issue #8, cas "épisode 6".
-                suspect = "" if cp_end > cp_start else " — au moins un des deux checkpoints est probablement erroné"
-                hint = f" (checkpoints épisode {cp_start} puis épisode {cp_end}, {n_jingles - 1} jingle(s) intermédiaire(s) pour {cp_end - cp_start - 1} épisode(s) attendu(s){suspect})"
-            elif cp_start is not None:
-                hint = f" (après épisode {cp_start}, pas de checkpoint de fin)"
-            elif cp_end is not None:
-                hint = f" (avant épisode {cp_end}, pas de checkpoint de début)"
-            else:
-                hint = " (aucun checkpoint dans tout le livre)"
-            print(f"  jingles {start}-{end} ({n_jingles}), {t0:.2f}-{t1:.2f} min{hint}")
+    print_resolved(book_num, resolved, jingle_times)
+    print_gaps(unresolved_ranges, jingle_times)
 
     output_path = DATA_DIR / "episode_resolution" / f"livre-{book_num}.json"
     output_path.parent.mkdir(exist_ok=True)
