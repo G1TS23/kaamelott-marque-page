@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Pointage manuel — Kaamelott</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: system-ui, sans-serif; margin: 0; background: #f4f2ef; color: #222; }
+  header { padding: 12px 20px; background: #1f2430; color: #fff; display: flex; align-items: center; gap: 16px; }
+  header select { font-size: 1rem; padding: 4px 8px; }
+  main { display: grid; grid-template-columns: 380px 1fr; gap: 0; height: calc(100vh - 56px); }
+  #gaps-panel { overflow-y: auto; border-right: 1px solid #ccc; background: #fff; }
+  .gap { padding: 10px 14px; border-bottom: 1px solid #e3e0da; cursor: pointer; }
+  .gap:hover { background: #f0eee9; }
+  .gap.active { background: #e6efff; border-left: 4px solid #3462c9; }
+  .gap h3 { margin: 0 0 4px; font-size: 0.95rem; }
+  .gap .meta { font-size: 0.8rem; color: #666; }
+  .gap .suspect { color: #b3401f; font-weight: 600; }
+  #player-panel { display: flex; flex-direction: column; padding: 16px; overflow-y: auto; }
+  #player-wrap { position: relative; width: 100%; max-width: 720px; aspect-ratio: 16/9; background: #000; }
+  #player { width: 100%; height: 100%; }
+  .controls { margin-top: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button { font-size: 0.95rem; padding: 8px 14px; border-radius: 6px; border: 1px solid #999; background: #fff; cursor: pointer; }
+  button.primary { background: #3462c9; color: #fff; border-color: #3462c9; }
+  button.mark { background: #1f8a4c; color: #fff; border-color: #1f8a4c; font-weight: 600; }
+  #current-time { font-variant-numeric: tabular-nums; font-size: 1.1rem; }
+  #expected-episodes { margin-top: 16px; }
+  .episode-card { padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 6px; background: #fff; font-size: 0.85rem; }
+  .episode-card b { font-size: 0.9rem; }
+  #marked-list { margin-top: 16px; }
+  #marked-list table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  #marked-list td, #marked-list th { padding: 4px 8px; border-bottom: 1px solid #eee; text-align: left; }
+  #marked-list input[type=number] { width: 60px; }
+  .hint { font-size: 0.8rem; color: #666; margin-top: 4px; }
+  footer { padding: 10px 16px; background: #fff; border-top: 1px solid #ccc; display: flex; gap: 10px; align-items: center; }
+  #status { font-size: 0.85rem; color: #444; }
+</style>
+</head>
+<body>
+
+<header>
+  <strong>Pointage manuel — issue #11</strong>
+  <label>Livre : <select id="book-select">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+  </select></label>
+  <span id="header-status"></span>
+</header>
+
+<main>
+  <div id="gaps-panel"><p style="padding:14px">Chargement…</p></div>
+
+  <div id="player-panel">
+    <div id="player-wrap"><div id="player"></div></div>
+    <div class="controls">
+      <button id="btn-seek">⏮ Aller au début du trou (-20s)</button>
+      <span id="current-time">--:--</span>
+      <button id="btn-mark" class="mark">● Marquer un début d'épisode (touche M)</button>
+    </div>
+    <p class="hint">Astuce : laisse la vidéo jouer normalement, appuie sur <b>M</b> (ou clique le bouton) dès que tu entends/vois le début d'un épisode. Le numéro proposé s'incrémente automatiquement — corrige-le si besoin avant de valider.</p>
+
+    <div id="expected-episodes"></div>
+    <div id="marked-list"></div>
+  </div>
+</main>
+
+<footer>
+  <button id="btn-export" class="primary">⬇ Exporter livre-N-manual.json</button>
+  <button id="btn-clear">Vider les pointages de ce livre</button>
+  <span id="status"></span>
+</footer>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+// --- Données ---
+const VIDEO_IDS = { 1: "REFu8UmXXE0", 2: "x1RgHE0rg1M", 3: "7BZ6H9g2sng", 4: "lTN7vNhawyg" };
+const STORAGE_KEY = book => `kaamelott-pointage-livre-${book}`;
+
+let currentBook = 1;
+let resolution = null;   // data/episode_resolution/livre-N.json
+let episodes = null;     // data/episodes/livre-N.json
+let activeGap = null;    // index dans resolution.gaps
+let player = null;
+let playerReady = false;
+
+function loadMarks(book) {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY(book));
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+function saveMarks(book, marks) {
+  try { localStorage.setItem(STORAGE_KEY(book), JSON.stringify(marks)); } catch (e) {}
+}
+let marks = [];
+
+async function loadBook(book) {
+  currentBook = book;
+  activeGap = null;
+  document.getElementById("header-status").textContent = "Chargement…";
+  const [resResp, epResp] = await Promise.all([
+    fetch(`../data/episode_resolution/livre-${book}.json`),
+    fetch(`../data/episodes/livre-${book}.json`),
+  ]);
+  resolution = await resResp.json();
+  episodes = await epResp.json();
+  marks = loadMarks(book);
+  document.getElementById("header-status").textContent =
+    `${resolution.gaps.length} trou(s) — ${resolution.resolved.length}/${resolution.jingles_detected} déjà résolus par le pipeline`;
+  renderGaps();
+  renderExpectedEpisodes();
+  renderMarked();
+  if (playerReady) cueVideo(book);
+}
+
+function renderGaps() {
+  const panel = document.getElementById("gaps-panel");
+  panel.innerHTML = "";
+  resolution.gaps.forEach((g, i) => {
+    const div = document.createElement("div");
+    div.className = "gap" + (i === activeGap ? " active" : "");
+    const suspect = (g.checkpoint_start !== null && g.checkpoint_end !== null && g.checkpoint_end <= g.checkpoint_start);
+    const t0 = (g.time_start_s / 60).toFixed(2), t1 = (g.time_end_s / 60).toFixed(2);
+    const nMarked = marks.filter(m => m.gap === i).length;
+    div.innerHTML = `
+      <h3>Trou ${i + 1} — ${t0} → ${t1} min ${nMarked ? `(✓ ${nMarked} pointé(s))` : ""}</h3>
+      <div class="meta">
+        checkpoints : ${g.checkpoint_start ?? "—"} puis ${g.checkpoint_end ?? "—"}
+        ${suspect ? '<div class="suspect">⚠ un des deux checkpoints est probablement erroné</div>' : ""}
+      </div>`;
+    div.onclick = () => selectGap(i);
+    panel.appendChild(div);
+  });
+}
+
+function selectGap(i) {
+  activeGap = i;
+  renderGaps();
+  renderExpectedEpisodes();
+  renderMarked();
+}
+
+function renderExpectedEpisodes() {
+  const box = document.getElementById("expected-episodes");
+  if (activeGap === null) { box.innerHTML = ""; return; }
+  const g = resolution.gaps[activeGap];
+  const lo = g.checkpoint_start !== null ? g.checkpoint_start + 1 : null;
+  const hi = g.checkpoint_end !== null ? g.checkpoint_end - 1 : null;
+  let html = "<h4>Épisodes attendus dans ce trou (référence Wikipédia)</h4>";
+  if (lo === null || hi === null || lo > hi) {
+    html += `<p class="hint">Pas de plage fiable des deux côtés — identifie les épisodes directement au fil du résumé pendant le visionnage.</p>`;
+  } else {
+    for (let n = lo; n <= hi; n++) {
+      const ep = episodes.find(e => e.episode === n);
+      html += `<div class="episode-card"><b>Épisode ${n}</b>${ep ? ` — ${ep.title}<br>${ep.summary}` : " — (introuvable dans les données)"}</div>`;
+    }
+  }
+  box.innerHTML = html;
+}
+
+function nextExpectedNumber() {
+  if (activeGap === null) return "";
+  const g = resolution.gaps[activeGap];
+  const already = marks.filter(m => m.gap === activeGap).map(m => m.episode);
+  const base = g.checkpoint_start !== null ? g.checkpoint_start + 1 : 1;
+  let n = base;
+  while (already.includes(n)) n++;
+  return n;
+}
+
+function renderMarked() {
+  const box = document.getElementById("marked-list");
+  if (activeGap === null) { box.innerHTML = ""; return; }
+  const rows = marks
+    .map((m, idx) => ({ ...m, idx }))
+    .filter(m => m.gap === activeGap)
+    .sort((a, b) => a.time_s - b.time_s);
+  let html = "<h4>Pointages de ce trou</h4>";
+  if (!rows.length) {
+    html += '<p class="hint">Aucun pointage pour l\'instant.</p>';
+  } else {
+    html += "<table><tr><th>Épisode</th><th>Timestamp</th><th></th></tr>";
+    for (const r of rows) {
+      const mm = Math.floor(r.time_s / 60), ss = (r.time_s % 60).toFixed(1);
+      html += `<tr>
+        <td><input type="number" value="${r.episode}" data-idx="${r.idx}" class="ep-input"></td>
+        <td>${mm}:${ss.padStart(4, "0")} (${r.time_s.toFixed(1)}s)</td>
+        <td><button data-idx="${r.idx}" class="btn-del">✕</button></td>
+      </tr>`;
+    }
+    html += "</table>";
+  }
+  box.innerHTML = html;
+  box.querySelectorAll(".ep-input").forEach(inp => {
+    inp.onchange = () => {
+      marks[+inp.dataset.idx].episode = parseInt(inp.value, 10);
+      saveMarks(currentBook, marks);
+      renderGaps();
+    };
+  });
+  box.querySelectorAll(".btn-del").forEach(btn => {
+    btn.onclick = () => {
+      marks.splice(+btn.dataset.idx, 1);
+      saveMarks(currentBook, marks);
+      renderMarked();
+      renderGaps();
+    };
+  });
+}
+
+function markNow() {
+  if (activeGap === null || !playerReady) return;
+  const t = player.getCurrentTime();
+  marks.push({ gap: activeGap, episode: nextExpectedNumber(), time_s: Math.round(t * 10) / 10 });
+  saveMarks(currentBook, marks);
+  renderMarked();
+  renderGaps();
+}
+
+function seekToGap() {
+  if (activeGap === null || !playerReady) return;
+  const g = resolution.gaps[activeGap];
+  player.seekTo(Math.max(0, g.time_start_s - 20), true);
+  player.playVideo();
+}
+
+function cueVideo(book) {
+  player.cueVideoById(VIDEO_IDS[book]);
+}
+
+// --- YouTube IFrame API ---
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player("player", {
+    videoId: VIDEO_IDS[currentBook],
+    playerVars: { rel: 0 },
+    events: {
+      onReady: () => { playerReady = true; },
+    },
+  });
+}
+
+setInterval(() => {
+  if (playerReady && player.getCurrentTime) {
+    const t = player.getCurrentTime();
+    const mm = Math.floor(t / 60), ss = Math.floor(t % 60);
+    document.getElementById("current-time").textContent = `${mm}:${String(ss).padStart(2, "0")}`;
+  }
+}, 500);
+
+// --- Export ---
+function exportJson() {
+  const payload = {
+    book: currentBook,
+    manual_points: marks
+      .map(m => ({ episode: m.episode, time_s: m.time_s }))
+      .sort((a, b) => a.episode - b.episode),
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `livre-${currentBook}-manual.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  document.getElementById("status").textContent = `Exporté : livre-${currentBook}-manual.json (${payload.manual_points.length} pointage(s))`;
+}
+
+// --- Wiring ---
+document.getElementById("book-select").onchange = e => loadBook(parseInt(e.target.value, 10));
+document.getElementById("btn-seek").onclick = seekToGap;
+document.getElementById("btn-mark").onclick = markNow;
+document.getElementById("btn-export").onclick = exportJson;
+document.getElementById("btn-clear").onclick = () => {
+  if (!confirm(`Vider tous les pointages du Livre ${currentBook} ?`)) return;
+  marks = [];
+  saveMarks(currentBook, marks);
+  renderMarked();
+  renderGaps();
+};
+document.addEventListener("keydown", e => {
+  if (e.key === "m" || e.key === "M") {
+    if (document.activeElement && document.activeElement.tagName === "INPUT") return;
+    markNow();
+  }
+});
+
+loadBook(1);
+</script>
+</body>
+</html>
