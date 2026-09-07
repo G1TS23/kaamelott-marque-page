@@ -15,9 +15,19 @@ avec retour au timestamp du mot correspondant.
 
 ## Résultat
 
-**128 mentions trouvées** sur les 90 premières minutes. Les timestamps des
-premières mentions collent de très près à ceux du jingle trouvés en issue #5
-(écart de quelques secondes) :
+**128 mentions trouvées sur la vidéo complète** (6h31, transcription non
+limitée contrairement à l'échantillon audio qui ne couvre que les 90
+premières minutes — voir issue #4). Sur ces 128 mentions, **70 numéros
+distincts identifiés sur les 100 attendus** pour le Livre 1 — 30 manquants
+(ex. 13, 14, 17, 18, 22-24...), probablement des annonces mal transcrites
+par l'ASR ou formulées différemment. Le motif `épisode\s+(\d+)` seul ne
+suffit donc pas à couvrir 100 % des cas ; le taux réel de couverture du
+pipeline C+F dépendra aussi du jingle (qui, lui, ne dépend pas de la
+qualité de l'ASR).
+
+Sur les 90 premières minutes (seule portion où l'audio est disponible pour
+comparer), les timestamps des premières mentions collent de très près à
+ceux du jingle trouvés en issue #5 (écart de quelques secondes) :
 
 | Épisode | Jingle (issue #5) | Numéro annoncé | Écart |
 |---|---|---|---|
@@ -48,8 +58,13 @@ Le croisement avec les timestamps de jingle (issue #8) doit permettre de
 filtrer ces mentions isolées (pas de jingle proche) des vraies annonces de
 début d'épisode.
 
-## Limite connue
+## Limites connues
 
-Testé sur 90 minutes (Livre 1 uniquement) — à généraliser aux 4 livres en
-issue #9. Le parseur lui-même (`scripts/parse_episode_numbers.py`) accepte
-n'importe quel fichier VTT en argument, déjà prêt pour ça.
+- Testé sur le Livre 1 uniquement — à généraliser aux 4 livres en issue #9. Le
+  parseur lui-même (`scripts/parse_episode_numbers.py`) accepte n'importe quel
+  fichier VTT en argument, déjà prêt pour ça.
+- 30 % des numéros (30/100) non retrouvés par le motif `épisode\s+(\d+)` sur
+  la transcription complète — à corroborer avec le jingle en généralisation :
+  un jingle détecté sans numéro associé signale un épisode à vérifier à la main.
+- Cross-validation avec le jingle seulement possible sur les 90 premières
+  minutes (limite de l'échantillon audio, pas du parseur lui-même).
