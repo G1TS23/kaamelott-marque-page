@@ -1,6 +1,9 @@
 .idea/
 .venv/
 .claude/settings.local.json
+data/audio_samples/
+data/transcripts/*.vtt
+__pycache__/
 node_modules/
 dist/
 .env
