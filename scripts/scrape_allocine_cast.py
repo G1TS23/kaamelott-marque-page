@@ -84,9 +84,11 @@ def parse_season(html: str):
     entries = []
     for row in soup.select("div.md-table-row"):
         char_span = row.select_one("span.item.light")
-        ep_div = row.select_one("div.item-episodes")
-        if char_span is None or ep_div is None:
+        if char_span is None:
             continue  # rôle principal sans détail par épisode
+        ep_div = row.select_one("div.item-episodes")
+        if ep_div is None:
+            continue
         full_name = char_span.get_text(strip=True)
         # le texte est "- N Episodes : 20 - 28 - ...", le "N" avant ":" est un
         # compte, pas un numéro d'épisode — ne parser que ce qui suit ":"
