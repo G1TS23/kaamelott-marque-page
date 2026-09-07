@@ -49,7 +49,6 @@ def parse_vtt_words(vtt_text: str) -> dict[float, str]:
         # premier timestamp inline) part du timestamp de la cue elle-même
         parts = _WORD_TIME_RE.split(text)
         # parts alterne : [texte_avant, h, m, s, ms, texte_suivant, h, m, s, ms, ...]
-        current_time = cue_start
         first_chunk = _TAG_RE.sub("", parts[0]).strip()
         if first_chunk:
             words_by_time[cue_start] = first_chunk
@@ -91,7 +90,10 @@ def find_episode_mentions(words_by_time: dict[float, str]) -> list[tuple[float, 
 
 
 def main():
-    vtt_path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_VTT
+    vtt_path = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else DEFAULT_VTT
+    if not vtt_path.is_file():
+        sys.exit(f"Fichier introuvable : {vtt_path}")
+
     print(f"Lecture de {vtt_path}...")
     text = vtt_path.read_text(encoding="utf-8")
 
