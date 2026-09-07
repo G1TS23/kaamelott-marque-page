@@ -1,0 +1,475 @@
+{
+  "book": 1,
+  "total_episodes": 100,
+  "jingles_detected": 97,
+  "resolved": [
+    {
+      "episode": 1,
+      "jingle_time_s": 514.83,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 2,
+      "jingle_time_s": 744.8,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 3,
+      "jingle_time_s": 935.87,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 4,
+      "jingle_time_s": 1221.64,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 5,
+      "jingle_time_s": 1460.31,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 6,
+      "jingle_time_s": 1713.42,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 7,
+      "jingle_time_s": 1957.08,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 8,
+      "jingle_time_s": 2203.74,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 9,
+      "jingle_time_s": 2458.64,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 10,
+      "jingle_time_s": 2818.07,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 11,
+      "jingle_time_s": 3041.73,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 12,
+      "jingle_time_s": 3256.53,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 13,
+      "jingle_time_s": 3465.34,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 14,
+      "jingle_time_s": 3677.62,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 15,
+      "jingle_time_s": 3923.65,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 16,
+      "jingle_time_s": 4198.54,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 17,
+      "jingle_time_s": 4453.93,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 18,
+      "jingle_time_s": 4669.58,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 19,
+      "jingle_time_s": 4887.95,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 20,
+      "jingle_time_s": 5084.96,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 25,
+      "jingle_time_s": 6285.47,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 26,
+      "jingle_time_s": 6469.35,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 27,
+      "jingle_time_s": 6707.13,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 28,
+      "jingle_time_s": 6984.05,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 29,
+      "jingle_time_s": 7195.89,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 30,
+      "jingle_time_s": 7441.66,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 40,
+      "jingle_time_s": 9592.09,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 41,
+      "jingle_time_s": 9913.72,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 42,
+      "jingle_time_s": 10132.92,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 43,
+      "jingle_time_s": 10317.55,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 44,
+      "jingle_time_s": 10563.57,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 48,
+      "jingle_time_s": 11484.39,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 49,
+      "jingle_time_s": 11695.71,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 50,
+      "jingle_time_s": 11914.34,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 51,
+      "jingle_time_s": 12236.32,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 52,
+      "jingle_time_s": 12449.51,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 53,
+      "jingle_time_s": 12868.45,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 54,
+      "jingle_time_s": 13058.46,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 55,
+      "jingle_time_s": 13271.1,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 57,
+      "jingle_time_s": 13762.92,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 58,
+      "jingle_time_s": 13957.16,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 59,
+      "jingle_time_s": 14204.12,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 60,
+      "jingle_time_s": 14428.96,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 62,
+      "jingle_time_s": 14901.0,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 63,
+      "jingle_time_s": 15137.84,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 64,
+      "jingle_time_s": 15387.45,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 65,
+      "jingle_time_s": 15601.84,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 66,
+      "jingle_time_s": 15820.68,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 67,
+      "jingle_time_s": 16015.98,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 68,
+      "jingle_time_s": 16272.25,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 69,
+      "jingle_time_s": 16516.51,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 70,
+      "jingle_time_s": 16709.19,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 71,
+      "jingle_time_s": 16942.37,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 72,
+      "jingle_time_s": 17159.34,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 73,
+      "jingle_time_s": 17352.47,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 74,
+      "jingle_time_s": 17569.92,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 75,
+      "jingle_time_s": 17769.41,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 76,
+      "jingle_time_s": 17996.2,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 77,
+      "jingle_time_s": 18193.16,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 78,
+      "jingle_time_s": 18411.81,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 79,
+      "jingle_time_s": 18626.2,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 80,
+      "jingle_time_s": 18844.24,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 81,
+      "jingle_time_s": 19027.32,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 82,
+      "jingle_time_s": 19277.66,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 83,
+      "jingle_time_s": 19452.63,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 84,
+      "jingle_time_s": 19705.78,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 85,
+      "jingle_time_s": 19972.94,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 86,
+      "jingle_time_s": 20189.07,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 87,
+      "jingle_time_s": 20379.59,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 88,
+      "jingle_time_s": 20604.5,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 89,
+      "jingle_time_s": 20834.73,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 90,
+      "jingle_time_s": 21057.61,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 91,
+      "jingle_time_s": 21263.92,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 92,
+      "jingle_time_s": 21492.09,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 93,
+      "jingle_time_s": 21721.55,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 94,
+      "jingle_time_s": 21927.0,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 95,
+      "jingle_time_s": 22175.16,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 96,
+      "jingle_time_s": 22384.33,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 97,
+      "jingle_time_s": 22595.24,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 98,
+      "jingle_time_s": 22823.66,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 99,
+      "jingle_time_s": 23035.75,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 100,
+      "jingle_time_s": 23259.7,
+      "confidence": "confirmé"
+    }
+  ],
+  "gaps": [
+    {
+      "jingle_index_start": 19,
+      "jingle_index_end": 20,
+      "time_start_s": 5084.96,
+      "time_end_s": 5322.9,
+      "checkpoint_start": 20,
+      "checkpoint_end": 6
+    },
+    {
+      "jingle_index_start": 20,
+      "jingle_index_end": 24,
+      "time_start_s": 5322.9,
+      "time_end_s": 6285.47,
+      "checkpoint_start": 6,
+      "checkpoint_end": 25
+    },
+    {
+      "jingle_index_start": 29,
+      "jingle_index_end": 38,
+      "time_start_s": 7441.66,
+      "time_end_s": 9592.09,
+      "checkpoint_start": 30,
+      "checkpoint_end": 40
+    },
+    {
+      "jingle_index_start": 42,
+      "jingle_index_end": 43,
+      "time_start_s": 10563.57,
+      "time_end_s": 10786.56,
+      "checkpoint_start": 44,
+      "checkpoint_end": 50
+    },
+    {
+      "jingle_index_start": 43,
+      "jingle_index_end": 46,
+      "time_start_s": 10786.56,
+      "time_end_s": 11484.39,
+      "checkpoint_start": 50,
+      "checkpoint_end": 48
+    },
+    {
+      "jingle_index_start": 53,
+      "jingle_index_end": 54,
+      "time_start_s": 13271.1,
+      "time_end_s": 13762.92,
+      "checkpoint_start": 55,
+      "checkpoint_end": 57
+    },
+    {
+      "jingle_index_start": 57,
+      "jingle_index_end": 58,
+      "time_start_s": 14428.96,
+      "time_end_s": 14901.0,
+      "checkpoint_start": 60,
+      "checkpoint_end": 62
+    }
+  ]
+}

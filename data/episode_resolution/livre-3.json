@@ -1,0 +1,501 @@
+{
+  "book": 3,
+  "total_episodes": 100,
+  "jingles_detected": 86,
+  "resolved": [
+    {
+      "episode": 1,
+      "jingle_time_s": 163.78,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 2,
+      "jingle_time_s": 354.77,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 3,
+      "jingle_time_s": 596.17,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 4,
+      "jingle_time_s": 886.16,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 5,
+      "jingle_time_s": 1145.14,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 6,
+      "jingle_time_s": 1377.29,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 7,
+      "jingle_time_s": 1627.82,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 8,
+      "jingle_time_s": 1876.83,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 9,
+      "jingle_time_s": 2095.21,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 11,
+      "jingle_time_s": 2564.1,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 12,
+      "jingle_time_s": 2724.76,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 14,
+      "jingle_time_s": 3190.74,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 15,
+      "jingle_time_s": 3423.23,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 18,
+      "jingle_time_s": 4069.75,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 19,
+      "jingle_time_s": 4309.41,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 21,
+      "jingle_time_s": 4769.77,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 22,
+      "jingle_time_s": 4995.73,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 23,
+      "jingle_time_s": 5196.86,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 24,
+      "jingle_time_s": 5437.32,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 25,
+      "jingle_time_s": 5665.55,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 26,
+      "jingle_time_s": 5896.55,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 27,
+      "jingle_time_s": 6098.78,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 28,
+      "jingle_time_s": 6342.35,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 29,
+      "jingle_time_s": 6571.55,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 30,
+      "jingle_time_s": 6815.33,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 31,
+      "jingle_time_s": 7339.23,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 32,
+      "jingle_time_s": 7531.69,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 33,
+      "jingle_time_s": 7759.14,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 34,
+      "jingle_time_s": 7958.75,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 35,
+      "jingle_time_s": 8183.05,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 36,
+      "jingle_time_s": 8358.43,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 37,
+      "jingle_time_s": 8662.89,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 41,
+      "jingle_time_s": 9577.4,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 42,
+      "jingle_time_s": 9766.36,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 43,
+      "jingle_time_s": 10010.77,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 44,
+      "jingle_time_s": 10210.06,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 46,
+      "jingle_time_s": 10649.24,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 47,
+      "jingle_time_s": 10909.99,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 48,
+      "jingle_time_s": 11138.59,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 49,
+      "jingle_time_s": 11353.87,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 50,
+      "jingle_time_s": 11577.99,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 51,
+      "jingle_time_s": 11827.94,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 52,
+      "jingle_time_s": 12083.92,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 53,
+      "jingle_time_s": 12532.31,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 54,
+      "jingle_time_s": 12741.22,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 55,
+      "jingle_time_s": 12959.58,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 56,
+      "jingle_time_s": 13194.23,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 57,
+      "jingle_time_s": 13441.6,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 58,
+      "jingle_time_s": 13662.51,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 59,
+      "jingle_time_s": 13905.69,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 60,
+      "jingle_time_s": 14120.16,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 61,
+      "jingle_time_s": 14593.88,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 62,
+      "jingle_time_s": 14782.81,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 63,
+      "jingle_time_s": 15008.93,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 64,
+      "jingle_time_s": 15227.27,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 65,
+      "jingle_time_s": 15454.59,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 66,
+      "jingle_time_s": 15745.0,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 73,
+      "jingle_time_s": 17387.22,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 74,
+      "jingle_time_s": 17611.07,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 82,
+      "jingle_time_s": 19567.43,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 83,
+      "jingle_time_s": 19838.7,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 84,
+      "jingle_time_s": 20076.6,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 85,
+      "jingle_time_s": 20279.04,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 86,
+      "jingle_time_s": 20531.33,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 87,
+      "jingle_time_s": 20742.6,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 88,
+      "jingle_time_s": 20935.18,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 90,
+      "jingle_time_s": 21366.93,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 91,
+      "jingle_time_s": 21633.29,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 92,
+      "jingle_time_s": 21845.57,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 93,
+      "jingle_time_s": 22047.07,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 94,
+      "jingle_time_s": 22263.06,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 95,
+      "jingle_time_s": 22477.35,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 96,
+      "jingle_time_s": 22671.27,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 97,
+      "jingle_time_s": 22903.43,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 98,
+      "jingle_time_s": 23126.77,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 99,
+      "jingle_time_s": 23362.3,
+      "confidence": "confirmé"
+    }
+  ],
+  "gaps": [
+    {
+      "jingle_index_start": 8,
+      "jingle_index_end": 9,
+      "time_start_s": 2095.21,
+      "time_end_s": 2564.1,
+      "checkpoint_start": 9,
+      "checkpoint_end": 11
+    },
+    {
+      "jingle_index_start": 10,
+      "jingle_index_end": 11,
+      "time_start_s": 2724.76,
+      "time_end_s": 3190.74,
+      "checkpoint_start": 12,
+      "checkpoint_end": 14
+    },
+    {
+      "jingle_index_start": 12,
+      "jingle_index_end": 14,
+      "time_start_s": 3423.23,
+      "time_end_s": 4069.75,
+      "checkpoint_start": 15,
+      "checkpoint_end": 18
+    },
+    {
+      "jingle_index_start": 15,
+      "jingle_index_end": 16,
+      "time_start_s": 4309.41,
+      "time_end_s": 4769.77,
+      "checkpoint_start": 19,
+      "checkpoint_end": 21
+    },
+    {
+      "jingle_index_start": 32,
+      "jingle_index_end": 35,
+      "time_start_s": 8662.89,
+      "time_end_s": 9577.4,
+      "checkpoint_start": 37,
+      "checkpoint_end": 41
+    },
+    {
+      "jingle_index_start": 38,
+      "jingle_index_end": 39,
+      "time_start_s": 10210.06,
+      "time_end_s": 10649.24,
+      "checkpoint_start": 44,
+      "checkpoint_end": 46
+    },
+    {
+      "jingle_index_start": 59,
+      "jingle_index_end": 60,
+      "time_start_s": 15745.0,
+      "time_end_s": 16223.68,
+      "checkpoint_start": 66,
+      "checkpoint_end": 68
+    },
+    {
+      "jingle_index_start": 60,
+      "jingle_index_end": 62,
+      "time_start_s": 16223.68,
+      "time_end_s": 16979.13,
+      "checkpoint_start": 68,
+      "checkpoint_end": 71
+    },
+    {
+      "jingle_index_start": 62,
+      "jingle_index_end": 63,
+      "time_start_s": 16979.13,
+      "time_end_s": 17387.22,
+      "checkpoint_start": 71,
+      "checkpoint_end": 73
+    },
+    {
+      "jingle_index_start": 64,
+      "jingle_index_end": 65,
+      "time_start_s": 17611.07,
+      "time_end_s": 18081.11,
+      "checkpoint_start": 74,
+      "checkpoint_end": 76
+    },
+    {
+      "jingle_index_start": 65,
+      "jingle_index_end": 66,
+      "time_start_s": 18081.11,
+      "time_end_s": 18646.77,
+      "checkpoint_start": 76,
+      "checkpoint_end": 78
+    },
+    {
+      "jingle_index_start": 66,
+      "jingle_index_end": 68,
+      "time_start_s": 18646.77,
+      "time_end_s": 19567.43,
+      "checkpoint_start": 78,
+      "checkpoint_end": 82
+    },
+    {
+      "jingle_index_start": 74,
+      "jingle_index_end": 75,
+      "time_start_s": 20935.18,
+      "time_end_s": 21366.93,
+      "checkpoint_start": 88,
+      "checkpoint_end": 90
+    },
+    {
+      "jingle_index_start": 85,
+      "jingle_index_end": 85,
+      "time_start_s": 23582.1,
+      "time_end_s": 23582.1,
+      "checkpoint_start": 99,
+      "checkpoint_end": null
+    }
+  ]
+}
