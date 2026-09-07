@@ -101,23 +101,28 @@ def resolve_segments(jingle_times, checkpoints):
     d'une conversion depuis une numérotation absolue (passe la vérification
     de cohérence, mais reste une hypothèse plutôt qu'une certitude, issue
     #9 : le Livre 4 alterne les deux formats sans règle prévisible).
-    unresolved_ranges : liste de dicts {start, end, before, after} (indices
-    de jingle inclusifs, `before`/`after` = numéro d'épisode du checkpoint
-    encadrant quand il existe, None sinon) pour les jingles sans numéro
-    fiable (segment incohérent, ou hors de toute paire de checkpoints
-    validée)."""
+    unresolved_ranges : liste de dicts {start, end, checkpoint_start,
+    checkpoint_end} (indices de jingle inclusifs, `checkpoint_start`/
+    `checkpoint_end` = numéro brut du checkpoint trouvé respectivement à
+    l'indice `start` et à l'indice `end`, None si absent). Ce sont les deux
+    valeurs qui se sont révélées incohérentes entre elles (l'écart de
+    jingles ne correspond pas à l'écart de numéros) — **pas nécessairement
+    `checkpoint_start` < `checkpoint_end`** : l'une des deux peut être une
+    mention parasite (rappel, aparté), c'est précisément pourquoi ce
+    segment est signalé plutôt qu'accepté tel quel (cf. le cas "épisode 6"
+    de l'issue #8, qui ressort naturellement ici)."""
     anchors = sorted(checkpoints.items())
     resolved = {}
     unresolved_ranges = []
 
     if len(anchors) < 2:
         if jingle_times:
-            unresolved_ranges.append({"start": 0, "end": len(jingle_times) - 1, "before": None, "after": None})
+            unresolved_ranges.append({"start": 0, "end": len(jingle_times) - 1, "checkpoint_start": None, "checkpoint_end": None})
         return resolved, unresolved_ranges
 
     # avant le premier checkpoint : pas de checkpoint de départ pour valider
     if anchors[0][0] > 0:
-        unresolved_ranges.append({"start": 0, "end": anchors[0][0] - 1, "before": None, "after": anchors[0][1][0]})
+        unresolved_ranges.append({"start": 0, "end": anchors[0][0] - 1, "checkpoint_start": None, "checkpoint_end": anchors[0][1][0]})
 
     for (idx_a, (num_a, src_a)), (idx_b, (num_b, src_b)) in zip(anchors, anchors[1:]):
         jingle_gap = idx_b - idx_a
@@ -127,11 +132,11 @@ def resolve_segments(jingle_times, checkpoints):
             for offset in range(jingle_gap + 1):
                 resolved[idx_a + offset] = (num_a + offset, confidence)
         else:
-            unresolved_ranges.append({"start": idx_a, "end": idx_b, "before": num_a, "after": num_b})
+            unresolved_ranges.append({"start": idx_a, "end": idx_b, "checkpoint_start": num_a, "checkpoint_end": num_b})
 
     # après le dernier checkpoint : pas de checkpoint de fin pour valider
     if anchors[-1][0] < len(jingle_times) - 1:
-        unresolved_ranges.append({"start": anchors[-1][0] + 1, "end": len(jingle_times) - 1, "before": anchors[-1][1][0], "after": None})
+        unresolved_ranges.append({"start": anchors[-1][0] + 1, "end": len(jingle_times) - 1, "checkpoint_start": anchors[-1][1][0], "checkpoint_end": None})
 
     return resolved, unresolved_ranges
 
@@ -167,15 +172,22 @@ def resolve_book(book_num, reference_path=REFERENCE_PATH):
     if unresolved_ranges:
         print(f"\n{len(unresolved_ranges)} trou(s) à vérifier à la main (issue #11) :")
         for r in unresolved_ranges:
-            start, end, before, after = r["start"], r["end"], r["before"], r["after"]
+            start, end = r["start"], r["end"]
+            cp_start, cp_end = r["checkpoint_start"], r["checkpoint_end"]
             t0, t1 = jingle_times[start] / 60, jingle_times[end] / 60
             n_jingles = end - start + 1
-            if before is not None and after is not None:
-                hint = f" (entre épisode {before} et épisode {after}, {n_jingles - 1} jingle(s) intermédiaire(s) pour {after - before - 1} épisode(s) attendu(s))"
-            elif before is not None:
-                hint = f" (après épisode {before}, pas de checkpoint de fin)"
-            elif after is not None:
-                hint = f" (avant épisode {after}, pas de checkpoint de début)"
+            if cp_start is not None and cp_end is not None:
+                # cp_start/cp_end sont les checkpoints trouvés respectivement
+                # aux deux bornes (ordre chronologique, pas forcément
+                # numérique) : s'ils ne sont PAS croissants, l'un des deux est
+                # probablement une mention parasite (rappel, aparté) plutôt
+                # qu'une vraie annonce — cf. issue #8, cas "épisode 6".
+                suspect = "" if cp_end > cp_start else " — au moins un des deux checkpoints est probablement erroné"
+                hint = f" (checkpoints épisode {cp_start} puis épisode {cp_end}, {n_jingles - 1} jingle(s) intermédiaire(s) pour {cp_end - cp_start - 1} épisode(s) attendu(s){suspect})"
+            elif cp_start is not None:
+                hint = f" (après épisode {cp_start}, pas de checkpoint de fin)"
+            elif cp_end is not None:
+                hint = f" (avant épisode {cp_end}, pas de checkpoint de début)"
             else:
                 hint = " (aucun checkpoint dans tout le livre)"
             print(f"  jingles {start}-{end} ({n_jingles}), {t0:.2f}-{t1:.2f} min{hint}")
@@ -210,8 +222,16 @@ def to_json(book_num, total_episodes, resolved, unresolved_ranges, jingle_times)
                 "jingle_index_end": r["end"],
                 "time_start_s": round(jingle_times[r["start"]], 2),
                 "time_end_s": round(jingle_times[r["end"]], 2),
-                "episode_before": r["before"],
-                "episode_after": r["after"],
+                # Numéro brut du checkpoint trouvé à jingle_index_start et à
+                # jingle_index_end (ordre chronologique, PAS numérique) : les
+                # deux se sont révélées incohérentes entre elles (l'écart de
+                # jingles ne correspond pas à l'écart de numéros), donc l'une
+                # des deux peut très bien être une mention parasite (rappel,
+                # aparté) plutôt qu'une vraie annonce — voir issue #8, cas
+                # "épisode 6". checkpoint_end < checkpoint_start est possible
+                # et signale justement ce cas.
+                "checkpoint_start": r["checkpoint_start"],
+                "checkpoint_end": r["checkpoint_end"],
             }
             for r in unresolved_ranges
         ],

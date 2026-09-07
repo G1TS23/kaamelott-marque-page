@@ -440,80 +440,80 @@
       "jingle_index_end": 44,
       "time_start_s": 9960.12,
       "time_end_s": 10421.67,
-      "episode_before": 44,
-      "episode_after": 46
+      "checkpoint_start": 44,
+      "checkpoint_end": 46
     },
     {
       "jingle_index_start": 49,
       "jingle_index_end": 50,
       "time_start_s": 11482.26,
       "time_end_s": 11897.61,
-      "episode_before": 51,
-      "episode_after": 53
+      "checkpoint_start": 51,
+      "checkpoint_end": 53
     },
     {
       "jingle_index_start": 51,
       "jingle_index_end": 52,
       "time_start_s": 12100.84,
       "time_end_s": 12507.19,
-      "episode_before": 54,
-      "episode_after": 56
+      "checkpoint_start": 54,
+      "checkpoint_end": 56
     },
     {
       "jingle_index_start": 56,
       "jingle_index_end": 57,
       "time_start_s": 13399.55,
       "time_end_s": 13872.67,
-      "episode_before": 60,
-      "episode_after": 62
+      "checkpoint_start": 60,
+      "checkpoint_end": 62
     },
     {
       "jingle_index_start": 62,
       "jingle_index_end": 64,
       "time_start_s": 14889.3,
       "time_end_s": 15596.92,
-      "episode_before": 67,
-      "episode_after": 70
+      "checkpoint_start": 67,
+      "checkpoint_end": 70
     },
     {
       "jingle_index_start": 73,
       "jingle_index_end": 74,
       "time_start_s": 17847.91,
       "time_end_s": 18363.67,
-      "episode_before": 79,
-      "episode_after": 81
+      "checkpoint_start": 79,
+      "checkpoint_end": 81
     },
     {
       "jingle_index_start": 79,
       "jingle_index_end": 80,
       "time_start_s": 19368.49,
       "time_end_s": 19820.81,
-      "episode_before": 86,
-      "episode_after": 88
+      "checkpoint_start": 86,
+      "checkpoint_end": 88
     },
     {
       "jingle_index_start": 83,
       "jingle_index_end": 85,
       "time_start_s": 20502.24,
       "time_end_s": 21140.34,
-      "episode_before": 91,
-      "episode_after": 94
+      "checkpoint_start": 91,
+      "checkpoint_end": 94
     },
     {
       "jingle_index_start": 87,
       "jingle_index_end": 89,
       "time_start_s": 21577.95,
       "time_end_s": 22231.8,
-      "episode_before": 96,
-      "episode_after": 99
+      "checkpoint_start": 96,
+      "checkpoint_end": 99
     },
     {
       "jingle_index_start": 90,
       "jingle_index_end": 90,
       "time_start_s": 22461.98,
       "time_end_s": 22461.98,
-      "episode_before": 99,
-      "episode_after": null
+      "checkpoint_start": 99,
+      "checkpoint_end": null
     }
   ]
 }
