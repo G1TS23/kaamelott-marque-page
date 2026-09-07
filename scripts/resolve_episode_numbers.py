@@ -96,11 +96,18 @@ def raw_checkpoints(jingle_times, mentions):
 def resolve_segments(jingle_times, checkpoints):
     """Renvoie (resolved, unresolved_ranges).
     resolved : {jingle_index: (episode_number, confidence)} pour les
-    segments cohérents — confidence = "confirmé" si les deux checkpoints
-    encadrants sont d'origine relative, "à repointer" si l'un des deux vient
-    d'une conversion depuis une numérotation absolue (passe la vérification
-    de cohérence, mais reste une hypothèse plutôt qu'une certitude, issue
-    #9 : le Livre 4 alterne les deux formats sans règle prévisible).
+    segments cohérents. Pour une ancre (jingle directement associé à un
+    checkpoint) : confidence = "confirmé" si sa propre mention est
+    d'origine relative, "à repointer" si elle vient d'une conversion
+    depuis une numérotation absolue — dépend uniquement de cette ancre,
+    jamais de l'ancre voisine (sans quoi une ancre partagée entre deux
+    paires consécutives aurait une confiance dépendant arbitrairement de
+    l'ordre de traitement). Pour un point interpolé entre deux ancres (pas
+    de mention propre) : confidence = "confirmé" seulement si les deux
+    ancres encadrantes sont d'origine relative, "à repointer" sinon (passe
+    la vérification de cohérence, mais reste une hypothèse plutôt qu'une
+    certitude, issue #9 : le Livre 4 alterne les deux formats sans règle
+    prévisible).
     unresolved_ranges : liste de dicts {start, end, checkpoint_start,
     checkpoint_end} (indices de jingle inclusifs, `checkpoint_start`/
     `checkpoint_end` = numéro brut du checkpoint trouvé respectivement à
@@ -128,9 +135,21 @@ def resolve_segments(jingle_times, checkpoints):
         jingle_gap = idx_b - idx_a
         number_gap = num_b - num_a
         if number_gap == jingle_gap:
-            confidence = "confirmé" if src_a == src_b == "relatif" else "à repointer"
-            for offset in range(jingle_gap + 1):
-                resolved[idx_a + offset] = (num_a + offset, confidence)
+            # Les deux ancres elles-mêmes ont un numéro directement observé
+            # (leur propre mention) : leur confiance ne dépend que de leur
+            # propre source, pas de l'autre ancre de la paire — sans quoi,
+            # pour une ancre partagée entre deux paires consécutives, la
+            # confiance retenue dépendrait arbitrairement de l'ordre de
+            # traitement (la seconde paire écraserait la première) plutôt
+            # que de refléter la fiabilité réelle de cette ancre.
+            resolved[idx_a] = (num_a, "confirmé" if src_a == "relatif" else "à repointer")
+            resolved[idx_b] = (num_b, "confirmé" if src_b == "relatif" else "à repointer")
+            # Les points strictement entre les deux ancres sont, eux, de
+            # vrais numéros interpolés (aucune mention propre) : leur
+            # confiance dépend bien des deux ancres encadrantes.
+            interior_confidence = "confirmé" if src_a == src_b == "relatif" else "à repointer"
+            for offset in range(1, jingle_gap):
+                resolved[idx_a + offset] = (num_a + offset, interior_confidence)
         else:
             unresolved_ranges.append({"start": idx_a, "end": idx_b, "checkpoint_start": num_a, "checkpoint_end": num_b})
 
