@@ -22,7 +22,7 @@
   .controls { margin-top: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   button { font-size: 0.95rem; padding: 8px 14px; border-radius: 6px; border: 1px solid #999; background: #fff; cursor: pointer; }
   button.primary { background: #3462c9; color: #fff; border-color: #3462c9; }
-  button.mark { background: #1f8a4c; color: #fff; border-color: #1f8a4c; font-weight: 600; }
+  button.mark { background: #156b34; color: #fff; border-color: #156b34; font-weight: 600; }
   #current-time { font-variant-numeric: tabular-nums; font-size: 1.1rem; }
   #expected-episodes { margin-top: 16px; }
   .episode-card { padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 6px; background: #fff; font-size: 0.85rem; }
@@ -73,7 +73,7 @@
 </footer>
 
 <script src="https://www.youtube.com/iframe_api"></script>
-<script>
+<script type="module">
 // --- Données ---
 const VIDEO_IDS = { 1: "REFu8UmXXE0", 2: "x1RgHE0rg1M", 3: "7BZ6H9g2sng", 4: "lTN7vNhawyg" };
 const STORAGE_KEY = book => `kaamelott-pointage-livre-${book}`;
@@ -89,10 +89,21 @@ function loadMarks(book) {
   try {
     const raw = localStorage.getItem(STORAGE_KEY(book));
     return raw ? JSON.parse(raw) : [];
-  } catch (e) { return []; }
+  } catch {
+    // localStorage indisponible (navigation privée, quota, stockage
+    // désactivé) : on démarre avec une liste vide plutôt que de bloquer
+    // l'outil — les pointages de la session restent utilisables, seule la
+    // persistance entre rechargements est perdue.
+    return [];
+  }
 }
 function saveMarks(book, marks) {
-  try { localStorage.setItem(STORAGE_KEY(book), JSON.stringify(marks)); } catch (e) {}
+  try {
+    localStorage.setItem(STORAGE_KEY(book), JSON.stringify(marks));
+  } catch {
+    // Idem : ignoré volontairement, pas de sauvegarde possible mais l'outil
+    // reste utilisable pour la session en cours.
+  }
 }
 let marks = [];
 
@@ -154,7 +165,8 @@ function renderExpectedEpisodes() {
   } else {
     for (let n = lo; n <= hi; n++) {
       const ep = episodes.find(e => e.episode === n);
-      html += `<div class="episode-card"><b>Épisode ${n}</b>${ep ? ` — ${ep.title}<br>${ep.summary}` : " — (introuvable dans les données)"}</div>`;
+      const details = ep ? ` — ${ep.title}<br>${ep.summary}` : " — (introuvable dans les données)";
+      html += `<div class="episode-card"><b>Épisode ${n}</b>${details}</div>`;
     }
   }
   box.innerHTML = html;
@@ -163,10 +175,10 @@ function renderExpectedEpisodes() {
 function nextExpectedNumber() {
   if (activeGap === null) return "";
   const g = resolution.gaps[activeGap];
-  const already = marks.filter(m => m.gap === activeGap).map(m => m.episode);
+  const already = new Set(marks.filter(m => m.gap === activeGap).map(m => m.episode));
   const base = g.checkpoint_start !== null ? g.checkpoint_start + 1 : 1;
   let n = base;
-  while (already.includes(n)) n++;
+  while (already.has(n)) n++;
   return n;
 }
 
@@ -195,7 +207,7 @@ function renderMarked() {
   box.innerHTML = html;
   box.querySelectorAll(".ep-input").forEach(inp => {
     inp.onchange = () => {
-      marks[+inp.dataset.idx].episode = parseInt(inp.value, 10);
+      marks[+inp.dataset.idx].episode = Number.parseInt(inp.value, 10);
       saveMarks(currentBook, marks);
       renderGaps();
     };
@@ -231,6 +243,10 @@ function cueVideo(book) {
 }
 
 // --- YouTube IFrame API ---
+// Le script externe iframe_api cherche window.onYouTubeIframeAPIReady : une
+// déclaration de fonction top-level dans un module n'est PAS attachée à
+// window automatiquement (contrairement à un script classique), il faut
+// l'exposer explicitement.
 function onYouTubeIframeAPIReady() {
   player = new YT.Player("player", {
     videoId: VIDEO_IDS[currentBook],
@@ -240,6 +256,7 @@ function onYouTubeIframeAPIReady() {
     },
   });
 }
+window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
 
 setInterval(() => {
   if (playerReady && player.getCurrentTime) {
@@ -268,7 +285,7 @@ function exportJson() {
 }
 
 // --- Wiring ---
-document.getElementById("book-select").onchange = e => loadBook(parseInt(e.target.value, 10));
+document.getElementById("book-select").onchange = e => loadBook(Number.parseInt(e.target.value, 10));
 document.getElementById("btn-seek").onclick = seekToGap;
 document.getElementById("btn-mark").onclick = markNow;
 document.getElementById("btn-export").onclick = exportJson;
@@ -286,7 +303,7 @@ document.addEventListener("keydown", e => {
   }
 });
 
-loadBook(1);
+await loadBook(1);
 </script>
 </body>
 </html>
