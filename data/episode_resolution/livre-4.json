@@ -1,0 +1,493 @@
+{
+  "book": 4,
+  "total_episodes": 99,
+  "jingles_detected": 85,
+  "resolved": [
+    {
+      "episode": 4,
+      "jingle_time_s": 1187.68,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 5,
+      "jingle_time_s": 1406.56,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 6,
+      "jingle_time_s": 1613.74,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 12,
+      "jingle_time_s": 2937.86,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 13,
+      "jingle_time_s": 3142.04,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 14,
+      "jingle_time_s": 3432.76,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 15,
+      "jingle_time_s": 3655.0,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 16,
+      "jingle_time_s": 3839.45,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 17,
+      "jingle_time_s": 4068.48,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 20,
+      "jingle_time_s": 4659.31,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 21,
+      "jingle_time_s": 4950.55,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 22,
+      "jingle_time_s": 5135.98,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 23,
+      "jingle_time_s": 5421.68,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 24,
+      "jingle_time_s": 5616.81,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 25,
+      "jingle_time_s": 5825.16,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 26,
+      "jingle_time_s": 6178.54,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 27,
+      "jingle_time_s": 6368.03,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 28,
+      "jingle_time_s": 6591.17,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 29,
+      "jingle_time_s": 6803.0,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 30,
+      "jingle_time_s": 7023.45,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 31,
+      "jingle_time_s": 7241.39,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 32,
+      "jingle_time_s": 7490.56,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 33,
+      "jingle_time_s": 7720.75,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 34,
+      "jingle_time_s": 8041.41,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 36,
+      "jingle_time_s": 8542.01,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 37,
+      "jingle_time_s": 8747.04,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 38,
+      "jingle_time_s": 8942.4,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 39,
+      "jingle_time_s": 9199.2,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 40,
+      "jingle_time_s": 9427.75,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 41,
+      "jingle_time_s": 9619.97,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 42,
+      "jingle_time_s": 9808.61,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 43,
+      "jingle_time_s": 10022.71,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 45,
+      "jingle_time_s": 10437.32,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 46,
+      "jingle_time_s": 10677.15,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 47,
+      "jingle_time_s": 10907.76,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 49,
+      "jingle_time_s": 11462.47,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 50,
+      "jingle_time_s": 11696.73,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 51,
+      "jingle_time_s": 12269.85,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 53,
+      "jingle_time_s": 12686.67,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 54,
+      "jingle_time_s": 12913.49,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 55,
+      "jingle_time_s": 13110.94,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 56,
+      "jingle_time_s": 13426.01,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 57,
+      "jingle_time_s": 13627.72,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 58,
+      "jingle_time_s": 13802.23,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 59,
+      "jingle_time_s": 14046.25,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 60,
+      "jingle_time_s": 14256.4,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 63,
+      "jingle_time_s": 14929.64,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 64,
+      "jingle_time_s": 15189.16,
+      "confidence": "confirmé"
+    },
+    {
+      "episode": 65,
+      "jingle_time_s": 15391.72,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 66,
+      "jingle_time_s": 15597.17,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 67,
+      "jingle_time_s": 15786.39,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 68,
+      "jingle_time_s": 15982.36,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 69,
+      "jingle_time_s": 16225.8,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 71,
+      "jingle_time_s": 16626.47,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 72,
+      "jingle_time_s": 16857.3,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 73,
+      "jingle_time_s": 17099.27,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 75,
+      "jingle_time_s": 17538.09,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 76,
+      "jingle_time_s": 17751.35,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 77,
+      "jingle_time_s": 18001.04,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 78,
+      "jingle_time_s": 18201.31,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 79,
+      "jingle_time_s": 18463.33,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 80,
+      "jingle_time_s": 18767.49,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 81,
+      "jingle_time_s": 18945.75,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 82,
+      "jingle_time_s": 19211.56,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 83,
+      "jingle_time_s": 19550.15,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 84,
+      "jingle_time_s": 19750.28,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 85,
+      "jingle_time_s": 19977.04,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 86,
+      "jingle_time_s": 20216.14,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 87,
+      "jingle_time_s": 20443.11,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 90,
+      "jingle_time_s": 21199.46,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 91,
+      "jingle_time_s": 21430.65,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 92,
+      "jingle_time_s": 21667.99,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 93,
+      "jingle_time_s": 21883.67,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 95,
+      "jingle_time_s": 22298.25,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 96,
+      "jingle_time_s": 22524.39,
+      "confidence": "à repointer"
+    },
+    {
+      "episode": 97,
+      "jingle_time_s": 22759.79,
+      "confidence": "à repointer"
+    }
+  ],
+  "gaps": [
+    {
+      "jingle_index_start": 0,
+      "jingle_index_end": 2,
+      "time_start_s": 570.93,
+      "time_end_s": 1187.68,
+      "episode_before": 1,
+      "episode_after": 4
+    },
+    {
+      "jingle_index_start": 4,
+      "jingle_index_end": 8,
+      "time_start_s": 1613.74,
+      "time_end_s": 2937.86,
+      "episode_before": 6,
+      "episode_after": 12
+    },
+    {
+      "jingle_index_start": 13,
+      "jingle_index_end": 15,
+      "time_start_s": 4068.48,
+      "time_end_s": 4659.31,
+      "episode_before": 17,
+      "episode_after": 20
+    },
+    {
+      "jingle_index_start": 29,
+      "jingle_index_end": 30,
+      "time_start_s": 8041.41,
+      "time_end_s": 8542.01,
+      "episode_before": 34,
+      "episode_after": 36
+    },
+    {
+      "jingle_index_start": 37,
+      "jingle_index_end": 38,
+      "time_start_s": 10022.71,
+      "time_end_s": 10437.32,
+      "episode_before": 43,
+      "episode_after": 45
+    },
+    {
+      "jingle_index_start": 40,
+      "jingle_index_end": 41,
+      "time_start_s": 10907.76,
+      "time_end_s": 11462.47,
+      "episode_before": 47,
+      "episode_after": 49
+    },
+    {
+      "jingle_index_start": 43,
+      "jingle_index_end": 44,
+      "time_start_s": 12269.85,
+      "time_end_s": 12686.67,
+      "episode_before": 51,
+      "episode_after": 53
+    },
+    {
+      "jingle_index_start": 51,
+      "jingle_index_end": 53,
+      "time_start_s": 14256.4,
+      "time_end_s": 14929.64,
+      "episode_before": 60,
+      "episode_after": 63
+    },
+    {
+      "jingle_index_start": 59,
+      "jingle_index_end": 60,
+      "time_start_s": 16225.8,
+      "time_end_s": 16626.47,
+      "episode_before": 69,
+      "episode_after": 71
+    },
+    {
+      "jingle_index_start": 62,
+      "jingle_index_end": 63,
+      "time_start_s": 17099.27,
+      "time_end_s": 17538.09,
+      "episode_before": 73,
+      "episode_after": 75
+    },
+    {
+      "jingle_index_start": 75,
+      "jingle_index_end": 77,
+      "time_start_s": 20443.11,
+      "time_end_s": 21199.46,
+      "episode_before": 87,
+      "episode_after": 90
+    },
+    {
+      "jingle_index_start": 80,
+      "jingle_index_end": 81,
+      "time_start_s": 21883.67,
+      "time_end_s": 22298.25,
+      "episode_before": 93,
+      "episode_after": 95
+    },
+    {
+      "jingle_index_start": 83,
+      "jingle_index_end": 84,
+      "time_start_s": 22759.79,
+      "time_end_s": 23168.72,
+      "episode_before": 97,
+      "episode_after": 99
+    }
+  ]
+}

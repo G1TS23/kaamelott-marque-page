@@ -180,7 +180,42 @@ def resolve_book(book_num, reference_path=REFERENCE_PATH):
                 hint = " (aucun checkpoint dans tout le livre)"
             print(f"  jingles {start}-{end} ({n_jingles}), {t0:.2f}-{t1:.2f} min{hint}")
 
+    output_path = DATA_DIR / "episode_resolution" / f"livre-{book_num}.json"
+    output_path.parent.mkdir(exist_ok=True)
+    output_path.write_text(
+        json.dumps(to_json(book_num, total_episodes, resolved, unresolved_ranges, jingle_times), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    print(f"\nRésultat exporté dans {output_path}")
+
     return resolved, unresolved_ranges, jingle_times
+
+
+def to_json(book_num, total_episodes, resolved, unresolved_ranges, jingle_times):
+    """Structure exportable (data/episode_resolution/livre-N.json) : la
+    liste concrète des trous demandée par l'issue #10, exploitable
+    directement par l'outil de pointage manuel (issue #11) sans avoir à
+    relancer le pipeline."""
+    return {
+        "book": book_num,
+        "total_episodes": total_episodes,
+        "jingles_detected": len(jingle_times),
+        "resolved": [
+            {"episode": num, "jingle_time_s": round(jingle_times[idx], 2), "confidence": confidence}
+            for idx, (num, confidence) in sorted(resolved.items())
+        ],
+        "gaps": [
+            {
+                "jingle_index_start": r["start"],
+                "jingle_index_end": r["end"],
+                "time_start_s": round(jingle_times[r["start"]], 2),
+                "time_end_s": round(jingle_times[r["end"]], 2),
+                "episode_before": r["before"],
+                "episode_after": r["after"],
+            }
+            for r in unresolved_ranges
+        ],
+    }
 
 
 def main():
