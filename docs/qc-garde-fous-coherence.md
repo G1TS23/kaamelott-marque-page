@@ -7,10 +7,17 @@ par position" (issue #8/#9, fragile dès qu'un jingle est manqué n'importe
 où dans le livre — cf. `docs/qc-generalisation-4-livres.md`) par un
 algorithme en trois étapes :
 
-1. **Filtrer les mentions par plausibilité** : ne garder que les numéros
-   dans la plage réelle du livre (1 à N, N = nombre d'épisodes Wikipedia).
-   Élimine proprement les numéros absolus du Livre 4 (issue #9) sans seuil
-   de tolérance arbitraire.
+1. **Filtrer les mentions par plausibilité** : un numéro est retenu s'il
+   est soit dans la plage relative du livre (1 à N, N = nombre d'épisodes
+   Wikipedia), soit dans la plage absolue de la série complète à ce point
+   (cumul des livres précédents + 1..N) — auquel cas il est **converti**
+   en numéro relatif (numéro absolu − cumul des précédents). La provenance
+   (relatif/absolu converti) est conservée : un checkpoint issu d'une
+   conversion reste marqué **"à repointer"** même s'il passe la
+   vérification de cohérence à l'étape 3, car le Livre 4 alterne les deux
+   formats sans règle prévisible (issue #9) — une conversion cohérente
+   reste une hypothèse forte, pas une certitude équivalente à une mention
+   relative directe.
 2. **Un candidat par jingle** (le plus proche en temps parmi les mentions
    plausibles) comme checkpoint potentiel — pas de tri par "attendu" à ce
    stade, les faux checkpoints sont éliminés à l'étape suivante.
@@ -23,23 +30,26 @@ algorithme en trois étapes :
 
 ## Résultat global
 
-| Livre | Jingles | Checkpoints candidats | Résolus avec confiance | Trous |
-|---|---|---|---|---|
-| 1 | 97 | 69 | 82 (85 %) | 7 |
-| 2 | 91 | 64 | 86 (95 %) | 10 |
-| 3 | 86 | 77 | 76 (88 %) | 14 |
-| 4 | 85 | 45 | 53 (62 %) | 10 |
-| **Total** | **359** | 255 | **297 (83 %)** | 41 |
+| Livre | Jingles | Checkpoints candidats | Résolus | dont à repointer | Trous |
+|---|---|---|---|---|---|
+| 1 | 97 | 69 | 82 (85 %) | 0 | 7 |
+| 2 | 91 | 64 | 86 (95 %) | 0 | 10 |
+| 3 | 86 | 77 | 76 (88 %) | 0 | 14 |
+| 4 | 85 | 72 | 76 (89 %) | 37 | 13 |
+| **Total** | **359** | 282 | **320 (89 %)** | 37 | 44 |
 
 Amélioration nette par rapport au matching simple (issue #9, 282/359 = 79 %)
 sur les Livres 1-3 : l'interpolation entre checkpoints valides résout
 davantage d'épisodes qu'une confirmation ponctuelle par mention (ex. Livre 2 :
 64 confirmations directes → 86 épisodes résolus par interpolation).
 
-Le Livre 4 baisse au contraire (53/85 = 62 % contre 72/85 en matching
-simple) : c'est le résultat **attendu et voulu** du filtre de plausibilité,
-qui rejette les nombreuses mentions à numérotation absolue plutôt que de
-les accepter à tort comme avant.
+Le Livre 4 (72 checkpoints candidats, dont 57 convertis depuis l'absolu)
+passe de 53/85 (62 %, sans conversion) à **76/85 (89 %)** grâce à la
+conversion absolu→relatif — dont 37 marqués "à repointer" (checkpoint
+converti, à confirmer par visionnage même si la séquence est cohérente).
+Sans la conversion, ces 37 épisodes auraient été silencieusement classés
+comme des trous alors que le signal existait, juste dans le mauvais
+référentiel.
 
 ## Validation : redécouvre seule le bug de l'issue #8
 
@@ -65,16 +75,31 @@ disponibles contre le nombre d'épisodes attendu — l'information nécessaire
 pour l'outil de pointage manuel (issue #11) sans avoir à retraiter tout le
 livre.
 
-Exemple representatif (Livre 4, la grande zone d'alternance absolu/relatif
-confirmée par visionnage en issue #9) :
+Liste complète par livre : sortie de
+`python scripts/resolve_episode_numbers.py <1|2|3|4>`.
+
+## Avant/après conversion absolu→relatif (Livre 4)
+
+La grande zone d'alternance absolu/relatif confirmée par visionnage en
+issue #9 (jingles 59 à 80, 22 jingles sans checkpoint plausible avant
+conversion) :
 
 ```
 jingles 59-80 (22), 270.43-364.73 min (entre épisode 69 et épisode 93,
   21 jingle(s) intermédiaire(s) pour 23 épisode(s) attendu(s))
 ```
 
-Liste complète par livre : sortie de
-`python scripts/resolve_episode_numbers.py <1|2|3|4>`.
+devient, une fois les numéros absolus reconnus et convertis, une succession
+de petits segments résolus (marqués "à repointer") entrecoupés de trous
+beaucoup plus petits et précis :
+
+```
+jingle 270.43 min  ->  épisode  69  [à repointer : checkpoint issu d'une numérotation absolue]
+  jingles 59-60 (2), 270.43-277.11 min (entre épisode 69 et épisode 71, ...)
+jingle 277.11 min  ->  épisode  71  [à repointer : ...]
+jingle 280.95 min  ->  épisode  72  [à repointer : ...]
+...
+```
 
 ## Limites connues
 
