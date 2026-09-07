@@ -61,15 +61,25 @@ début d'épisode.
 ## Cas particulier : « premier épisode »
 
 Pour le tout premier épisode d'un livre, Shisheyu dit parfois « premier
-épisode » plutôt que « épisode 1 » (remarqué en visionnant la vidéo) — le
-motif `épisode\s+(\d+)` ne peut pas le capturer. Plusieurs mentions de
-« premier épisode » trouvées entre 8:15 et 12:00 dans le Livre 1, mais elles
-ressemblent à du bavardage d'introduction (« Allez, premier épisode. Bon, je
-vais... », « ça c'est un épisode... premier épisode. Il reste 4h11 ») plutôt
-qu'à l'annonce du vrai début de lecture — impossible à trancher avec
-certitude sans un repère temporel humain (timestamp confirmé par visionnage)
-pour chaque livre. Non résolu dans cette issue, à traiter avec les timestamps
-de première épisode fournis pour chacun des 4 livres.
+épisode » plutôt que « épisode 1 » — le motif `épisode\s+(\d+)` ne peut pas
+le capturer. Plusieurs mentions trouvées entre 8:15 et 12:00 dans le Livre 1 :
+
+- 8:15 (×2) : « Zéro regret mais voilà le premier épisode risque d'être un
+  peu bizarre » — bavardage d'appréhension, avant de commencer
+- **8:32 : « Allez, allez, allez, premier épisode. Bon, je vais... »** — le
+  vrai début, **confirmé par visionnage** (timestamp fourni : 8:32)
+- 12:00 : « ça c'est un épisode... premier épisode. Il reste 4h11 » —
+  commentaire rétrospectif après coup, pas une nouvelle occurrence
+
+Le jingle détecté le plus proche de 8:32 est à 8:34,8 (**2,8s d'écart**,
+le plus serré observé jusqu'ici) — confirme que l'épisode 1 suit le même
+schéma que les autres (numéro annoncé juste avant le jingle).
+
+Pas de règle générique fiable pour distinguer automatiquement le vrai
+« premier épisode » du bavardage alentour (aucune des trois mentions ne se
+distingue structurellement des deux autres) — un timestamp confirmé par
+livre reste nécessaire pour ce cas précis, contrairement aux « épisode N »
+numérotés qui s'alignent déjà bien avec le jingle sans aide.
 
 ## Limites connues
 
