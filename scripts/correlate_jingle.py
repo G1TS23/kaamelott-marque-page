@@ -52,7 +52,7 @@ def find_jingle_occurrences(
     score[~silent] = correlation[~silent] / (template_norm * window_norm[~silent])
 
     peak_distance_samples = int(min_peak_distance_s * TARGET_SR)
-    candidates = np.where(score > threshold)[0]
+    candidates = np.nonzero(score > threshold)[0]
 
     peaks = []
     i = 0
