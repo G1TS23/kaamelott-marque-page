@@ -18,14 +18,32 @@
      (export/vider) se retrouve hors écran tant qu'on n'a pas scrollé
      jusqu'en bas. */
   main { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 380px 1fr; gap: 0; }
-  #gaps-panel { overflow-y: auto; border-right: 1px solid #ccc; background: #fff; }
+  /* min-height:0 nécessaire : par défaut, un item de grille prend la taille
+     intrinsèque de son contenu (ex. les ~100 lignes de la vue "Tous les
+     épisodes") plutôt que la hauteur de ligne allouée par la grille, ce qui
+     fait déborder toute la page et masque le footer (même symptôme que le
+     fix body/main plus haut, ici sur l'item de grille lui-même). */
+  #gaps-panel { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid #ccc; background: #fff; }
+  .tabs { flex: 0 0 auto; display: flex; border-bottom: 1px solid #ccc; }
+  .tabs button { flex: 1; border: none; border-radius: 0; background: #f4f2ef; padding: 10px; cursor: pointer; font-size: 0.85rem; }
+  .tabs button.active { background: #fff; font-weight: 600; box-shadow: inset 0 -2px 0 #3462c9; }
+  #list-content { flex: 1 1 auto; overflow-y: auto; min-height: 0; }
   .gap { padding: 10px 14px; border-bottom: 1px solid #e3e0da; cursor: pointer; }
   .gap:hover { background: #f0eee9; }
   .gap.active { background: #e6efff; border-left: 4px solid #3462c9; }
   .gap h3 { margin: 0 0 4px; font-size: 0.95rem; }
   .gap .meta { font-size: 0.8rem; color: #666; }
   .gap .suspect { color: #b3401f; font-weight: 600; }
-  #player-panel { display: flex; flex-direction: column; padding: 16px; overflow-y: auto; }
+  .ep-row { padding: 8px 14px; border-bottom: 1px solid #e3e0da; display: flex; align-items: center; gap: 8px; }
+  .ep-row .ep-num { font-weight: 600; width: 30px; flex: 0 0 auto; }
+  .ep-row .ep-title { flex: 1 1 auto; font-size: 0.85rem; }
+  .ep-row .ep-status { font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; flex: 0 0 auto; white-space: nowrap; }
+  .ep-row .ep-status.confirme { background: #dff3e3; color: #156b34; }
+  .ep-row .ep-status.repointer { background: #fff3d6; color: #8a5a00; }
+  .ep-row .ep-status.manuel { background: #e6efff; color: #3462c9; }
+  .ep-row .ep-status.absent { background: #f4e4e0; color: #b3401f; }
+  .ep-row .btn-play { flex: 0 0 auto; padding: 3px 9px; font-size: 0.85rem; }
+  #player-panel { display: flex; flex-direction: column; min-height: 0; padding: 16px; overflow-y: auto; }
   #player-wrap { position: relative; width: 100%; max-width: 720px; aspect-ratio: 16/9; background: #000; }
   #player { width: 100%; height: 100%; }
   .controls { margin-top: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -59,7 +77,13 @@
 </header>
 
 <main>
-  <div id="gaps-panel"><p style="padding:14px">Chargement…</p></div>
+  <div id="gaps-panel">
+    <div class="tabs">
+      <button id="tab-gaps" class="active">Trous à pointer</button>
+      <button id="tab-episodes">Tous les épisodes</button>
+    </div>
+    <div id="list-content"><p style="padding:14px">Chargement…</p></div>
+  </div>
 
   <div id="player-panel">
     <div id="player-wrap"><div id="player"></div></div>
@@ -91,6 +115,7 @@ let currentBook = 1;
 let resolution = null;   // data/episode_resolution/livre-N.json
 let episodes = null;     // data/episodes/livre-N.json
 let activeGap = null;    // index dans resolution.gaps
+let activeView = "gaps"; // "gaps" | "episodes"
 let player = null;
 let playerReady = false;
 
@@ -129,14 +154,25 @@ async function loadBook(book) {
   marks = loadMarks(book);
   document.getElementById("header-status").textContent =
     `${resolution.gaps.length} trou(s) — ${resolution.resolved.length}/${resolution.jingles_detected} déjà résolus par le pipeline`;
-  renderGaps();
+  renderActiveView();
   renderExpectedEpisodes();
   renderMarked();
   if (playerReady) cueVideo(book);
 }
 
+function renderActiveView() {
+  if (activeView === "gaps") renderGaps(); else renderEpisodeList();
+}
+
+function switchView(view) {
+  activeView = view;
+  document.getElementById("tab-gaps").classList.toggle("active", view === "gaps");
+  document.getElementById("tab-episodes").classList.toggle("active", view === "episodes");
+  renderActiveView();
+}
+
 function renderGaps() {
-  const panel = document.getElementById("gaps-panel");
+  const panel = document.getElementById("list-content");
   panel.innerHTML = "";
   resolution.gaps.forEach((g, i) => {
     const div = document.createElement("div");
@@ -152,6 +188,52 @@ function renderGaps() {
       </div>`;
     div.onclick = () => selectGap(i);
     panel.appendChild(div);
+  });
+}
+
+/** Dernier pointage manuel connu pour chaque numéro d'épisode de ce livre,
+ * tous trous confondus (prototype/contrôle qualité, issue #36) — sert à la
+ * vue "Tous les épisodes", pas au pointage lui-même (qui reste organisé
+ * par trou dans marks/renderMarked). */
+function manualByEpisode() {
+  const map = new Map();
+  for (const m of marks) map.set(m.episode, m.time_s);
+  return map;
+}
+
+function renderEpisodeList() {
+  const container = document.getElementById("list-content");
+  const resolvedByEp = new Map(resolution.resolved.map(r => [r.episode, r]));
+  const manualT = manualByEpisode();
+  let html = "";
+  for (let n = 1; n <= resolution.total_episodes; n++) {
+    const ep = episodes.find(e => e.episode === n);
+    const title = ep ? ep.title : "(introuvable dans les données)";
+    const res = resolvedByEp.get(n);
+    let statusClass, statusLabel, playTime;
+    if (res) {
+      statusClass = res.confidence === "confirmé" ? "confirme" : "repointer";
+      statusLabel = res.confidence;
+      playTime = res.jingle_time_s;
+    } else if (manualT.has(n)) {
+      statusClass = "manuel";
+      statusLabel = "pointé manuellement";
+      playTime = manualT.get(n);
+    } else {
+      statusClass = "absent";
+      statusLabel = "non résolu";
+      playTime = null;
+    }
+    html += `<div class="ep-row">
+      <span class="ep-num">#${n}</span>
+      <span class="ep-title">${title}</span>
+      <span class="ep-status ${statusClass}">${statusLabel}</span>
+      ${playTime !== null ? `<button class="btn-play" data-time="${playTime}">▶</button>` : ""}
+    </div>`;
+  }
+  container.innerHTML = html;
+  container.querySelectorAll(".btn-play").forEach(btn => {
+    btn.onclick = () => seekTo(Number.parseFloat(btn.dataset.time) - 3);
   });
 }
 
@@ -229,7 +311,7 @@ function renderMarked() {
     inp.onchange = () => {
       marks[+inp.dataset.idx].episode = Number.parseInt(inp.value, 10);
       saveMarks(currentBook, marks);
-      renderGaps();
+      renderActiveView();
     };
   });
   box.querySelectorAll(".btn-del").forEach(btn => {
@@ -237,7 +319,7 @@ function renderMarked() {
       marks.splice(+btn.dataset.idx, 1);
       saveMarks(currentBook, marks);
       renderMarked();
-      renderGaps();
+      renderActiveView();
     };
   });
 }
@@ -248,7 +330,7 @@ function markNow() {
   marks.push({ gap: activeGap, episode: nextExpectedNumber(), time_s: Math.round(t * 10) / 10 });
   saveMarks(currentBook, marks);
   renderMarked();
-  renderGaps();
+  renderActiveView();
 }
 
 function seekTo(t) {
@@ -310,6 +392,8 @@ function exportJson() {
 
 // --- Wiring ---
 document.getElementById("book-select").onchange = e => loadBook(Number.parseInt(e.target.value, 10));
+document.getElementById("tab-gaps").onclick = () => switchView("gaps");
+document.getElementById("tab-episodes").onclick = () => switchView("episodes");
 document.getElementById("btn-seek").onclick = seekToGap;
 document.getElementById("btn-mark").onclick = markNow;
 document.getElementById("btn-export").onclick = exportJson;
@@ -318,7 +402,7 @@ document.getElementById("btn-clear").onclick = () => {
   marks = [];
   saveMarks(currentBook, marks);
   renderMarked();
-  renderGaps();
+  renderActiveView();
 };
 document.addEventListener("keydown", e => {
   if (e.key === "m" || e.key === "M") {
