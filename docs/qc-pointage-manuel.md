@@ -55,9 +55,13 @@ python3 -m http.server 8000
 
 Deuxième onglet à côté de la liste des trous : liste 1..N complète du
 livre, avec titre Wikipedia et statut de chaque épisode — confirmé,
-à repointer, pointé manuellement (session en cours), ou non résolu (fait
-partie d'un trou). Un bouton ▶ par épisode dont le timestamp est connu
-saute directement dedans (lecteur réutilisé).
+à repointer, pointé manuellement (session en cours), **indice dispo**
+(non résolu par le pipeline, mais un `mention_hints` existe — issue #42),
+ou non résolu (aucun timestamp d'aucune source). Un bouton ▶ par épisode
+dont un timestamp est connu saute directement dedans (lecteur réutilisé),
+5s avant pour un indice de transcription (le numéro y est prononcé, ce
+n'est pas la frontière exacte de l'épisode) contre 3s pour un timestamp
+confirmé.
 
 Sert à la fois de contrôle qualité continu (vérifier au fil de l'eau les
 épisodes déjà résolus par le pipeline, pas seulement les trous — a permis
