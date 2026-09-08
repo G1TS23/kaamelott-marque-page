@@ -21,7 +21,14 @@ algorithme en trois étapes :
 2. **Un candidat par jingle** (le plus proche en temps parmi les mentions
    plausibles) comme checkpoint potentiel — pas de tri par "attendu" à ce
    stade, les faux checkpoints sont éliminés à l'étape suivante.
-3. **Valider chaque paire de checkpoints consécutifs** : si l'écart de
+3. **Retirer les checkpoints isolés parasites** (issue #34) : si un
+   checkpoint n'est cohérent NI avec son voisin de gauche NI avec son
+   voisin de droite, mais que la paire élargie (en le sautant) l'est, il
+   s'agit très probablement d'une mention parasite (rappel, aparté) qui
+   coupe artificiellement un segment par ailleurs cohérent en deux faux
+   trous — on le retire, il redevient un point interpolé ordinaire du
+   segment large.
+4. **Valider chaque paire de checkpoints consécutifs** : si l'écart de
    jingles entre les deux correspond exactement à l'écart de numéros, le
    segment est cohérent → numéroter par simple incrément. Sinon, marquer
    tout le segment (bornes incluses) à vérifier à la main — on ne sait pas
@@ -32,11 +39,11 @@ algorithme en trois étapes :
 
 | Livre | Jingles | Checkpoints candidats | Résolus | dont à repointer | Trous |
 |---|---|---|---|---|---|
-| 1 | 97 | 69 | 82 (85 %) | 0 | 7 |
+| 1 | 97 | 67 | 89 (92 %) | 0 | 3 |
 | 2 | 91 | 64 | 86 (95 %) | 0 | 10 |
 | 3 | 86 | 77 | 76 (88 %) | 0 | 14 |
 | 4 | 85 | 72 | 76 (89 %) | 30 | 13 |
-| **Total** | **359** | 282 | **320 (89 %)** | 30 | 44 |
+| **Total** | **359** | 280 | **327 (91 %)** | 30 | 40 |
 
 Amélioration nette par rapport au matching simple (issue #9, 282/359 = 79 %)
 sur les Livres 1-3 : l'interpolation entre checkpoints valides résout
@@ -60,7 +67,7 @@ commits ; 7 épisodes initialement comptés "à repointer" à tort, 37 → 30).
 
 ## Validation : redécouvre seule le bug de l'issue #8
 
-Sans aucune heuristique "numéro attendu", l'algorithme isole tout seul
+Sans aucune heuristique "numéro attendu", l'algorithme isolait tout seul
 l'exact problème déjà identifié et corrigé à la main en issue #8 (jingle à
 88.71 min du Livre 1, faussement rapproché de la mention de rappel
 "épisode 6") :
@@ -74,6 +81,34 @@ L'écart négatif/incohérent (6 avant 25) déclenche naturellement le
 signalement, sans préférence codée en dur pour un numéro plutôt qu'un
 autre — une validation de plus que l'approche par checkpoints est plus
 robuste que le matching ponctuel.
+
+**Mise à jour (issue #34)** : ce trou (et son voisin 19-20) n'existe plus
+depuis le retrait des checkpoints isolés parasites — la mention "épisode 6"
+est maintenant ignorée d'emblée puisque le segment élargi (jingle 19,
+épisode 20 confirmé → jingle 24, épisode 25 confirmé, écart de 5 des deux
+côtés) est directement cohérent. Détails dans la section suivante.
+
+## Fix : checkpoints isolés parasites (issue #34)
+
+Trouvé en testant l'outil de pointage manuel (issue #11) sur le Livre 1 :
+retour utilisateur signalant que les trous 1+2 et 4+5 semblaient être des
+doublons (plages de temps qui se touchent).
+
+En creusant : les ancres réellement confirmées de part et d'autre de
+chaque paire s'accordaient déjà parfaitement (20↔25 avec un écart de 5 des
+deux côtés ; 44↔48 avec un écart de 4 des deux côtés). Le seul problème
+était qu'un unique jingle au milieu (20, puis 43) avait lui-même un
+checkpoint parasite ("6", puis "50") qui coupait chaque segment par
+ailleurs cohérent en deux faux trous, au lieu de laisser passer la paire
+élargie.
+
+Fix : avant de construire les segments, repérer les checkpoints incohérents
+avec leurs DEUX voisins mais dont la paire élargie (en les sautant) est
+cohérente, et les retirer — le jingle correspondant redevient un point
+interpolé ordinaire du segment large. Résultat sur le Livre 1 : 7 trous → 3,
+82/97 → 89/97 résolus. Aucun changement sur les Livres 2-3 (aucune
+occurrence de ce pattern chez eux) ni sur le Livre 4 (dominé par le
+problème distinct de la numérotation absolue, cf. section suivante).
 
 ## Les trous identifiés
 
@@ -130,11 +165,15 @@ jingle 280.95 min  ->  épisode  72  [à repointer : checkpoint issu d'une numé
 
 ## Limites connues
 
-- Le numéro affiché aux bornes d'un trou incohérent (ex. "épisode 6"
-  ci-dessus) peut lui-même être erroné — l'algorithme ne tranche pas
-  laquelle des deux bornes est fautive, il indique juste qu'elles ne sont
-  pas mutuellement cohérentes. À vérifier à la main dans tous les cas
-  (issue #11).
+- Le numéro affiché aux bornes d'un trou incohérent peut lui-même être
+  erroné — l'algorithme ne tranche pas laquelle des deux bornes est
+  fautive, il indique juste qu'elles ne sont pas mutuellement cohérentes.
+  À vérifier à la main dans tous les cas (issue #11).
+- Le retrait des checkpoints isolés (issue #34) ne traite qu'**un seul**
+  checkpoint parasite entouré de deux ancres cohérentes entre elles — deux
+  checkpoints parasites consécutifs (ou plus) ne seraient pas détectés par
+  ce mécanisme et continueraient à produire un trou signalé, pas de cas de
+  ce type rencontré dans les 4 livres à ce jour.
 - Un trou sans checkpoint d'un côté (avant le premier ou après le dernier
   du livre) ne peut pas être validé par recoupement — signalé quand même,
   mais avec moins d'information (pas de numéro de référence de ce côté).
