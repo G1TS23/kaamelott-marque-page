@@ -51,6 +51,21 @@ python3 -m http.server 8000
    destiné à être fusionné avec `episode_resolution/livre-N.json` dans les
    `episodes/livre-N.json` finaux (issue #12).
 
+## Onglet "Tous les épisodes" (issue #36)
+
+Deuxième onglet à côté de la liste des trous : liste 1..N complète du
+livre, avec titre Wikipedia et statut de chaque épisode — confirmé,
+à repointer, pointé manuellement (session en cours), ou non résolu (fait
+partie d'un trou). Un bouton ▶ par épisode dont le timestamp est connu
+saute directement dedans (lecteur réutilisé).
+
+Sert à la fois de contrôle qualité continu (vérifier au fil de l'eau les
+épisodes déjà résolus par le pipeline, pas seulement les trous — a permis
+de retrouver, par recoupement manuel réel, que le pipeline et le pointage
+humain concordent à quelques secondes près sur le Livre 1) et de prototype
+de l'expérience finale du site (liste cliquable → lecture dynamique, cf.
+`docs/SPECS.md` section 6).
+
 ## Limites connues
 
 - Nécessite un serveur local (voir ci-dessus) — pas utilisable en ouvrant
@@ -58,7 +73,7 @@ python3 -m http.server 8000
 - Pas de vérification automatique de cohérence des pointages manuels
   (numéros dupliqués, hors plage, etc.) — à la charge de la relecture
   humaine avant la fusion finale (issue #12).
-- Testé par revue de code (syntaxe JS, structure des données, absence de
-  caractères cassant le HTML dans les résumés) — pas de test interactif
-  en navigateur réel effectué dans cette session (extension Chrome non
-  connectée). À vérifier à la première utilisation réelle.
+- Testé de bout en bout dans Chrome à plusieurs reprises (chargement,
+  trous, pointage clavier, export, persistance, changement de livre,
+  onglet "Tous les épisodes") au fil des sessions successives sur cet
+  outil.
