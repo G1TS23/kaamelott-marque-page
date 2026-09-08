@@ -287,18 +287,38 @@ def resolve_book(book_num, reference_path=REFERENCE_PATH):
     return resolved, unresolved_ranges, jingle_times
 
 
-def mention_hints(gap, plausible):
+def expected_episode_range(gap, resolved_episodes):
+    """Bornes réelles des épisodes à pointer pour ce trou (incluses).
+
+    Un checkpoint de bordure est exclu de la plage seulement s'il est
+    *effectivement* résolu ailleurs (dans `resolved_episodes`) — pas
+    simplement parce qu'il existe comme checkpoint. Un checkpoint dont NI
+    la paire de gauche NI la paire de droite n'est cohérente (contrairement
+    au cas de l'issue #34, où la paire élargie était cohérente) n'est
+    jamais ajouté à `resolved` : en l'excluant quand même de la plage
+    "attendu" du trou voisin, son propre numéro disparaissait
+    silencieusement, jamais résolu ni jamais proposé au pointage manuel
+    (issue #38)."""
+    lo = hi = None
+    if gap["checkpoint_start"] is not None:
+        lo = gap["checkpoint_start"] if gap["checkpoint_start"] not in resolved_episodes else gap["checkpoint_start"] + 1
+    if gap["checkpoint_end"] is not None:
+        hi = gap["checkpoint_end"] if gap["checkpoint_end"] not in resolved_episodes else gap["checkpoint_end"] - 1
+    return lo, hi
+
+
+def mention_hints(gap, plausible, resolved_episodes):
     """Mentions plausibles (déjà filtrées/converties) dont le numéro tombe
-    strictement entre les deux checkpoints du trou — un jingle a pu être
-    manqué par la corrélation audio alors que le numéro, lui, a bien été
-    annoncé et transcrit. Donne un timestamp précis où chercher au lieu de
-    devoir visionner toute la fenêtre du trou en aveugle (cf. issue #11 :
-    sans ça, l'épisode déjà confirmé au début du trou peut être confondu
-    avec celui à pointer)."""
-    lo, hi = gap["checkpoint_start"], gap["checkpoint_end"]
-    if lo is None or hi is None or hi <= lo + 1:
+    dans la plage attendue du trou (cf. expected_episode_range) — un
+    jingle a pu être manqué par la corrélation audio alors que le numéro,
+    lui, a bien été annoncé et transcrit. Donne un timestamp précis où
+    chercher au lieu de devoir visionner toute la fenêtre du trou en
+    aveugle (cf. issue #11 : sans ça, l'épisode déjà confirmé au début du
+    trou peut être confondu avec celui à pointer)."""
+    lo, hi = expected_episode_range(gap, resolved_episodes)
+    if lo is None or hi is None or hi < lo:
         return []
-    candidates = sorted((t, n) for t, n, _ in plausible if lo < n < hi)
+    candidates = sorted((t, n) for t, n, _ in plausible if lo <= n <= hi)
     # une seule mention par numéro (la première dans le temps) : l'ASR
     # détecte parfois le même mot deux fois à quelques ms d'écart (cf.
     # docs/qc-cross-reference.md), inutile de dupliquer l'indice.
@@ -316,6 +336,7 @@ def to_json(book_num, total_episodes, resolved, unresolved_ranges, jingle_times,
     liste concrète des trous demandée par l'issue #10, exploitable
     directement par l'outil de pointage manuel (issue #11) sans avoir à
     relancer le pipeline."""
+    resolved_episodes = {num for num, _ in resolved.values()}
     return {
         "book": book_num,
         "total_episodes": total_episodes,
@@ -340,10 +361,16 @@ def to_json(book_num, total_episodes, resolved, unresolved_ranges, jingle_times,
                 # et signale justement ce cas.
                 "checkpoint_start": r["checkpoint_start"],
                 "checkpoint_end": r["checkpoint_end"],
+                # Bornes réelles (incluses) des épisodes à pointer — un
+                # checkpoint de bordure n'est exclu que s'il est
+                # *effectivement* résolu ailleurs, pas juste parce qu'il
+                # existe (issue #38, cf. expected_episode_range).
+                "expected_first_episode": expected_episode_range(r, resolved_episodes)[0],
+                "expected_last_episode": expected_episode_range(r, resolved_episodes)[1],
                 # Mentions transcrites d'un numéro attendu dans ce trou, sans
                 # jingle associé (cf. mention_hints ci-dessus) — indice de
                 # timestamp, pas une confirmation aussi solide qu'un jingle.
-                "mention_hints": mention_hints(r, plausible),
+                "mention_hints": mention_hints(r, plausible, resolved_episodes),
             }
             for r in unresolved_ranges
         ],

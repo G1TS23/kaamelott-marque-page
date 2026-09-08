@@ -442,6 +442,8 @@
       "time_end_s": 10421.67,
       "checkpoint_start": 44,
       "checkpoint_end": 46,
+      "expected_first_episode": 45,
+      "expected_last_episode": 45,
       "mention_hints": [
         {
           "episode": 45,
@@ -456,6 +458,8 @@
       "time_end_s": 11897.61,
       "checkpoint_start": 51,
       "checkpoint_end": 53,
+      "expected_first_episode": 52,
+      "expected_last_episode": 52,
       "mention_hints": [
         {
           "episode": 52,
@@ -470,6 +474,8 @@
       "time_end_s": 12507.19,
       "checkpoint_start": 54,
       "checkpoint_end": 56,
+      "expected_first_episode": 55,
+      "expected_last_episode": 55,
       "mention_hints": [
         {
           "episode": 55,
@@ -484,6 +490,8 @@
       "time_end_s": 13872.67,
       "checkpoint_start": 60,
       "checkpoint_end": 62,
+      "expected_first_episode": 61,
+      "expected_last_episode": 61,
       "mention_hints": [
         {
           "episode": 61,
@@ -498,6 +506,8 @@
       "time_end_s": 15596.92,
       "checkpoint_start": 67,
       "checkpoint_end": 70,
+      "expected_first_episode": 68,
+      "expected_last_episode": 69,
       "mention_hints": [
         {
           "episode": 69,
@@ -512,6 +522,8 @@
       "time_end_s": 18363.67,
       "checkpoint_start": 79,
       "checkpoint_end": 81,
+      "expected_first_episode": 80,
+      "expected_last_episode": 80,
       "mention_hints": [
         {
           "episode": 80,
@@ -526,6 +538,8 @@
       "time_end_s": 19820.81,
       "checkpoint_start": 86,
       "checkpoint_end": 88,
+      "expected_first_episode": 87,
+      "expected_last_episode": 87,
       "mention_hints": [
         {
           "episode": 87,
@@ -540,6 +554,8 @@
       "time_end_s": 21140.34,
       "checkpoint_start": 91,
       "checkpoint_end": 94,
+      "expected_first_episode": 92,
+      "expected_last_episode": 93,
       "mention_hints": [
         {
           "episode": 93,
@@ -554,10 +570,16 @@
       "time_end_s": 22231.8,
       "checkpoint_start": 96,
       "checkpoint_end": 99,
+      "expected_first_episode": 97,
+      "expected_last_episode": 99,
       "mention_hints": [
         {
           "episode": 97,
           "time_s": 21777.0
+        },
+        {
+          "episode": 99,
+          "time_s": 22230.96
         }
       ]
     },
@@ -568,6 +590,8 @@
       "time_end_s": 22461.98,
       "checkpoint_start": 99,
       "checkpoint_end": null,
+      "expected_first_episode": 99,
+      "expected_last_episode": null,
       "mention_hints": []
     }
   ]
