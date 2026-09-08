@@ -41,6 +41,7 @@
   .ep-row .ep-status.confirme { background: #dff3e3; color: #156b34; }
   .ep-row .ep-status.repointer { background: #fff3d6; color: #8a5a00; }
   .ep-row .ep-status.manuel { background: #e6efff; color: #3462c9; }
+  .ep-row .ep-status.indice { background: #ece4f7; color: #5b3b8c; }
   .ep-row .ep-status.absent { background: #f4e4e0; color: #b3401f; }
   .ep-row .btn-play { flex: 0 0 auto; padding: 3px 9px; font-size: 0.85rem; }
   #player-panel { display: flex; flex-direction: column; min-height: 0; padding: 16px; overflow-y: auto; }
@@ -206,16 +207,36 @@ function manualByEpisode() {
   return map;
 }
 
+/** Indice de transcription par numéro d'épisode, tous trous confondus
+ * (issue #42) — un épisode non résolu par le pipeline a souvent quand même
+ * un `mention_hints` : autant proposer d'y sauter directement depuis la
+ * liste, plutôt qu'un "non résolu" muet obligeant à repasser par l'onglet
+ * des trous. */
+function hintByEpisode() {
+  const map = new Map();
+  for (const g of resolution.gaps) {
+    for (const h of g.mention_hints || []) {
+      if (!map.has(h.episode)) map.set(h.episode, h.time_s);
+    }
+  }
+  return map;
+}
+
 function renderEpisodeList() {
   const container = document.getElementById("list-content");
   const resolvedByEp = new Map(resolution.resolved.map(r => [r.episode, r]));
   const manualT = manualByEpisode();
+  const hintT = hintByEpisode();
   let html = "";
   for (let n = 1; n <= resolution.total_episodes; n++) {
     const ep = episodes.find(e => e.episode === n);
     const title = ep ? ep.title : "(introuvable dans les données)";
     const res = resolvedByEp.get(n);
     let statusClass, statusLabel, playTime;
+    // Un décalage plus large pour un indice de transcription que pour un
+    // timestamp confirmé : l'indice marque le moment où le numéro est
+    // prononcé, pas la frontière exacte de l'épisode.
+    let seekOffset = 3;
     if (res) {
       statusClass = res.confidence === "confirmé" ? "confirme" : "repointer";
       statusLabel = res.confidence;
@@ -224,6 +245,11 @@ function renderEpisodeList() {
       statusClass = "manuel";
       statusLabel = "pointé manuellement";
       playTime = manualT.get(n);
+    } else if (hintT.has(n)) {
+      statusClass = "indice";
+      statusLabel = "indice dispo";
+      playTime = hintT.get(n);
+      seekOffset = 5;
     } else {
       statusClass = "absent";
       statusLabel = "non résolu";
@@ -233,12 +259,12 @@ function renderEpisodeList() {
       <span class="ep-num">#${n}</span>
       <span class="ep-title">${title}</span>
       <span class="ep-status ${statusClass}">${statusLabel}</span>
-      ${playTime !== null ? `<button class="btn-play" data-time="${playTime}">▶</button>` : ""}
+      ${playTime !== null ? `<button class="btn-play" data-time="${playTime}" data-offset="${seekOffset}">▶</button>` : ""}
     </div>`;
   }
   container.innerHTML = html;
   container.querySelectorAll(".btn-play").forEach(btn => {
-    btn.onclick = () => seekTo(Number.parseFloat(btn.dataset.time) - 3);
+    btn.onclick = () => seekTo(Number.parseFloat(btn.dataset.time) - Number.parseFloat(btn.dataset.offset));
   });
 }
 
