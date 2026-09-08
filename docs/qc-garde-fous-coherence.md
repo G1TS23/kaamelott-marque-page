@@ -153,6 +153,18 @@ timestamp précis où chercher plutôt que de visionner toute la fenêtre en
 aveugle (vérifié : Livre 2 trou 1, "épisode 45" trouvé à 169.73 min sans
 jingle correspondant — exactement l'épisode manquant attendu).
 
+**Piège rencontré (Livre 2, épisode 93, confirmé par pointage manuel)** :
+un `mention_hints` peut être trompeur quand le streamer reparle d'un
+épisode juste après l'avoir lu, immédiatement avant le jingle du suivant —
+même pattern que le rappel "épisode 6" du Livre 1 (issue #8), mais ici
+collé à l'épisode qui vient de se terminer plutôt qu'à un épisode ancien.
+Concrètement : jingle réel de l'épisode 93 introuvable dans les jingles
+détectés (raté par la corrélation audio) ; le seul "épisode 93" trouvé dans
+la transcription tombe à 17s du jingle de l'épisode 94 (un rappel, pas
+l'annonce), à 200s du vrai timestamp identifié par pointage manuel. Un
+écart de cet ordre (très au-dessus du 1-8s habituel) entre l'indice et le
+pointage manuel est le signal à surveiller pour repérer ce cas.
+
 Liste complète par livre : sortie de
 `python scripts/resolve_episode_numbers.py <1|2|3|4>`.
 

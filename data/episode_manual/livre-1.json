@@ -1,0 +1,145 @@
+{
+  "book": 1,
+  "manual_points": [
+    {
+      "episode": 7,
+      "time_s": 1949.8
+    },
+    {
+      "episode": 8,
+      "time_s": 2200.7
+    },
+    {
+      "episode": 9,
+      "time_s": 2450
+    },
+    {
+      "episode": 10,
+      "time_s": 2811.7
+    },
+    {
+      "episode": 11,
+      "time_s": 3036.2
+    },
+    {
+      "episode": 12,
+      "time_s": 3250.3
+    },
+    {
+      "episode": 13,
+      "time_s": 3459.4
+    },
+    {
+      "episode": 14,
+      "time_s": 3674.3
+    },
+    {
+      "episode": 15,
+      "time_s": 3917.6
+    },
+    {
+      "episode": 16,
+      "time_s": 4191.6
+    },
+    {
+      "episode": 17,
+      "time_s": 4450.4
+    },
+    {
+      "episode": 18,
+      "time_s": 4662.4
+    },
+    {
+      "episode": 19,
+      "time_s": 4883.9
+    },
+    {
+      "episode": 20,
+      "time_s": 5080.9
+    },
+    {
+      "episode": 21,
+      "time_s": 5316.9
+    },
+    {
+      "episode": 21,
+      "time_s": 5318.9
+    },
+    {
+      "episode": 22,
+      "time_s": 5595.6
+    },
+    {
+      "episode": 23,
+      "time_s": 5822.8
+    },
+    {
+      "episode": 24,
+      "time_s": 6039.3
+    },
+    {
+      "episode": 31,
+      "time_s": 7628.3
+    },
+    {
+      "episode": 32,
+      "time_s": 7855.1
+    },
+    {
+      "episode": 33,
+      "time_s": 8056.9
+    },
+    {
+      "episode": 34,
+      "time_s": 8287.4
+    },
+    {
+      "episode": 35,
+      "time_s": 8526.8
+    },
+    {
+      "episode": 36,
+      "time_s": 8740.4
+    },
+    {
+      "episode": 37,
+      "time_s": 9000.7
+    },
+    {
+      "episode": 38,
+      "time_s": 9200.8
+    },
+    {
+      "episode": 39,
+      "time_s": 9401.1
+    },
+    {
+      "episode": 45,
+      "time_s": 10780.3
+    },
+    {
+      "episode": 46,
+      "time_s": 10972.1
+    },
+    {
+      "episode": 47,
+      "time_s": 11211.4
+    },
+    {
+      "episode": 48,
+      "time_s": 11479.6
+    },
+    {
+      "episode": 49,
+      "time_s": 11681.5
+    },
+    {
+      "episode": 56,
+      "time_s": 13515.9
+    },
+    {
+      "episode": 61,
+      "time_s": 14650.3
+    }
+  ]
+}
