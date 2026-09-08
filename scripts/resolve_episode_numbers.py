@@ -96,6 +96,30 @@ def raw_checkpoints(jingle_times, mentions):
     return checkpoints
 
 
+def prune_isolated_checkpoints(checkpoints):
+    """Retire les checkpoints isolés : ni la paire avec le voisin de gauche
+    ni celle avec le voisin de droite n'est cohérente, mais la paire
+    élargie (en sautant ce checkpoint) l'est. C'est le signe d'une mention
+    parasite (rappel, aparté — même pattern que le cas "épisode 6" de
+    l'issue #8) sur UN jingle au milieu d'un segment par ailleurs cohérent :
+    sans ce nettoyage, elle coupe artificiellement le segment en deux faux
+    trous au lieu de laisser passer la paire élargie (issue #34, trouvé en
+    testant l'outil de pointage manuel sur des trous qui semblaient
+    doublonner alors qu'ils encadraient la même mention parasite).
+
+    Le jingle retiré redevient un point interpolé ordinaire du segment
+    large, résolu normalement par _resolve_pair."""
+    anchors = sorted(checkpoints.items())
+    pruned = dict(checkpoints)
+    for (idx_prev, (num_prev, _)), (idx_cur, (num_cur, _)), (idx_next, (num_next, _)) in zip(anchors, anchors[1:], anchors[2:]):
+        left_ok = num_cur - num_prev == idx_cur - idx_prev
+        right_ok = num_next - num_cur == idx_next - idx_cur
+        wide_ok = num_next - num_prev == idx_next - idx_prev
+        if not left_ok and not right_ok and wide_ok:
+            del pruned[idx_cur]
+    return pruned
+
+
 def _confidence(src):
     return CONFIRME if src == "relatif" else A_REPOINTER
 
@@ -244,7 +268,8 @@ def resolve_book(book_num, reference_path=REFERENCE_PATH):
     print(f"  -> {len(mentions)} mentions au total, {len(plausible)} plausibles (dont {n_absolu} converties depuis l'absolu, offset {offset})")
 
     checkpoints = raw_checkpoints(jingle_times, plausible)
-    print(f"  -> {len(checkpoints)} checkpoints candidats")
+    checkpoints = prune_isolated_checkpoints(checkpoints)
+    print(f"  -> {len(checkpoints)} checkpoints candidats (mentions parasites isolées retirées)")
 
     resolved, unresolved_ranges = resolve_segments(jingle_times, checkpoints)
 
