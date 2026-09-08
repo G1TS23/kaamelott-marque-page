@@ -55,14 +55,21 @@ seul le pointage manuel direct a résolu ce cas.
 Les 4 livres sont donc pointés : **86 épisodes** au total viennent du
 pointage manuel, en complément des 327 résolus par le pipeline.
 
-**Reste en suspens (Livre 4)** : 30 épisodes résolus par le pipeline mais
-marqués `à repointer` (39, 41, 42, 55, 56, 66, 68, 71-73, 75-87, 90-93,
-95-97) — leur numéro vient d'une conversion depuis la numérotation absolue
-(issue #9), cohérente avec la séquence mais jamais confirmée par
-visionnage. Aucun n'est couvert par le pointage manuel, qui ne portait que
-sur les trous. À décider avant la fusion finale : les vérifier par
-échantillonnage, ou les intégrer tels quels avec leur `confidence`
-distincte.
+**Livre 4, épisodes `à repointer` — vérifiés conformes.** 30 épisodes
+résolus par le pipeline étaient marqués `à repointer` (39, 41, 42, 55, 56,
+66, 68, 71-73, 75-87, 90-93, 95-97) : leur numéro venait d'une conversion
+depuis la numérotation absolue (issue #9), cohérente avec la séquence mais
+jamais confirmée par visionnage, et aucun n'était couvert par le pointage
+manuel (qui ne portait que sur les trous).
+
+Ils ont été **vérifiés un par un par visionnage** (saut au timestamp depuis
+la liste "Tous les épisodes", issue #42) : les 30 sont corrects. Enregistré
+dans `data/episode_manual/livre-4.json` sous la clé `verified`, pour que la
+fusion finale puisse les faire passer de `à repointer` à confirmé.
+
+Note de provenance : `verified` est le seul champ de ces fichiers qui ne
+vient pas de l'export de l'outil (qui n'exporte que `manual_points`) — il a
+été ajouté ici à partir de la vérification rapportée par l'utilisateur.
 
 ## Correction appliquée au Livre 3 (décalage de numérotation)
 
