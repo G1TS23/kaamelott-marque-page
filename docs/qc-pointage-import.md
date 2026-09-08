@@ -42,7 +42,41 @@ seul le pointage manuel direct a résolu ce cas.
   pointage manuel (épisodes 31-39, 56, 61).
 - **Livre 2** : 10 trous du pipeline, tous couverts par le pointage manuel
   (épisodes 45, 52, 55, 61, 68, 69, 80, 87, 92, 93, 97, 98, 100).
-- **Livres 3-4** : pointage manuel pas encore effectué.
+- **Livre 3** : 14 trous du pipeline, tous couverts — 24 épisodes pointés
+  (10, 13, 16, 17, 20, 38, 39, 40, 45, 67-72, 75-81, 89, 100), aucun
+  manquant, aucun en trop. Inclut les 4 épisodes orphelins révélés par
+  l'issue #38 (68, 71, 76, 78), invisibles avant ce fix.
+- **Livre 4** : pointage manuel pas encore effectué.
+
+## Correction appliquée au Livre 3 (décalage de numérotation)
+
+Le pointage brut contenait un décalage d'un cran sur le trou 8, détecté par
+recoupement : deux "débuts d'épisode" à seulement 2,9s d'écart (68 à
+16219.6s et 69 à 16222.5s), ce qui est impossible pour des épisodes de 3 à
+5 minutes.
+
+Diagnostic : double appui sur la touche de pointage au début de l'épisode
+68 (jingle détecté à 16223.7s), le second appui étant auto-numéroté 69 —
+ce qui a décalé toute la suite. Confirmations croisées :
+- le pointage "70" (16428.2s) collait à l'indice de transcription de
+  l'épisode **69** (16429.5s, écart -1.3s) ;
+- le jingle détecté à 16645.5s n'avait aucun pointage associé.
+
+Correction, après vérification par visionnage (utilisateur : « épisode 70
+277:25 », soit 16645s — le jingle détecté à 16645.5s) :
+- suppression du pointage "69" à 16222.5s (doublon de l'épisode 68) ;
+- renumérotation du pointage 16428.2s en épisode 69 ;
+- ajout de l'épisode 70 à 16645.0s.
+
+Après correction, les durées entre débuts consécutifs de la zone
+(épisodes 67 à 71) sont de 232, 209, 217 et 329 secondes — cohérent avec
+des épisodes de 3,5 à 5,5 minutes.
+
+**Dédoublonnage** : trois doubles appuis bénins (épisodes 71, 76 et 78,
+deux pointages à moins de 3s d'écart sur la même frontière) — on conserve
+le pointage le plus précoce, arriver légèrement en avance sur un début
+d'épisode valant mieux qu'en retard. 27 pointages bruts → 24 après
+correction et dédoublonnage.
 
 ## Limites connues
 

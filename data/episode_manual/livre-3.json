@@ -1,0 +1,101 @@
+{
+  "book": 3,
+  "manual_points": [
+    {
+      "episode": 10,
+      "time_s": 2333
+    },
+    {
+      "episode": 13,
+      "time_s": 2942.9
+    },
+    {
+      "episode": 16,
+      "time_s": 3652.5
+    },
+    {
+      "episode": 17,
+      "time_s": 3866.9
+    },
+    {
+      "episode": 20,
+      "time_s": 4497.6
+    },
+    {
+      "episode": 38,
+      "time_s": 8859.4
+    },
+    {
+      "episode": 39,
+      "time_s": 9082.6
+    },
+    {
+      "episode": 40,
+      "time_s": 9319.8
+    },
+    {
+      "episode": 45,
+      "time_s": 10435.4
+    },
+    {
+      "episode": 67,
+      "time_s": 15987.4
+    },
+    {
+      "episode": 68,
+      "time_s": 16219.6
+    },
+    {
+      "episode": 69,
+      "time_s": 16428.2
+    },
+    {
+      "episode": 70,
+      "time_s": 16645.0
+    },
+    {
+      "episode": 71,
+      "time_s": 16974.3
+    },
+    {
+      "episode": 72,
+      "time_s": 17188.1
+    },
+    {
+      "episode": 75,
+      "time_s": 17847.7
+    },
+    {
+      "episode": 76,
+      "time_s": 18076.2
+    },
+    {
+      "episode": 77,
+      "time_s": 18368.4
+    },
+    {
+      "episode": 78,
+      "time_s": 18642.3
+    },
+    {
+      "episode": 79,
+      "time_s": 18853.6
+    },
+    {
+      "episode": 80,
+      "time_s": 19064.8
+    },
+    {
+      "episode": 81,
+      "time_s": 19310.4
+    },
+    {
+      "episode": 89,
+      "time_s": 21184.3
+    },
+    {
+      "episode": 100,
+      "time_s": 23577.1
+    }
+  ]
+}
