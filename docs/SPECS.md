@@ -80,13 +80,27 @@ Un épisode = une fiche JSON autonome. **Pas de `end_seconds`** : la fin d'un é
   "characters": ["Arthur", "Guenièvre", "Léodagan", "Séli"],
   "characters_source": "fandom", // fandom | heuristic
   "video_id": "REFu8UmXXE0",
-  "start_seconds": null,
-  "timestamp_source": null, // manual | community | auto-candidate
-  "confidence": null
+  "start_seconds": 224.9,
+  "timestamp_source": "jingle", // jingle | jingle_verifie | manuel
+  "confidence": "confirmé"      // confirmé | à repointer
 }
 ```
 
-Seuls `title` et `summary` alimentent la recherche (floue et sémantique) — les autres champs Wikipédia (`channel`, `director`/`writer`, `guests`) sont capturés gratuitement à l'import et affichés comme contexte, sans entrer dans le calcul de pertinence. `start_seconds`/`timestamp_source`/`confidence` restent à `null` jusqu'au pipeline C+F (milestones 2-3).
+Seuls `title` et `summary` alimentent la recherche (floue et sémantique) — les autres champs Wikipédia (`channel`, `director`/`writer`, `guests`) sont capturés gratuitement à l'import et affichés comme contexte, sans entrer dans le calcul de pertinence.
+
+**`start_seconds` / `timestamp_source` / `confidence`** ✅ (issue #12) — remplis pour les **399 épisodes**, sans exception, par `scripts/merge_timestamps.py`. Vocabulaire réellement implémenté, différent de celui envisagé initialement (`manual | community | auto-candidate` — la piste communautaire reste en v2, cf. section 3 piste B) :
+
+| `timestamp_source` | Origine | Volume |
+|---|---|---|
+| `jingle` | Pipeline C+F : position du jingle détecté par corrélation audio, numéro validé par la transcription | 297 |
+| `jingle_verifie` | Idem, mais numéro issu d'une conversion depuis la numérotation absolue (Livre 4, section 3) et vérifié un par un par visionnage | 30 |
+| `manuel` | Pointage manuel direct (piste A), pour combler les trous du pipeline | 72 |
+
+Le pointage manuel ne remplace jamais un timestamp du pipeline quand les deux existent : ces pointages redondants servent de validation croisée (ils tombent systématiquement 2 à 8s avant le jingle correspondant, l'humain réagissant au contexte avant que le jingle ne démarre). Garder le jingle comme référence évite de mélanger deux bases de mesure dans un même livre.
+
+`confidence` vaut `confirmé` partout après vérification des 30 derniers cas incertains — aucun épisode ne reste `à repointer`. Détails et validations dans `docs/qc-fusion-timestamps.md`.
+
+> **Conséquence pour la lecture (section 6)** : `start_seconds` est la position brute mesurée (début du jingle pour les sources `jingle*`). Un saut vers un épisode devrait appliquer une petite avance (~3-5s) au moment de la lecture plutôt que de la figer dans la donnée, pour ne pas rogner le début.
 
 **`characters`** ✅ (issue #24) — deux sources combinées, priorité à la plus fiable :
 1. **Wiki Kaamelott (Fandom)** — casting exact par épisode (tableau « Distribution »), scrapé manuellement (voir `docs/qc-characters-fandom.md`, contrainte Cloudflare). Couverture réelle : seulement **100/399 épisodes (25 %)**, très concentrée sur le Livre I — le wiki communautaire n'a pas de page complète pour tous les épisodes.
