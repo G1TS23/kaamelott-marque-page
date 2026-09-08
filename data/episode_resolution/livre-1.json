@@ -421,7 +421,8 @@
       "time_start_s": 5084.96,
       "time_end_s": 5322.9,
       "checkpoint_start": 20,
-      "checkpoint_end": 6
+      "checkpoint_end": 6,
+      "mention_hints": []
     },
     {
       "jingle_index_start": 20,
@@ -429,7 +430,53 @@
       "time_start_s": 5322.9,
       "time_end_s": 6285.47,
       "checkpoint_start": 6,
-      "checkpoint_end": 25
+      "checkpoint_end": 25,
+      "mention_hints": [
+        {
+          "episode": 9,
+          "time_s": 137.64
+        },
+        {
+          "episode": 7,
+          "time_s": 1954.84
+        },
+        {
+          "episode": 8,
+          "time_s": 2202.56
+        },
+        {
+          "episode": 10,
+          "time_s": 2753.72
+        },
+        {
+          "episode": 11,
+          "time_s": 3039.84
+        },
+        {
+          "episode": 12,
+          "time_s": 3251.12
+        },
+        {
+          "episode": 15,
+          "time_s": 3921.32
+        },
+        {
+          "episode": 16,
+          "time_s": 4195.4
+        },
+        {
+          "episode": 19,
+          "time_s": 4885.96
+        },
+        {
+          "episode": 20,
+          "time_s": 5083.0
+        },
+        {
+          "episode": 21,
+          "time_s": 5300.36
+        }
+      ]
     },
     {
       "jingle_index_start": 29,
@@ -437,7 +484,13 @@
       "time_start_s": 7441.66,
       "time_end_s": 9592.09,
       "checkpoint_start": 30,
-      "checkpoint_end": 40
+      "checkpoint_end": 40,
+      "mention_hints": [
+        {
+          "episode": 37,
+          "time_s": 9003.6
+        }
+      ]
     },
     {
       "jingle_index_start": 42,
@@ -445,7 +498,17 @@
       "time_start_s": 10563.57,
       "time_end_s": 10786.56,
       "checkpoint_start": 44,
-      "checkpoint_end": 50
+      "checkpoint_end": 50,
+      "mention_hints": [
+        {
+          "episode": 48,
+          "time_s": 11483.08
+        },
+        {
+          "episode": 49,
+          "time_s": 11684.4
+        }
+      ]
     },
     {
       "jingle_index_start": 43,
@@ -453,7 +516,8 @@
       "time_start_s": 10786.56,
       "time_end_s": 11484.39,
       "checkpoint_start": 50,
-      "checkpoint_end": 48
+      "checkpoint_end": 48,
+      "mention_hints": []
     },
     {
       "jingle_index_start": 53,
@@ -461,7 +525,13 @@
       "time_start_s": 13271.1,
       "time_end_s": 13762.92,
       "checkpoint_start": 55,
-      "checkpoint_end": 57
+      "checkpoint_end": 57,
+      "mention_hints": [
+        {
+          "episode": 56,
+          "time_s": 13517.28
+        }
+      ]
     },
     {
       "jingle_index_start": 57,
@@ -469,7 +539,8 @@
       "time_start_s": 14428.96,
       "time_end_s": 14901.0,
       "checkpoint_start": 60,
-      "checkpoint_end": 62
+      "checkpoint_end": 62,
+      "mention_hints": []
     }
   ]
 }

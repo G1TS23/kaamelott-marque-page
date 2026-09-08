@@ -254,7 +254,7 @@ def resolve_book(book_num, reference_path=REFERENCE_PATH):
     output_path = DATA_DIR / "episode_resolution" / f"livre-{book_num}.json"
     output_path.parent.mkdir(exist_ok=True)
     output_path.write_text(
-        json.dumps(to_json(book_num, total_episodes, resolved, unresolved_ranges, jingle_times), ensure_ascii=False, indent=2) + "\n",
+        json.dumps(to_json(book_num, total_episodes, resolved, unresolved_ranges, jingle_times, plausible), ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
     print(f"\nRésultat exporté dans {output_path}")
@@ -262,7 +262,31 @@ def resolve_book(book_num, reference_path=REFERENCE_PATH):
     return resolved, unresolved_ranges, jingle_times
 
 
-def to_json(book_num, total_episodes, resolved, unresolved_ranges, jingle_times):
+def mention_hints(gap, plausible):
+    """Mentions plausibles (déjà filtrées/converties) dont le numéro tombe
+    strictement entre les deux checkpoints du trou — un jingle a pu être
+    manqué par la corrélation audio alors que le numéro, lui, a bien été
+    annoncé et transcrit. Donne un timestamp précis où chercher au lieu de
+    devoir visionner toute la fenêtre du trou en aveugle (cf. issue #11 :
+    sans ça, l'épisode déjà confirmé au début du trou peut être confondu
+    avec celui à pointer)."""
+    lo, hi = gap["checkpoint_start"], gap["checkpoint_end"]
+    if lo is None or hi is None or hi <= lo + 1:
+        return []
+    candidates = sorted((t, n) for t, n, _ in plausible if lo < n < hi)
+    # une seule mention par numéro (la première dans le temps) : l'ASR
+    # détecte parfois le même mot deux fois à quelques ms d'écart (cf.
+    # docs/qc-cross-reference.md), inutile de dupliquer l'indice.
+    seen = set()
+    hints = []
+    for t, n in candidates:
+        if n not in seen:
+            seen.add(n)
+            hints.append({"episode": n, "time_s": round(t, 2)})
+    return hints
+
+
+def to_json(book_num, total_episodes, resolved, unresolved_ranges, jingle_times, plausible):
     """Structure exportable (data/episode_resolution/livre-N.json) : la
     liste concrète des trous demandée par l'issue #10, exploitable
     directement par l'outil de pointage manuel (issue #11) sans avoir à
@@ -291,6 +315,10 @@ def to_json(book_num, total_episodes, resolved, unresolved_ranges, jingle_times)
                 # et signale justement ce cas.
                 "checkpoint_start": r["checkpoint_start"],
                 "checkpoint_end": r["checkpoint_end"],
+                # Mentions transcrites d'un numéro attendu dans ce trou, sans
+                # jingle associé (cf. mention_hints ci-dessus) — indice de
+                # timestamp, pas une confirmation aussi solide qu'un jingle.
+                "mention_hints": mention_hints(r, plausible),
             }
             for r in unresolved_ranges
         ],
