@@ -46,7 +46,23 @@ seul le pointage manuel direct a résolu ce cas.
   (10, 13, 16, 17, 20, 38, 39, 40, 45, 67-72, 75-81, 89, 100), aucun
   manquant, aucun en trop. Inclut les 4 épisodes orphelins révélés par
   l'issue #38 (68, 71, 76, 78), invisibles avant ce fix.
-- **Livre 4** : pointage manuel pas encore effectué.
+- **Livre 4** : 13 trous du pipeline, tous couverts — 23 épisodes pointés
+  (1, 2, 3, 7-11, 18, 19, 35, 44, 48, 52, 61, 62, 70, 74, 88, 89, 94, 98,
+  99), aucun manquant, aucun en trop, aucun doublon. Le livre le plus
+  propre des quatre : tous les écarts avec les indices de transcription
+  tiennent dans -0,9 à -3,4s, aucune anomalie.
+
+Les 4 livres sont donc pointés : **86 épisodes** au total viennent du
+pointage manuel, en complément des 327 résolus par le pipeline.
+
+**Reste en suspens (Livre 4)** : 30 épisodes résolus par le pipeline mais
+marqués `à repointer` (39, 41, 42, 55, 56, 66, 68, 71-73, 75-87, 90-93,
+95-97) — leur numéro vient d'une conversion depuis la numérotation absolue
+(issue #9), cohérente avec la séquence mais jamais confirmée par
+visionnage. Aucun n'est couvert par le pointage manuel, qui ne portait que
+sur les trous. À décider avant la fusion finale : les vérifier par
+échantillonnage, ou les intégrer tels quels avec leur `confidence`
+distincte.
 
 ## Correction appliquée au Livre 3 (décalage de numérotation)
 

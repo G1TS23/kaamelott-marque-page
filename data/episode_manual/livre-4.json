@@ -1,0 +1,97 @@
+{
+  "book": 4,
+  "manual_points": [
+    {
+      "episode": 1,
+      "time_s": 564.2
+    },
+    {
+      "episode": 2,
+      "time_s": 770.3
+    },
+    {
+      "episode": 3,
+      "time_s": 1007.8
+    },
+    {
+      "episode": 7,
+      "time_s": 1850.2
+    },
+    {
+      "episode": 8,
+      "time_s": 2089.3
+    },
+    {
+      "episode": 9,
+      "time_s": 2255.6
+    },
+    {
+      "episode": 10,
+      "time_s": 2482
+    },
+    {
+      "episode": 11,
+      "time_s": 2725.9
+    },
+    {
+      "episode": 18,
+      "time_s": 4243.8
+    },
+    {
+      "episode": 19,
+      "time_s": 4442.9
+    },
+    {
+      "episode": 35,
+      "time_s": 8242.3
+    },
+    {
+      "episode": 44,
+      "time_s": 10237
+    },
+    {
+      "episode": 48,
+      "time_s": 11090
+    },
+    {
+      "episode": 52,
+      "time_s": 12488.3
+    },
+    {
+      "episode": 61,
+      "time_s": 14459.5
+    },
+    {
+      "episode": 62,
+      "time_s": 14655.3
+    },
+    {
+      "episode": 70,
+      "time_s": 16428.1
+    },
+    {
+      "episode": 74,
+      "time_s": 17308.4
+    },
+    {
+      "episode": 88,
+      "time_s": 20650.8
+    },
+    {
+      "episode": 89,
+      "time_s": 20896.1
+    },
+    {
+      "episode": 94,
+      "time_s": 22069.5
+    },
+    {
+      "episode": 98,
+      "time_s": 22971.3
+    },
+    {
+      "episode": 99,
+      "time_s": 23162.1
+    }
+  ]
+}
