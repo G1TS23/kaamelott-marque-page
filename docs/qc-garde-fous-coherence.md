@@ -127,6 +127,24 @@ regarder au-delà pour trouver le vrai épisode manquant
 (Livre 2, trous 1 et 2) alors que les données étaient correctes — l'outil
 #11 affiche maintenant un avertissement explicite pour éviter la confusion.
 
+**Fix : checkpoint orphelin absent du résolu ET des trous (issue #38)**.
+Trouvé en testant le pointage manuel du Livre 3 : un checkpoint dont NI la
+paire de gauche NI la paire de droite n'est cohérente (cas différent de
+l'issue #34, où la paire élargie était cohérente) n'est jamais ajouté à
+`resolved`. Mais la plage "attendu" de chaque trou voisin excluait quand
+même son propre numéro (en supposant, à tort dans ce cas, qu'il était déjà
+résolu ailleurs) — le numéro disparaissait silencieusement, jamais confirmé
+ni jamais proposé au pointage manuel. Touchait plusieurs épisodes sur 3 des
+4 livres (Livre 2 : 99 ; Livre 3 : 68, 71, 76, 78 ; Livre 4 : 1, 99).
+
+Fix : `expected_episode_range()` vérifie si le checkpoint de bordure est
+*effectivement* dans `resolved` avant de l'exclure de la plage — sinon,
+son propre numéro y est inclus. Exporté dans le JSON via
+`expected_first_episode`/`expected_last_episode` (bornes incluses),
+utilisées à la fois par `mention_hints` et par l'outil de pointage manuel
+(qui affiche désormais un avertissement différent selon que le checkpoint
+voisin est réellement confirmé ou non).
+
 **`mention_hints`** : pour chaque trou, les mentions "épisode N" trouvées
 dans la transcription (piste C) pour un numéro attendu dans la plage du
 trou, même sans jingle associé — un jingle a pu être manqué par la

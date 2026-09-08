@@ -248,11 +248,18 @@ function renderExpectedEpisodes() {
   const box = document.getElementById("expected-episodes");
   if (activeGap === null) { box.innerHTML = ""; return; }
   const g = resolution.gaps[activeGap];
-  const lo = g.checkpoint_start !== null ? g.checkpoint_start + 1 : null;
-  const hi = g.checkpoint_end !== null ? g.checkpoint_end - 1 : null;
+  // Bornes précalculées côté script (issue #38) : un checkpoint de bordure
+  // n'est exclu de la plage que s'il est *effectivement* résolu ailleurs,
+  // pas simplement parce qu'il existe comme checkpoint — sinon son numéro
+  // peut disparaître silencieusement (ni confirmé, ni proposé au pointage).
+  const lo = g.expected_first_episode;
+  const hi = g.expected_last_episode;
   let html = "<h4>Épisodes attendus dans ce trou (référence Wikipédia)</h4>";
   if (g.checkpoint_start !== null) {
-    html += `<p class="hint">⚠ L'épisode ${g.checkpoint_start} (juste avant ce trou) est <b>déjà confirmé</b> par le pipeline — ce n'est PAS lui qu'il faut pointer. Continue à regarder après pour trouver le suivant.</p>`;
+    const startNeedsPointing = lo !== null && lo <= g.checkpoint_start;
+    html += startNeedsPointing
+      ? `<p class="hint">⚠ L'épisode ${g.checkpoint_start} (juste avant ce trou) n'a PAS pu être confirmé par le pipeline non plus (checkpoint incohérent des deux côtés, issue #38) — à pointer aussi, il est inclus ci-dessous.</p>`
+      : `<p class="hint">⚠ L'épisode ${g.checkpoint_start} (juste avant ce trou) est <b>déjà confirmé</b> par le pipeline — ce n'est PAS lui qu'il faut pointer. Continue à regarder après pour trouver le suivant.</p>`;
   }
   if (lo === null || hi === null || lo > hi) {
     html += `<p class="hint">Pas de plage fiable des deux côtés — identifie les épisodes directement au fil du résumé pendant le visionnage.</p>`;

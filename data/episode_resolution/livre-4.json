@@ -392,7 +392,13 @@
       "time_end_s": 1187.68,
       "checkpoint_start": 1,
       "checkpoint_end": 4,
+      "expected_first_episode": 1,
+      "expected_last_episode": 3,
       "mention_hints": [
+        {
+          "episode": 1,
+          "time_s": 566
+        },
         {
           "episode": 3,
           "time_s": 1008.72
@@ -406,6 +412,8 @@
       "time_end_s": 2937.86,
       "checkpoint_start": 6,
       "checkpoint_end": 12,
+      "expected_first_episode": 7,
+      "expected_last_episode": 11,
       "mention_hints": [
         {
           "episode": 11,
@@ -420,6 +428,8 @@
       "time_end_s": 4659.31,
       "checkpoint_start": 17,
       "checkpoint_end": 20,
+      "expected_first_episode": 18,
+      "expected_last_episode": 19,
       "mention_hints": [
         {
           "episode": 18,
@@ -434,6 +444,8 @@
       "time_end_s": 8542.01,
       "checkpoint_start": 34,
       "checkpoint_end": 36,
+      "expected_first_episode": 35,
+      "expected_last_episode": 35,
       "mention_hints": [
         {
           "episode": 35,
@@ -448,6 +460,8 @@
       "time_end_s": 10437.32,
       "checkpoint_start": 43,
       "checkpoint_end": 45,
+      "expected_first_episode": 44,
+      "expected_last_episode": 44,
       "mention_hints": [
         {
           "episode": 44,
@@ -462,6 +476,8 @@
       "time_end_s": 11462.47,
       "checkpoint_start": 47,
       "checkpoint_end": 49,
+      "expected_first_episode": 48,
+      "expected_last_episode": 48,
       "mention_hints": []
     },
     {
@@ -471,6 +487,8 @@
       "time_end_s": 12686.67,
       "checkpoint_start": 51,
       "checkpoint_end": 53,
+      "expected_first_episode": 52,
+      "expected_last_episode": 52,
       "mention_hints": [
         {
           "episode": 52,
@@ -485,6 +503,8 @@
       "time_end_s": 14929.64,
       "checkpoint_start": 60,
       "checkpoint_end": 63,
+      "expected_first_episode": 61,
+      "expected_last_episode": 62,
       "mention_hints": [
         {
           "episode": 61,
@@ -499,6 +519,8 @@
       "time_end_s": 16626.47,
       "checkpoint_start": 69,
       "checkpoint_end": 71,
+      "expected_first_episode": 70,
+      "expected_last_episode": 70,
       "mention_hints": [
         {
           "episode": 70,
@@ -513,6 +535,8 @@
       "time_end_s": 17538.09,
       "checkpoint_start": 73,
       "checkpoint_end": 75,
+      "expected_first_episode": 74,
+      "expected_last_episode": 74,
       "mention_hints": [
         {
           "episode": 74,
@@ -527,6 +551,8 @@
       "time_end_s": 21199.46,
       "checkpoint_start": 87,
       "checkpoint_end": 90,
+      "expected_first_episode": 88,
+      "expected_last_episode": 89,
       "mention_hints": [
         {
           "episode": 88,
@@ -541,6 +567,8 @@
       "time_end_s": 22298.25,
       "checkpoint_start": 93,
       "checkpoint_end": 95,
+      "expected_first_episode": 94,
+      "expected_last_episode": 94,
       "mention_hints": []
     },
     {
@@ -550,10 +578,16 @@
       "time_end_s": 23168.72,
       "checkpoint_start": 97,
       "checkpoint_end": 99,
+      "expected_first_episode": 98,
+      "expected_last_episode": 99,
       "mention_hints": [
         {
           "episode": 98,
           "time_s": 22973.4
+        },
+        {
+          "episode": 99,
+          "time_s": 23164.44
         }
       ]
     }

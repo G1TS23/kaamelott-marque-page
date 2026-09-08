@@ -457,6 +457,8 @@
       "time_end_s": 9592.09,
       "checkpoint_start": 30,
       "checkpoint_end": 40,
+      "expected_first_episode": 31,
+      "expected_last_episode": 39,
       "mention_hints": [
         {
           "episode": 37,
@@ -471,6 +473,8 @@
       "time_end_s": 13762.92,
       "checkpoint_start": 55,
       "checkpoint_end": 57,
+      "expected_first_episode": 56,
+      "expected_last_episode": 56,
       "mention_hints": [
         {
           "episode": 56,
@@ -485,6 +489,8 @@
       "time_end_s": 14901.0,
       "checkpoint_start": 60,
       "checkpoint_end": 62,
+      "expected_first_episode": 61,
+      "expected_last_episode": 61,
       "mention_hints": []
     }
   ]
