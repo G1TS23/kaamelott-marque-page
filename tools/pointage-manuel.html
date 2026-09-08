@@ -146,8 +146,13 @@ async function loadBook(book) {
   activeGap = null;
   document.getElementById("header-status").textContent = "Chargement…";
   const [resResp, epResp] = await Promise.all([
-    fetch(`../data/episode_resolution/livre-${book}.json`),
-    fetch(`../data/episodes/livre-${book}.json`),
+    // cache: "no-store" — ces JSON sont régénérés régulièrement par le
+    // pipeline (relance du script, merge d'un fix). Sans ça, le navigateur
+    // ressert sa copie en cache et on pointe sur des données périmées : vécu
+    // deux fois, dont une où des épisodes nouvellement signalés (68, 71, 76,
+    // 78 du Livre 3, issue #38) restaient invisibles malgré le fix mergé.
+    fetch(`../data/episode_resolution/livre-${book}.json`, { cache: "no-store" }),
+    fetch(`../data/episodes/livre-${book}.json`, { cache: "no-store" }),
   ]);
   resolution = await resResp.json();
   episodes = await epResp.json();
