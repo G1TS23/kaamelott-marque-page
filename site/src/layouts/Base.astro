@@ -1,0 +1,60 @@
+---
+/**
+ * Coquille commune du site (issue #13).
+ * Le site tient sur une seule page (specs section 6), mais le layout est
+ * isolé dès maintenant : la popin de première visite (#19) et le pied de
+ * page (#20) viendront s'y greffer sans toucher au contenu.
+ */
+const { titre = 'Kaamelott — Le Marque-Page de la Relecture' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <meta
+      name="description"
+      content="Retrouver un épisode de Kaamelott dans les lectures de Shisheyu et sauter directement au bon instant."
+    />
+    <title>{titre}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    color-scheme: light dark;
+    --fond: #f4f2ef;
+    --texte: #222;
+    --attenue: #666;
+    --bordure: #d8d3cb;
+    --accent: #7a5c2e;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fond: #1a1815;
+      --texte: #ece7df;
+      --attenue: #a49c8f;
+      --bordure: #3a352e;
+      --accent: #c9a227;
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: var(--fond);
+    color: var(--texte);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    line-height: 1.5;
+  }
+</style>

@@ -158,7 +158,7 @@ Un seul lecteur pour tout le site (une seule instance IFrame Player API), qui ch
 
 | Brique | Choix retenu |
 |--------|--------------|
-| Site (front-end) | Astro ou Vite |
+| Site (front-end) | **Astro + Svelte** ✅ (issue #13) — voir ci-dessous |
 | Hébergement | Netlify ou Vercel |
 | Données | ~400 fiches JSON statiques (1 fichier par livre) + vecteurs d'embeddings précalculés |
 | Recherche sémantique | transformers.js, modèle compact (~25-50 Mo), navigateur |
@@ -166,6 +166,13 @@ Un seul lecteur pour tout le site (une seule instance IFrame Player API), qui ch
 
 - **v1** : site statique, données figées, recherche double (titre + résumé) dès le lancement. Aucun serveur, aucune base de données.
 - **v2** (plus tard, pas au lancement) : contributions communautaires — base légère (SQLite/Supabase) + petite fonction serveur (Netlify/Vercel function) pour recevoir les propositions de correction.
+
+**Astro + Svelte** ✅ (issue #13) — le site vit dans `site/`, à côté du pipeline Python plutôt que mélangé à lui.
+
+- **Astro** parce que le sommaire est du contenu : il est pré-rendu en HTML au build et reste lisible sans JavaScript, seuls les îlots interactifs (recherche, lecteur) sont hydratés.
+- **Svelte plutôt que React** parce que la recherche sémantique embarquera déjà un modèle de 25-50 Mo : autant que le reste du bundle reste marginal (Svelte compile son runtime à quasi rien, React ajoute ~45 Ko gzip).
+- **Les données ne sont pas dupliquées** : `site/src/lib/episodes.js` importe directement `data/episodes/livre-{1..4}.json` à la racine du dépôt, résolus par Vite au build. Régénérer les données suffit, pas d'étape de copie à maintenir.
+- **Le build échoue** si un livre n'a pas son compte d'épisodes attendu ou si un épisode n'a pas de `start_seconds` : servir un épisode qui ne mène nulle part serait pire qu'un build rouge.
 
 ## 8. Design / UX / UI
 
@@ -248,7 +255,7 @@ Chips au-dessus du sommaire/résultats, combinables avec n'importe quel autre é
 - Recherche par réplique (section 5) : post-v1, pas au lancement. Index pré-joint par épisode au build, matching tolérant à l'orthographe obligatoire (pas de sous-chaîne exacte), affichage d'un court extrait seulement (jamais la transcription intégrale d'un épisode).
 
 **Stack technique**
-- Front-end : Astro ou Vite. Hébergement : Netlify ou Vercel.
+- Front-end : **Astro + Svelte** (issue #13), dans `site/`. Hébergement : Netlify ou Vercel.
 - Recherche sémantique : modèle compact (~25-50 Mo), transformers.js, navigateur.
 - Scripts hors-site : Python.
 

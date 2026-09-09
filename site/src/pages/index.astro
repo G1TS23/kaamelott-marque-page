@@ -1,0 +1,58 @@
+---
+import Base from '../layouts/Base.astro';
+import SelecteurLivre from '../components/SelecteurLivre.svelte';
+import { LIVRES, chargerLivre } from '../lib/episodes.js';
+
+/**
+ * Page unique du site (specs section 6 : un seul lecteur, pas de mur de
+ * vignettes). À ce stade (issue #13) elle ne fait que prouver la chaîne
+ * complète : données du pipeline lues au build, rendues en HTML, puis
+ * hydratées par Svelte.
+ */
+
+// Seuls les champs utiles à la liste sont passés à l'îlot : les résumés
+// (~300 Ko au total) n'y entrent que quand la recherche en aura besoin
+// (#15/#16), pour ne pas les sérialiser inutilement dans le HTML.
+const livres = LIVRES.map((livre) => ({
+  livre,
+  episodes: chargerLivre(livre).map(({ episode, title, start_seconds, video_id }) => ({
+    episode,
+    title,
+    start_seconds,
+    video_id,
+  })),
+}));
+
+const total = livres.reduce((n, l) => n + l.episodes.length, 0);
+---
+
+<Base>
+  <main>
+    <header>
+      <h1>Le Marque-Page de la Relecture</h1>
+      <p class="sous-titre">
+        Les {total} épisodes de Kaamelott, situés dans les lectures de Shisheyu.
+      </p>
+    </header>
+
+    <SelecteurLivre client:load livres={livres} />
+  </main>
+</Base>
+
+<style>
+  main {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+  }
+
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.75rem;
+  }
+
+  .sous-titre {
+    margin: 0 0 2rem;
+    color: var(--attenue);
+  }
+</style>
