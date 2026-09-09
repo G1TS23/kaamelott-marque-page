@@ -30,7 +30,12 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
 
-      - run: npm ci
+      # --ignore-scripts : sans lui, les scripts de cycle de vie des
+      # dépendances s'exécutent à l'installation, et une dépendance
+      # compromise exécuterait du code arbitraire dans la CI. Vérifié que
+      # tests et build passent sans eux — la chaîne Astro/Vite s'appuie sur
+      # des paquets par plateforme, pas sur des postinstall.
+      - run: npm ci --ignore-scripts
 
       - name: Tests
         run: npm test
