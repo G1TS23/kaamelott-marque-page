@@ -256,6 +256,7 @@ Chips au-dessus du sommaire/résultats, combinables avec n'importe quel autre é
 - Recherche par réplique (section 5) : post-v1, pas au lancement. Index pré-joint par épisode au build, matching tolérant à l'orthographe obligatoire (pas de sous-chaîne exacte), affichage d'un court extrait seulement (jamais la transcription intégrale d'un épisode).
 
 **Stack technique**
+- **Règle générale : viser la LTS active** à chaque choix ou épinglage de version — ni la dernière publiée, ni le plancher déclaré par une dépendance. Un `engines: >=X` est une contrainte minimale, pas une recommandation : s'y coller revient à tourner sur la plus vieille ligne encore supportée, donc la première à sortir du support. Épingler une majeure explicite plutôt qu'un alias auto-résolu (`lts/*`), sinon l'arrivée d'une nouvelle LTS décale la CI sans décaler la production. Node est ainsi en **24** (LTS active) en CI comme sur Netlify, et non en 22 (borne d'Astro).
 - Front-end : **Astro + Svelte + TypeScript** (issue #13), dans `site/`. TypeScript épinglé en 6.0.3, la version imposée par la chaîne Astro ; la 7 est sortie mais pas encore supportée, à retenter plus tard. Hébergement : **Netlify**, déploiement continu depuis `main`, prévisualisation par PR.
 - Recherche sémantique : modèle compact (~25-50 Mo), transformers.js, navigateur.
 - Scripts hors-site : Python.
