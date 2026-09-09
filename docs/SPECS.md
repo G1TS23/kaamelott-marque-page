@@ -10,7 +10,7 @@ Spécifications de cadrage — aucune implémentation à ce stade. Toutes les d�
 2. [Constats](#2-constats)
 3. [Le vrai problème : obtenir ~400 timestamps](#3-le-vrai-problème--obtenir-400-timestamps)
 4. [Modèle de données](#4-modèle-de-données)
-5. [Recherche](#5-recherche--titre-et-résumé)
+5. [Recherche](#5-recherche--titre-résumé-et-réplique)
 6. [Lecture dynamique](#6-lecture-dynamique--pas-de-mur-de-vignettes)
 7. [Stack technique](#7-stack-technique)
 8. [Design / UX / UI](#8-design--ux--ui)
@@ -112,18 +112,38 @@ Le champ `characters_source` (`fandom` | `heuristic`) trace laquelle des deux a 
 
 **Import initial depuis Wikipédia** ✅ — `scripts/import_wikipedia.py` (BeautifulSoup) extrait titre, résumé, chaîne, réalisateur/scénariste et invités pour les 399 épisodes (100+100+100+99) en une passe, vers `data/episodes/livre-{1..4}.json`. Un épisode par ailleurs cohérent (S3E1 « Le Chevalier errant ») a un numéro de production Wikipédia mal formé (`201` au lieu de `201 (3.1)`) — le script s'y adapte via l'ordre d'apparition dans la page et log un avertissement ; à vérifier manuellement en cas de futures ré-exécutions.
 
-## 5. Recherche : titre et résumé
+## 5. Recherche : titre, résumé et réplique
 
 | Mode | Ce que tape l'utilisateur | Technique |
 |------|---------------------------|-----------|
 | Par titre | « tartes aux myrtilles », « heat » | Recherche floue classique (Fuse.js ou équivalent) |
 | Par souvenir de scène | « celui où ils discutent de la table ronde avec l'artisan » | Recherche sémantique par embeddings |
+| Par réplique (issue #45) | « des petites paysannes », « c'est pas faux » | Recherche tolérante dans la transcription YouTube, croisée avec `start_seconds` |
 
-Les deux modes partent ensemble dès le lancement, avec le modèle d'embeddings **embarqué dans le navigateur** (transformers.js, pas de serveur). Les embeddings des ~400 résumés sont précalculés une fois pour toutes ; seule la requête utilisateur est vectorisée à la volée.
+Les deux premiers modes partent ensemble dès le lancement, avec le modèle d'embeddings **embarqué dans le navigateur** (transformers.js, pas de serveur). Les embeddings des ~400 résumés sont précalculés une fois pour toutes ; seule la requête utilisateur est vectorisée à la volée.
 
 **Portée : recherche globale aux quatre livres**, pas seulement le livre affiché. L'index (fuzzy comme sémantique) combine les fiches des 4 fichiers JSON ; chaque résultat garde son `video_id` propre pour savoir quel livre charger au clic.
 
-**Filtre personnages (issue #24) : orthogonal, pas un 3ᵉ mode.** Le champ `characters` n'alimente ni la recherche floue ni la recherche sémantique — c'est une facette combinable (section 8) qui restreint ce qui est déjà affiché (sommaire ou résultats titre/résumé), pas une troisième façon de chercher qui rivaliserait avec les deux modes ci-dessus.
+**Filtre personnages (issue #24) : orthogonal, pas un 4ᵉ mode.** Le champ `characters` n'alimente aucun des modes de recherche — c'est une facette combinable (section 8) qui restreint ce qui est déjà affiché (sommaire ou résultats), pas une façon de chercher qui rivaliserait avec les modes ci-dessus.
+
+### Recherche par réplique (post-v1)
+
+Idée apparue après la fusion des timestamps (issue #12) : les transcriptions YouTube auto-générées (`data/transcripts/*.vtt`, utilisées comme piste C du pipeline C+F, section 3) contiennent le texte effectivement prononcé, horodaté mot à mot. Une fois `start_seconds` connu pour les 399 épisodes, chaque timestamp de transcription se rattache trivialement à un épisode : c'est le dernier `start_seconds` (du même livre) inférieur ou égal à ce timestamp — exactement l'absence de `end_seconds` (section 4) qui rend ça immédiat.
+
+C'est un axe de recherche différent des deux autres, pas redondant : les résumés Wikipédia sont un condensé encyclopédique qui ne contient presque jamais de dialogue, alors que Kaamelott se retient par répliques. Cet axe réhabilite la **piste D** de la section 3 (correspondance transcription ↔ contenu), mais l'usage s'inverse : en pipeline elle servait de filet de sécurité pour *identifier* un épisode, ici elle devient la source d'une recherche *pour l'utilisateur final*.
+
+**Prototypé avant d'écrire l'issue**, sur les données réelles des 4 livres :
+- jointure transcription → épisode confirmée exacte (ex. « c'est pas faux » → 5 épisodes distincts au Livre 1, chacun correctement identifié) ;
+- volumétrie mesurée : 15,5 Mo de VTT bruts → 347 555 mots horodatés → 4,8 Mo de texte seul une fois débarrassé du balisage (1,2 Mo/livre) ;
+- **fidélité ASR, le risque principal** : une recherche exacte échoue régulièrement sur une orthographe pourtant correcte de la réplique (ex. « paysannes » transcrit `paysanes`, un seul « n » — vérifié en cherchant le mot dans l'épisode 14 « Monogame », qui le contient bel et bien, à 63:24) ;
+- **sous-titres roulants** : la même réplique ressort 2 à 3 fois d'affilée dans le VTT brut (répétition du format « roulant », section 3) — un dédoublonnage au mot ne suffit pas, il faut dédupliquer les *résultats* proches dans le temps, pas seulement les mots.
+
+**Décisions à date** (à affiner en issue) :
+- Index **pré-joint par épisode** au build (pas une recherche en timeline plate suivie d'un bisect à l'exécution) : un bloc de texte par épisode, timestamps mot à mot conservés à l'intérieur — permet de sauter directement à la réplique trouvée, pas seulement au début de l'épisode.
+- Matching **tolérant à l'orthographe** obligatoire, pas une recherche par sous-chaîne exacte — le prototype le démontre, pas un raffinement optionnel.
+- **Affichage limité à un court extrait autour du résultat**, jamais la transcription intégrale d'un épisode : ce sont des dialogues d'auteur (Astier), pas des résumés encyclopédiques comme pour les autres modes — la nuance de droit à trancher avant construction, pas après.
+- Aucun nouveau champ dans `episodes/livre-N.json` : la jointure est calculée au build de l'index, pas stockée sur la fiche épisode.
+- Nouvelle dépendance de build : `data/transcripts/*.vtt`, gitignorées et régénérables aujourd'hui (intrant de pipeline), devraient être committées ou re-fetchées au build pour ce mode (dépendance produit, plus seulement pipeline).
 
 ## 6. Lecture dynamique — pas de mur de vignettes
 
@@ -205,6 +225,7 @@ Chips au-dessus du sommaire/résultats, combinables avec n'importe quel autre é
 2. **Échantillon test du pipeline C + F** — sur 10-15 épisodes d'un seul livre : détecter le jingle, lire le numéro annoncé. Confirmer la fiabilité avant d'investir dans l'outillage complet.
 3. **Généralisation + correction des trous** — pipeline validé sur les 4 livres, garde-fous de cohérence, pointage manuel des seuls cas non résolus.
 4. **Site v1** — une seule page, un seul lecteur (source changée selon le livre actif), sommaire filtrable par titre avec passerelle vers la recherche par résumé, les deux modes de recherche déjà en place, données statiques. Pas de contribution communautaire à ce stade.
+5. **Recherche par réplique** (post-v1, pas un prérequis du lancement) — 3ᵉ mode de recherche dans la transcription (section 5), une fois le v1 en place. Scope propre (matching tolérant, dédoublonnage, arbitrage droit d'auteur sur l'affichage) qui ne doit pas retarder le lancement.
 
 ## 10. Décisions prises
 
@@ -224,6 +245,7 @@ Chips au-dessus du sommaire/résultats, combinables avec n'importe quel autre é
 - Les deux modes de recherche (titre + résumé) partent ensemble dès le v1.
 - Recherche globale aux quatre livres par défaut.
 - Clic sur un résultat de titre = lecture immédiate ; carte de justification réservée au mode résumé.
+- Recherche par réplique (section 5) : post-v1, pas au lancement. Index pré-joint par épisode au build, matching tolérant à l'orthographe obligatoire (pas de sous-chaîne exacte), affichage d'un court extrait seulement (jamais la transcription intégrale d'un épisode).
 
 **Stack technique**
 - Front-end : Astro ou Vite. Hébergement : Netlify ou Vercel.
