@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Une nouvelle poussée sur une PR annule la vérification en cours : seul le
+# dernier état compte, inutile de payer les précédents.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site:
+    name: Site (types, tests, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # La borne réelle vient d'Astro (>=22.12.0) ; on vérifie sur une LTS
+          # plutôt que sur la version locale, pour ne pas dépendre du poste.
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - run: npm ci
+
+      - name: Tests
+        run: npm test
+
+      # `build` enchaîne `astro check` (types) puis la construction. Il porte
+      # aussi les garde-fous de données : il échoue si un livre n'a pas son
+      # compte d'épisodes ou si l'un d'eux n'a pas de timestamp. Les données
+      # étant importées depuis `data/` à la racine, le dépôt complet est
+      # nécessaire — d'où le checkout sans `sparse-checkout`.
+      - name: Vérification des types et build
+        run: npm run build

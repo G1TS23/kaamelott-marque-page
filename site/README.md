@@ -8,11 +8,16 @@ sans serveur ni base de données (`docs/SPECS.md` section 7).
 ```bash
 cd site
 npm install
-npm run dev      # http://localhost:4321
-npm run check    # vérification de types seule
-npm run build    # astro check && astro build -> site/dist/
-npm run preview  # sert le build
+npm run dev        # http://localhost:4321
+npm test           # Vitest, une passe
+npm run test:watch # Vitest en continu
+npm run check      # vérification de types seule
+npm run build      # astro check && astro build -> site/dist/
+npm run preview    # sert le build
 ```
+
+La CI (`.github/workflows/ci.yml`) enchaîne exactement `npm ci`, `npm test`
+puis `npm run build` sur chaque PR.
 
 `build` lance `astro check` d'abord : Astro transpile TypeScript sans le
 vérifier, donc sans cette étape les types ne serviraient à rien. Une erreur
@@ -59,6 +64,17 @@ Astro pré-rend le HTML au build (le sommaire est lisible sans JavaScript) et
 n'hydrate que les îlots Svelte. Svelte plutôt que React parce que la
 recherche sémantique embarquera déjà un modèle de 25-50 Mo (specs section 7) :
 autant que le reste du bundle reste marginal.
+
+## Tests
+
+Vitest, avec les tests à côté du code qu'ils couvrent (`src/lib/*.test.ts`).
+
+`episodes.test.ts` porte sur les **vraies** données du pipeline, pas sur des
+fixtures : comptes par livre, numérotation sans trou, timestamps présents et
+croissants, aucun épisode encore marqué `à repointer`. Ces vérifications
+doublent volontairement des garde-fous déjà présents côté Python, mais au
+point de consommation — une régénération de données qui casserait le site
+échoue en CI plutôt qu'en production.
 
 ## Déploiement
 
