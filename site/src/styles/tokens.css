@@ -1,0 +1,156 @@
+/*
+ * Design system du site (issue #51) — source de vérité.
+ *
+ * Les valeurs viennent de la note de cadrage validée au début du projet
+ * (l'artifact de maquettes lié en tête de docs/SPECS.md). Elles n'existaient
+ * que là : ce fichier les rapatrie dans le dépôt pour que les composants à
+ * venir (#14 à #20) aient une référence versionnée plutôt qu'un document
+ * externe. Les noms sont francisés comme le reste du code ; la correspondance
+ * avec ceux de la note de cadrage est donnée en commentaire.
+ *
+ * Aucun composant ne doit écrire une couleur en dur : si une teinte manque,
+ * elle s'ajoute ici.
+ */
+
+:root {
+  /* Annoncé au navigateur pour qu'il accorde ce qu'il dessine lui-même
+     (ascenseurs, contrôles de formulaire) au thème réellement appliqué —
+     y compris quand `data-theme` contredit la préférence système. */
+  color-scheme: light;
+
+  /* --- Couleurs, thème clair ------------------------------------------ */
+  /* Un fond parcheminé légèrement vert, une encre chaude, un accent ocre :
+     l'évocation du manuscrit sans le pastiche médiéval. */
+
+  --fond: #eceee3; /* bg */
+  --surface: #f9f9f2; /* surface — encarts, champs, éléments au repos */
+  --surface-haute: #ffffff; /* surface-raised — cartes détachées du fond */
+
+  --encre: #20241d; /* ink — texte principal */
+  --encre-douce: #565c4c; /* ink-soft — texte secondaire, chapôs */
+  --encre-pale: #8b9080; /* ink-faint — étiquettes, numéros, méta */
+
+  --trait: #d4d6c5; /* line — bordures et séparateurs */
+
+  --accent: #a5711f; /* accent — ocre, l'élément actif ou sélectionné */
+  --accent-fort: #8a5c15; /* accent-strong — texte posé sur --accent-voile */
+  --accent-voile: #f1e4cd; /* accent-tint — fond d'un état actif */
+
+  --profond: #3f6357; /* deep — vert, liens et justifications */
+  --profond-voile: #e2ebe6; /* deep-tint */
+
+  --alerte: #8a3324; /* warn */
+  --alerte-voile: #f3e2dd; /* warn-tint */
+
+  --ombre: 0 1px 2px rgba(32, 36, 29, 0.06), 0 6px 20px -8px rgba(32, 36, 29, 0.18);
+
+  /* --- Couleurs, thème sombre ------------------------------------------ */
+  /* Déclarées ici une seule fois, sous un préfixe : les deux sélecteurs plus
+     bas (préférence système / attribut explicite) doivent appliquer exactement
+     la même palette, et rien ne garantirait qu'elles restent identiques si
+     elles étaient recopiées dans chacun. Ces variables ne sont jamais lues
+     directement par un composant. */
+
+  --sombre-fond: #171911;
+  --sombre-surface: #1e2117;
+  --sombre-surface-haute: #252819;
+
+  --sombre-encre: #e9e7d8;
+  --sombre-encre-douce: #b3b39e;
+  --sombre-encre-pale: #7c8070;
+
+  --sombre-trait: #343827;
+
+  --sombre-accent: #dba748;
+  --sombre-accent-fort: #eec06a;
+  --sombre-accent-voile: #332a17;
+
+  --sombre-profond: #8fbba9;
+  --sombre-profond-voile: #22322c;
+
+  --sombre-alerte: #e2917f;
+  --sombre-alerte-voile: #3a2420;
+
+  --sombre-ombre: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 28px -10px rgba(0, 0, 0, 0.5);
+
+  /* --- Typographie ----------------------------------------------------- */
+  /* Trois familles, trois rôles qui ne s'intervertissent pas : le serif
+     signale un titre, la mono signale une donnée (numéro, minutage, libellé). */
+
+  --police-titre: 'Fraunces', ui-serif, Georgia, serif;
+  --police-texte: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
+  --police-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --taille-base: 16.5px;
+  --interligne: 1.6;
+
+  /* --- Espacements ----------------------------------------------------- */
+  /* Échelle codifiée à partir des valeurs de la note de cadrage, pour que les
+     composants y piochent au lieu d'inventer un nombre à chaque fois. */
+
+  --esp-1: 0.25rem;
+  --esp-2: 0.5rem;
+  --esp-3: 0.875rem;
+  --esp-4: 1.25rem;
+  --esp-5: 2rem;
+  --esp-6: 3.25rem;
+
+  /* --- Formes ---------------------------------------------------------- */
+
+  --rayon-pilule: 99px; /* onglets, chips, champ de recherche */
+  --rayon-carte: 12px;
+  --rayon-encart: 10px;
+  --rayon-etiquette: 6px;
+
+  --largeur-contenu: 760px;
+}
+
+/*
+ * Bascule sombre.
+ *
+ * Deux portes d'entrée, comme le prévoit la note de cadrage : la préférence
+ * système, et un attribut `data-theme` qui la contredit dans les deux sens.
+ * Le contrôle qui poserait cet attribut n'existe pas encore — la mécanique,
+ * si.
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --fond: var(--sombre-fond);
+    --surface: var(--sombre-surface);
+    --surface-haute: var(--sombre-surface-haute);
+    --encre: var(--sombre-encre);
+    --encre-douce: var(--sombre-encre-douce);
+    --encre-pale: var(--sombre-encre-pale);
+    --trait: var(--sombre-trait);
+    --accent: var(--sombre-accent);
+    --accent-fort: var(--sombre-accent-fort);
+    --accent-voile: var(--sombre-accent-voile);
+    --profond: var(--sombre-profond);
+    --profond-voile: var(--sombre-profond-voile);
+    --alerte: var(--sombre-alerte);
+    --alerte-voile: var(--sombre-alerte-voile);
+    --ombre: var(--sombre-ombre);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --fond: var(--sombre-fond);
+  --surface: var(--sombre-surface);
+  --surface-haute: var(--sombre-surface-haute);
+  --encre: var(--sombre-encre);
+  --encre-douce: var(--sombre-encre-douce);
+  --encre-pale: var(--sombre-encre-pale);
+  --trait: var(--sombre-trait);
+  --accent: var(--sombre-accent);
+  --accent-fort: var(--sombre-accent-fort);
+  --accent-voile: var(--sombre-accent-voile);
+  --profond: var(--sombre-profond);
+  --profond-voile: var(--sombre-profond-voile);
+  --alerte: var(--sombre-alerte);
+  --alerte-voile: var(--sombre-alerte-voile);
+  --ombre: var(--sombre-ombre);
+}

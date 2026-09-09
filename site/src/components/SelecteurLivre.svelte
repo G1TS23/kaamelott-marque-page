@@ -47,33 +47,51 @@
 </ol>
 
 <style>
+  /*
+   * Conventions du design system (issue #51, docs/SPECS.md section 8) :
+   * pilules pour les onglets, mono à chiffres tabulaires pour tout ce qui est
+   * un nombre, et l'état actif signalé par le couple --accent-voile /
+   * --accent-fort plutôt que par une couleur inventée ici.
+   *
+   * L'en-tête définitif (onglets collés au lecteur, comme dans la note de
+   * cadrage) viendra avec le lecteur lui-même (#14) ; en attendant les
+   * onglets vivent seuls, d'où la pilule complète plutôt qu'un onglet à
+   * angles bas droits qui ne serait accroché à rien.
+   */
+
   .onglets {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--esp-2);
     flex-wrap: wrap;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--esp-4);
   }
 
   .onglets button {
-    font: inherit;
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--bordure);
-    border-radius: 999px;
-    background: transparent;
-    color: inherit;
+    font-family: var(--police-mono);
+    font-size: 0.82rem;
+    padding: var(--esp-1) var(--esp-3);
+    border: 1px solid var(--trait);
+    border-radius: var(--rayon-pilule);
+    background: var(--surface);
+    color: var(--encre-douce);
     cursor: pointer;
   }
 
+  .onglets button:hover {
+    border-color: var(--encre-pale);
+  }
+
   .onglets button.actif {
+    background: var(--accent-voile);
     border-color: var(--accent);
-    color: var(--accent);
+    color: var(--accent-fort);
     font-weight: 600;
   }
 
   .compte {
-    color: var(--attenue);
-    font-size: 0.85em;
-    margin-left: 0.25rem;
+    color: var(--encre-pale);
+    font-variant-numeric: tabular-nums;
+    margin-left: var(--esp-1);
   }
 
   .onglets button.actif .compte {
@@ -89,21 +107,21 @@
   .episodes li {
     display: grid;
     grid-template-columns: 2.5rem 1fr auto;
-    gap: 0.75rem;
+    gap: var(--esp-3);
     align-items: baseline;
-    padding: 0.4rem 0;
-    border-bottom: 1px solid var(--bordure);
+    padding: var(--esp-1) var(--esp-2);
+    border-bottom: 1px solid var(--trait);
+  }
+
+  .numero,
+  time {
+    font-family: var(--police-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--encre-pale);
+    font-size: 0.82rem;
   }
 
   .numero {
-    color: var(--attenue);
-    font-variant-numeric: tabular-nums;
     text-align: right;
-  }
-
-  time {
-    color: var(--attenue);
-    font-variant-numeric: tabular-nums;
-    font-size: 0.9em;
   }
 </style>
