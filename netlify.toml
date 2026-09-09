@@ -19,7 +19,10 @@
   command = "npm run build"
 
 [build.environment]
-  # Astro exige >= 22.12.0. Version alignée sur celle de la CI GitHub
-  # Actions : tester sur une version et déployer sur une autre reviendrait
-  # à ne pas vraiment tester ce qu'on met en ligne.
-  NODE_VERSION = "22"
+  # LTS active, alignée sur celle de la CI GitHub Actions : tester sur une
+  # version et déployer sur une autre reviendrait à ne pas vraiment tester
+  # ce qu'on met en ligne. Volontairement pas la 22 (borne d'Astro, donc la
+  # plus vieille ligne encore supportée), ni une résolution automatique du
+  # type "dernière LTS" qui décalerait les deux côtés à des moments
+  # différents.
+  NODE_VERSION = "24"
