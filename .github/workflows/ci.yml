@@ -24,9 +24,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          # La borne réelle vient d'Astro (>=22.12.0) ; on vérifie sur une LTS
-          # plutôt que sur la version locale, pour ne pas dépendre du poste.
-          node-version: lts/*
+          # Même version que Netlify (netlify.toml) : tester sur une
+          # version et déployer sur une autre reviendrait à ne pas vraiment
+          # tester ce qu'on met en ligne. 22 est la borne d'Astro (>=22.12.0).
+          node-version: "22"
           cache: npm
           cache-dependency-path: site/package-lock.json
 
