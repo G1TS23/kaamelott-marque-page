@@ -110,9 +110,7 @@ def merge_book(book, dry_run=False):
         # timestamp faux (pointage ou résolution), autant ne pas la
         # persister dans le fichier final.
         print("  -> écriture annulée (corriger la source avant de relancer)")
-        return sans_source, a_repointer, inversions
-
-    if not dry_run:
+    elif not dry_run:
         path = DATA_DIR / "episodes" / f"livre-{book}.json"
         path.write_text(json.dumps(episodes, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"  -> écrit dans {path}")
