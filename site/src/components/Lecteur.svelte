@@ -12,14 +12,17 @@
    * d'interagir avec une instance de lecteur unique partagée entre le
    * sélecteur de livre et, plus tard, la recherche (#15 à #18).
    */
-  import { commandePourEpisode } from '../lib/lecteur';
+  import { commandePourEpisode, type EtatLecteur } from '../lib/lecteur';
 
   let { videoIdInitial }: { videoIdInitial: string } = $props();
 
   let conteneur: HTMLDivElement;
   let player: YT.Player | undefined;
   let pret = $state(false);
-  let videoIdCharge = $state<string | null>(null);
+  // `charge: false` : le constructeur `YT.Player` ne fait que mettre la
+  // vidéo en attente, comme `cueVideoById` — rien n'est encore bufferisé
+  // (src/lib/lecteur.ts pour la raison de cette distinction).
+  let etat = $state<EtatLecteur | null>(null);
 
   function creerPlayer() {
     player = new YT.Player(conteneur, {
@@ -28,7 +31,7 @@
       events: {
         onReady: () => {
           pret = true;
-          videoIdCharge = videoIdInitial;
+          etat = { videoId: videoIdInitial, charge: false };
         },
       },
     });
@@ -56,14 +59,14 @@
   export function allerA(videoId: string, secondes: number) {
     if (!pret || !player) return;
 
-    const commande = commandePourEpisode(videoIdCharge, videoId, secondes);
+    const commande = commandePourEpisode(etat, videoId, secondes);
     if (commande.action === 'seek') {
       player.seekTo(commande.secondes, true);
       player.playVideo();
     } else {
       player.loadVideoById({ videoId: commande.videoId, startSeconds: commande.secondes });
-      videoIdCharge = commande.videoId;
     }
+    etat = { videoId, charge: true };
   }
 
   /**
@@ -73,9 +76,9 @@
    * demandée).
    */
   export function choisirLivre(videoId: string) {
-    if (!pret || !player || videoIdCharge === videoId) return;
+    if (!pret || !player || etat?.videoId === videoId) return;
     player.cueVideoById(videoId);
-    videoIdCharge = videoId;
+    etat = { videoId, charge: false };
   }
 </script>
 
