@@ -39,8 +39,14 @@ donnée finale.
 
 **Monotonie** — le timestamp doit croître avec le numéro d'épisode ; une
 inversion signalerait un pointage ou une résolution erronée. Aucune
-inversion sur les 4 livres (contrôle intégré au script, affiché à chaque
-exécution).
+inversion sur les 4 livres.
+
+Le contrôle tourne **avant l'écriture** et l'annule en cas d'inversion (le
+script sort alors en code 1) : une donnée fausse n'est pas persistée dans
+le fichier final, il faut corriger la source et relancer. Vérifié en
+injectant une inversion volontaire — écriture bien bloquée, fichier final
+inchangé, code de sortie 1. Il tourne aussi en `--dry-run`, précisément le
+mode où l'on veut détecter un problème avant de toucher aux fichiers.
 
 **Durées d'épisode implicites** — la durée d'un épisode étant l'écart
 jusqu'au suivant (pas de `end_seconds`, cf. `docs/SPECS.md` section 4) :

@@ -33,6 +33,7 @@ Usage: python scripts/merge_timestamps.py [--dry-run]
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
@@ -93,6 +94,7 @@ def merge_book(book, dry_run=False):
 
     redondants = sorted(set(manual_by_ep) & set(resolved_by_ep))
     a_repointer = sorted(e["episode"] for e in episodes if e["confidence"] == A_REPOINTER)
+    inversions = check_monotonic(episodes)
 
     print(f"[Livre {book}] {len(episodes)} épisodes")
     print(f"  jingle           : {stats[SOURCE_JINGLE]}")
@@ -101,24 +103,30 @@ def merge_book(book, dry_run=False):
     print(f"  sans timestamp   : {len(sans_source)}{' -> ' + str(sans_source) if sans_source else ''}")
     print(f"  encore à repointer : {len(a_repointer)}{' -> ' + str(a_repointer) if a_repointer else ''}")
     print(f"  pointages manuels redondants (validation croisée seulement) : {len(redondants)}")
+    print(f"  monotonie : {'OK' if not inversions else f'{len(inversions)} inversion(s) -> {inversions}'}")
+
+    if inversions:
+        # Le contrôle tourne AVANT l'écriture : une inversion signale un
+        # timestamp faux (pointage ou résolution), autant ne pas la
+        # persister dans le fichier final.
+        print("  -> écriture annulée (corriger la source avant de relancer)")
+        return sans_source, a_repointer, inversions
 
     if not dry_run:
         path = DATA_DIR / "episodes" / f"livre-{book}.json"
         path.write_text(json.dumps(episodes, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"  -> écrit dans {path}")
-    return sans_source, a_repointer
+    return sans_source, a_repointer, inversions
 
 
-def check_monotonic(book):
+def check_monotonic(episodes):
     """Garde-fou : les timestamps doivent croître avec le numéro d'épisode.
-    Une inversion signale un pointage ou une résolution erronée."""
-    episodes = load_json(DATA_DIR / "episodes" / f"livre-{book}.json")
-    horodates = [(e["episode"], e["start_seconds"]) for e in episodes if e["start_seconds"] is not None]
-    horodates.sort()
-    inversions = [
-        (a[0], b[0]) for a, b in zip(horodates, horodates[1:]) if b[1] <= a[1]
-    ]
-    return inversions
+    Une inversion signale un pointage ou une résolution erronée. Renvoie les
+    couples (épisode_précédent, épisode_suivant) en cause."""
+    horodates = sorted(
+        (e["episode"], e["start_seconds"]) for e in episodes if e["start_seconds"] is not None
+    )
+    return [(a[0], b[0]) for a, b in zip(horodates, horodates[1:]) if b[1] <= a[1]]
 
 
 def main():
@@ -127,20 +135,22 @@ def main():
     args = parser.parse_args()
 
     total_sans_source = []
+    total_inversions = []
     for book in BOOKS:
-        sans_source, _ = merge_book(book, dry_run=args.dry_run)
+        sans_source, _, inversions = merge_book(book, dry_run=args.dry_run)
         total_sans_source.extend((book, e) for e in sans_source)
+        total_inversions.extend((book, couple) for couple in inversions)
         print()
 
-    if not args.dry_run:
-        print("Contrôle de monotonie (le timestamp doit croître avec le numéro d'épisode) :")
-        for book in BOOKS:
-            inversions = check_monotonic(book)
-            print(f"  Livre {book} : {'OK' if not inversions else f'{len(inversions)} inversion(s) -> {inversions}'}")
-
     if total_sans_source:
-        print(f"\n{len(total_sans_source)} épisode(s) sans aucun timestamp : {total_sans_source}")
+        print(f"{len(total_sans_source)} épisode(s) sans aucun timestamp : {total_sans_source}")
+    if total_inversions:
+        print(f"{len(total_inversions)} inversion(s) de timestamp : {total_inversions}")
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    # code de sortie non nul si un garde-fou a sauté, pour que le script
+    # soit utilisable dans un enchaînement automatisé
+    sys.exit(main())
