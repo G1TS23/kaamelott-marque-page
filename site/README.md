@@ -40,3 +40,22 @@ Astro pré-rend le HTML au build (le sommaire est lisible sans JavaScript) et
 n'hydrate que les îlots Svelte. Svelte plutôt que React parce que la
 recherche sémantique embarquera déjà un modèle de 25-50 Mo (specs section 7) :
 autant que le reste du bundle reste marginal.
+
+## Analyse SonarCloud
+
+Un warning est attendu et **volontairement non corrigé** :
+
+> Failed to parse TSConfig file .../site/tsconfig.json. Highest TypeScript
+> supported version is 6.0.3
+
+`tsconfig.json` fait `extends: "astro/tsconfigs/strict"`, qui vit dans
+`node_modules/`. SonarCloud clone le dépôt sans installer les dépendances,
+la cible est donc introuvable de son côté. Le contourner reviendrait à
+recopier la configuration d'Astro dans le dépôt et à la maintenir en phase
+avec l'upstream, pour aucun gain : l'analyse JavaScript tourne normalement
+malgré le warning (vérifié sur la PR #47).
+
+À savoir aussi : SonarCloud n'analyse pas les fichiers `.astro` ni
+`.svelte`, seulement le JavaScript. La logique placée dans un îlot Svelte
+échappe donc à l'analyse statique — raison de plus pour garder la logique
+non triviale dans `src/lib/`, en JavaScript.
