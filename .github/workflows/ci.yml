@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Une nouvelle poussée sur une PR annule la vérification en cours : seul le
+# dernier état compte, inutile de payer les précédents.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site:
+    name: Site (types, tests, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Même version que Netlify (netlify.toml) : tester sur une
+          # version et déployer sur une autre reviendrait à ne pas vraiment
+          # tester ce qu'on met en ligne.
+          #
+          # 24 = LTS active, pas 22 (qui est la borne d'Astro, donc la plus
+          # vieille ligne encore supportée) ni `lts/*` (qui basculerait en
+          # silence sur la 26 quand elle passera LTS, en désaccord avec
+          # Netlify). Épingler une majeure explicite est le seul moyen que
+          # CI et production restent alignées dans le temps.
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      # --ignore-scripts : sans lui, les scripts de cycle de vie des
+      # dépendances s'exécutent à l'installation, et une dépendance
+      # compromise exécuterait du code arbitraire dans la CI. Vérifié que
+      # tests et build passent sans eux — la chaîne Astro/Vite s'appuie sur
+      # des paquets par plateforme, pas sur des postinstall.
+      - run: npm ci --ignore-scripts
+
+      - name: Tests
+        run: npm test
+
+      # `build` enchaîne `astro check` (types) puis la construction. Il porte
+      # aussi les garde-fous de données : il échoue si un livre n'a pas son
+      # compte d'épisodes ou si l'un d'eux n'a pas de timestamp. Les données
+      # étant importées depuis `data/` à la racine, le dépôt complet est
+      # nécessaire — d'où le checkout sans `sparse-checkout`.
+      - name: Vérification des types et build
+        run: npm run build
