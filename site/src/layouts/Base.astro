@@ -5,6 +5,9 @@
  * isolé dès maintenant : la popin de première visite (#19) et le pied de
  * page (#20) viendront s'y greffer sans toucher au contenu.
  */
+import '../styles/polices.css';
+import '../styles/tokens.css';
+
 const { titre = 'Kaamelott — Le Marque-Page de la Relecture' } = Astro.props;
 ---
 
@@ -27,23 +30,14 @@ const { titre = 'Kaamelott — Le Marque-Page de la Relecture' } = Astro.props;
 </html>
 
 <style is:global>
+  /*
+   * Styles de base : ce que les tokens impliquent au niveau des éléments HTML.
+   * Les valeurs elles-mêmes vivent dans src/styles/tokens.css (issue #51) —
+   * rien ne doit être écrit en dur ici.
+   */
+
   :root {
     color-scheme: light dark;
-    --fond: #f4f2ef;
-    --texte: #222;
-    --attenue: #666;
-    --bordure: #d8d3cb;
-    --accent: #7a5c2e;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --fond: #1a1815;
-      --texte: #ece7df;
-      --attenue: #a49c8f;
-      --bordure: #3a352e;
-      --accent: #c9a227;
-    }
   }
 
   * {
@@ -53,8 +47,35 @@ const { titre = 'Kaamelott — Le Marque-Page de la Relecture' } = Astro.props;
   body {
     margin: 0;
     background: var(--fond);
-    color: var(--texte);
-    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-    line-height: 1.5;
+    color: var(--encre);
+    font-family: var(--police-texte);
+    font-size: var(--taille-base);
+    line-height: var(--interligne);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--police-titre);
+    font-weight: 600;
+    color: var(--encre);
+    text-wrap: balance;
+  }
+
+  a {
+    color: var(--profond);
+  }
+
+  /* Numéros d'épisode et minutages : chasse fixe et chiffres tabulaires, pour
+     qu'une colonne de nombres s'aligne au lieu de danser d'une ligne à l'autre. */
+  code,
+  .mono {
+    font-family: var(--police-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: var(--accent-voile);
+    color: var(--accent-fort);
   }
 </style>

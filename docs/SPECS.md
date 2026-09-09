@@ -179,6 +179,40 @@ Un seul lecteur pour tout le site (une seule instance IFrame Player API), qui ch
 
 Direction retenue : **le sommaire du livre** comme structure principale (lecteur fixe, table des matières fidèle au nom « Livre », recherche par titre globale), avec une **passerelle vers la recherche par résumé** qui n'apparaît qu'en cas d'échec de la recherche par titre.
 
+### Direction artistique et design system (issue #51)
+
+La DA vient des maquettes de la note de cadrage (artifact lié en tête de document). Elle y était restée seule : `site/src/styles/tokens.css` en est désormais la **source de vérité versionnée**, et aucune couleur ne doit être écrite en dur ailleurs — un test le vérifie (`tokens.test.ts`), le CSS échouant en silence quand une variable n'existe pas.
+
+**Registre visuel** — un fond parcheminé légèrement vert, une encre chaude, un accent ocre : l'évocation du manuscrit sans le pastiche médiéval (ni gothique, ni parchemin texturé, ni heaume en illustration).
+
+**Typographie** — trois familles, trois rôles qui ne s'intervertissent pas :
+
+| Rôle | Famille | Usage |
+| --- | --- | --- |
+| Titres, marque | Fraunces (serif variable, axe `opsz`) | `h1`-`h3`, nom du site |
+| Texte courant | Source Sans 3 | corps, résumés — 16,5 px / 1,6 |
+| Données | IBM Plex Mono (400, 600) | numéros d'épisode, minutages, étiquettes, onglets — toujours en chiffres tabulaires |
+
+Le serif signale un titre, la mono signale une donnée : c'est la mono qui porte tout ce qui s'aligne en colonne. Les polices sont **auto-hébergées** (paquets Fontsource, sous-ensemble latin, ~123 Ko au total) et non chargées depuis Google Fonts — pas de dépendance à un tiers ni d'IP de visiteur transmise au passage.
+
+**Palette** — quatorze tokens en rôles plutôt qu'en couleurs, déclinés clair et sombre :
+
+| Token | Rôle | Clair | Sombre |
+| --- | --- | --- | --- |
+| `--fond` | fond de page | `#eceee3` | `#171911` |
+| `--surface` / `--surface-haute` | encarts et champs / cartes détachées | `#f9f9f2` / `#ffffff` | `#1e2117` / `#252819` |
+| `--encre` / `--encre-douce` / `--encre-pale` | texte principal / secondaire / méta | `#20241d` / `#565c4c` / `#8b9080` | `#e9e7d8` / `#b3b39e` / `#7c8070` |
+| `--trait` | bordures et séparateurs | `#d4d6c5` | `#343827` |
+| `--accent` / `--accent-fort` / `--accent-voile` | état actif ou sélectionné | `#a5711f` / `#8a5c15` / `#f1e4cd` | `#dba748` / `#eec06a` / `#332a17` |
+| `--profond` / `--profond-voile` | liens, justifications de résultat | `#3f6357` / `#e2ebe6` | `#8fbba9` / `#22322c` |
+| `--alerte` / `--alerte-voile` | avertissement | `#8a3324` / `#f3e2dd` | `#e2917f` / `#3a2420` |
+
+Les noms sont francisés comme le reste du code ; leur équivalent dans la note de cadrage (`--ink`, `--line`, `--deep`…) est rappelé en commentaire dans `tokens.css`.
+
+**Conventions de composants** — un état actif se signale par le couple `--accent-voile` (fond) + `--accent-fort` (texte), jamais par une couleur inventée sur place. Pilules (`--rayon-pilule`) pour les onglets, chips et le champ de recherche ; `--rayon-carte` / `--rayon-encart` / `--rayon-etiquette` pour le reste. Contenu limité à `--largeur-contenu` (760 px). Espacements pris dans l'échelle `--esp-1` à `--esp-6`.
+
+**Thème sombre** — piloté par `prefers-color-scheme`, avec un attribut `data-theme` qui le force dans les deux sens. La bascule manuelle n'est pas encore posée côté interface, mais la mécanique l'attend.
+
 ### User stories
 
 - **Titre en tête** — taper un titre approximatif, cliquer, atterrir directement sur la scène.
@@ -260,6 +294,12 @@ Chips au-dessus du sommaire/résultats, combinables avec n'importe quel autre é
 - Front-end : **Astro + Svelte + TypeScript** (issue #13), dans `site/`. TypeScript épinglé en 6.0.3, la version imposée par la chaîne Astro ; la 7 est sortie mais pas encore supportée, à retenter plus tard. Hébergement : **Netlify**, déploiement continu depuis `main`, prévisualisation par PR.
 - Recherche sémantique : modèle compact (~25-50 Mo), transformers.js, navigateur.
 - Scripts hors-site : Python.
+
+**Direction artistique**
+- La DA des maquettes de cadrage est adoptée telle quelle et rapatriée dans le dépôt (`site/src/styles/tokens.css`) : elle vivait jusque-là dans un document externe que le code ignorait, et le squelette du site avait improvisé une palette contradictoire.
+- Polices auto-hébergées, jamais chargées depuis un CDN tiers.
+- Aucune couleur en dur hors des tokens — vérifié par un test, le CSS ne signalant pas ses fautes de frappe.
+- Thème sombre par préférence système **et** par attribut `data-theme` (bascule manuelle possible plus tard sans retoucher les tokens).
 
 **Identité et crédit**
 - Nom du site : **Kaamelott - Le Marque-Page de la Relecture**.
