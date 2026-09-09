@@ -26,8 +26,14 @@ jobs:
         with:
           # Même version que Netlify (netlify.toml) : tester sur une
           # version et déployer sur une autre reviendrait à ne pas vraiment
-          # tester ce qu'on met en ligne. 22 est la borne d'Astro (>=22.12.0).
-          node-version: "22"
+          # tester ce qu'on met en ligne.
+          #
+          # 24 = LTS active, pas 22 (qui est la borne d'Astro, donc la plus
+          # vieille ligne encore supportée) ni `lts/*` (qui basculerait en
+          # silence sur la 26 quand elle passera LTS, en désaccord avec
+          # Netlify). Épingler une majeure explicite est le seul moyen que
+          # CI et production restent alignées dans le temps.
+          node-version: "24"
           cache: npm
           cache-dependency-path: site/package-lock.json
 
