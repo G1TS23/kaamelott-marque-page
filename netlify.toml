@@ -1,0 +1,25 @@
+# Déploiement continu du site (issue #13, specs section 7).
+#
+# Ce fichier est à la racine du dépôt et non dans `site/` : Netlify le
+# cherche à la racine, et c'est aussi lui qui déclare où se trouve le site.
+
+[build]
+  # Le dépôt entier est cloné, mais la construction se fait depuis `site/`.
+  # C'est nécessaire dans les deux sens : les commandes npm doivent tourner
+  # là où vit le package.json, et le build importe les données depuis
+  # `../data/` — les deux ne fonctionnent que si le clone reste complet.
+  base = "site"
+
+  # `publish` est relatif à `base`, donc `site/dist`.
+  publish = "dist"
+
+  # Enchaîne la vérification de types puis la construction (voir
+  # site/package.json). Netlify installe les dépendances avant de lancer
+  # cette commande.
+  command = "npm run build"
+
+[build.environment]
+  # Astro exige >= 22.12.0. Version alignée sur celle de la CI GitHub
+  # Actions : tester sur une version et déployer sur une autre reviendrait
+  # à ne pas vraiment tester ce qu'on met en ligne.
+  NODE_VERSION = "22"

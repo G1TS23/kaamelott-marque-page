@@ -34,7 +34,7 @@ le pipeline garantit des valeurs contraintes.
 
 ## Données
 
-Le site **ne duplique pas** les données : `src/lib/episodes.js` importe
+Le site **ne duplique pas** les données : `src/lib/episodes.ts` importe
 directement `data/episodes/livre-{1..4}.json` à la racine du dépôt, produits
 par le pipeline Python (milestones 1 à 3). Les imports sont résolus par Vite
 au build, donc rien n'est lu au runtime.
@@ -52,13 +52,25 @@ attendu, ou si un épisode n'a pas de `start_seconds` — servir un site où un
 |---|---|
 | `src/pages/index.astro` | Page unique (specs section 6 : un seul lecteur, pas de mur de vignettes) |
 | `src/layouts/Base.astro` | Coquille HTML + styles globaux (variables de thème, clair/sombre) |
-| `src/lib/episodes.js` | Chargement et garde-fous des données, au build |
+| `src/lib/episodes.ts` | Chargement et garde-fous des données, au build |
 | `src/components/*.svelte` | Îlots interactifs, hydratés côté client |
 
 Astro pré-rend le HTML au build (le sommaire est lisible sans JavaScript) et
 n'hydrate que les îlots Svelte. Svelte plutôt que React parce que la
 recherche sémantique embarquera déjà un modèle de 25-50 Mo (specs section 7) :
 autant que le reste du bundle reste marginal.
+
+## Déploiement
+
+`netlify.toml`, à la racine du dépôt, décrit la construction : répertoire de
+base `site/`, publication de `site/dist`, Node aligné sur celui de la CI.
+
+Le dépôt entier est cloné même si la construction part de `site/` — c'est
+indispensable, le build important les données depuis `../data/`.
+
+La connexion du dépôt à Netlify se fait une fois depuis l'interface Netlify
+(elle ne peut pas être décrite dans le dépôt). Ensuite chaque merge sur
+`main` déploie, et chaque PR obtient sa prévisualisation.
 
 ## Analyse SonarCloud
 

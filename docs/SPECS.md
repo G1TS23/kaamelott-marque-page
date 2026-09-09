@@ -159,7 +159,7 @@ Un seul lecteur pour tout le site (une seule instance IFrame Player API), qui ch
 | Brique | Choix retenu |
 |--------|--------------|
 | Site (front-end) | **Astro + Svelte + TypeScript** ✅ (issue #13) — voir ci-dessous |
-| Hébergement | Netlify ou Vercel |
+| Hébergement | **Netlify** ✅ (issue #13) — `netlify.toml` à la racine, base `site/`, publication `site/dist` |
 | Données | ~400 fiches JSON statiques (1 fichier par livre) + vecteurs d'embeddings précalculés |
 | Recherche sémantique | transformers.js, modèle compact (~25-50 Mo), navigateur |
 | Scripts hors-site (import, jingle, transcription) | Python — librosa/numpy (audio), BeautifulSoup (Wikipédia) |
@@ -256,7 +256,7 @@ Chips au-dessus du sommaire/résultats, combinables avec n'importe quel autre é
 - Recherche par réplique (section 5) : post-v1, pas au lancement. Index pré-joint par épisode au build, matching tolérant à l'orthographe obligatoire (pas de sous-chaîne exacte), affichage d'un court extrait seulement (jamais la transcription intégrale d'un épisode).
 
 **Stack technique**
-- Front-end : **Astro + Svelte + TypeScript** (issue #13), dans `site/`. TypeScript épinglé en 6.0.3, la version imposée par la chaîne Astro ; la 7 est sortie mais pas encore supportée, à retenter plus tard. Hébergement : Netlify ou Vercel.
+- Front-end : **Astro + Svelte + TypeScript** (issue #13), dans `site/`. TypeScript épinglé en 6.0.3, la version imposée par la chaîne Astro ; la 7 est sortie mais pas encore supportée, à retenter plus tard. Hébergement : **Netlify**, déploiement continu depuis `main`, prévisualisation par PR.
 - Recherche sémantique : modèle compact (~25-50 Mo), transformers.js, navigateur.
 - Scripts hors-site : Python.
 
