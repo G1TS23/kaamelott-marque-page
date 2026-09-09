@@ -13,6 +13,11 @@
  */
 
 :root {
+  /* Annoncé au navigateur pour qu'il accorde ce qu'il dessine lui-même
+     (ascenseurs, contrôles de formulaire) au thème réellement appliqué —
+     y compris quand `data-theme` contredit la préférence système. */
+  color-scheme: light;
+
   /* --- Couleurs, thème clair ------------------------------------------ */
   /* Un fond parcheminé légèrement vert, une encre chaude, un accent ocre :
      l'évocation du manuscrit sans le pastiche médiéval. */
@@ -110,6 +115,8 @@
  */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
+    color-scheme: dark;
+
     --fond: var(--sombre-fond);
     --surface: var(--sombre-surface);
     --surface-haute: var(--sombre-surface-haute);
@@ -129,6 +136,8 @@
 }
 
 :root[data-theme='dark'] {
+  color-scheme: dark;
+
   --fond: var(--sombre-fond);
   --surface: var(--sombre-surface);
   --surface-haute: var(--sombre-surface-haute);
