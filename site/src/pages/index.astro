@@ -1,7 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import SelecteurLivre from '../components/SelecteurLivre.svelte';
-import { LIVRES, chargerLivre } from '../lib/episodes.js';
+import { LIVRES, chargerLivre } from '../lib/episodes.ts';
+import type { LivreEnListe } from '../lib/episodes.ts';
 
 /**
  * Page unique du site (specs section 6 : un seul lecteur, pas de mur de
@@ -13,7 +14,7 @@ import { LIVRES, chargerLivre } from '../lib/episodes.js';
 // Seuls les champs utiles à la liste sont passés à l'îlot : les résumés
 // (~300 Ko au total) n'y entrent que quand la recherche en aura besoin
 // (#15/#16), pour ne pas les sérialiser inutilement dans le HTML.
-const livres = LIVRES.map((livre) => ({
+const livres: LivreEnListe[] = LIVRES.map((livre) => ({
   livre,
   episodes: chargerLivre(livre).map(({ episode, title, start_seconds, video_id }) => ({
     episode,

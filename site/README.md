@@ -1,7 +1,7 @@
 # Site — Le Marque-Page de la Relecture
 
-Front-end du projet (milestone 4). Astro + Svelte, statique, sans serveur ni
-base de données (`docs/SPECS.md` section 7).
+Front-end du projet (milestone 4). Astro + Svelte + TypeScript, statique,
+sans serveur ni base de données (`docs/SPECS.md` section 7).
 
 ## Lancer
 
@@ -9,9 +9,28 @@ base de données (`docs/SPECS.md` section 7).
 cd site
 npm install
 npm run dev      # http://localhost:4321
-npm run build    # sortie statique dans site/dist/
+npm run check    # vérification de types seule
+npm run build    # astro check && astro build -> site/dist/
 npm run preview  # sert le build
 ```
+
+`build` lance `astro check` d'abord : Astro transpile TypeScript sans le
+vérifier, donc sans cette étape les types ne serviraient à rien. Une erreur
+de type fait sortir le build en code 1 sans régénérer `dist/` — vérifié.
+
+## TypeScript
+
+Épinglé en **6.0.3**, la version que toute la chaîne Astro impose
+(`astro`, `svelte2tsx` et `@astrojs/svelte` déclarent tous `^6`). TypeScript
+7 est sorti mais n'est pas encore supporté par cet outillage, et c'est la
+réécriture en Go : la surface d'API change, forcer la montée casserait
+vraisemblablement le langage serveur d'Astro. **À retenter quand Astro
+l'adoptera** — ce sera alors une simple montée de version.
+
+La forme d'une fiche épisode est typée une fois dans `src/lib/episodes.ts`
+(`Episode`), et tout en hérite. Une seule assertion existe, à la frontière
+des données : TypeScript infère des `string` larges en lisant le JSON, là où
+le pipeline garantit des valeurs contraintes.
 
 ## Données
 

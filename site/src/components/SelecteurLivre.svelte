@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   /**
    * Onglets de livre + liste des épisodes du livre actif (issue #13).
    *
@@ -8,20 +8,16 @@
    * brancher — la bascule automatique d'onglet sur un résultat cross-livre
    * (#18) réutilisera `livreActif`.
    */
-  let { livres } = $props();
+  import type { LivreEnListe, NumeroLivre } from '../lib/episodes.ts';
+  import { formaterTemps } from '../lib/temps.ts';
 
-  let livreActif = $state(livres[0].livre);
+  let { livres }: { livres: LivreEnListe[] } = $props();
+
+  let livreActif = $state<NumeroLivre>(livres[0].livre);
 
   const episodesAffiches = $derived(
-    livres.find((l) => l.livre === livreActif).episodes,
+    livres.find((l) => l.livre === livreActif)?.episodes ?? [],
   );
-
-  function formaterTemps(secondes) {
-    const h = Math.floor(secondes / 3600);
-    const m = Math.floor((secondes % 3600) / 60);
-    const s = Math.floor(secondes % 60);
-    return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-  }
 </script>
 
 <nav class="onglets" aria-label="Choix du livre">
