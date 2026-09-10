@@ -1,14 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
-import SelecteurLivre from '../components/SelecteurLivre.svelte';
+import Site from '../components/Site.svelte';
 import { LIVRES, chargerLivre } from '../lib/episodes.ts';
 import type { LivreEnListe } from '../lib/episodes.ts';
 
 /**
  * Page unique du site (specs section 6 : un seul lecteur, pas de mur de
- * vignettes). À ce stade (issue #13) elle ne fait que prouver la chaîne
- * complète : données du pipeline lues au build, rendues en HTML, puis
- * hydratées par Svelte.
+ * vignettes). Un seul îlot (`Site.svelte`) : le lecteur et le sélecteur de
+ * livre partagent l'état de navigation, deux îlots séparés ne le pourraient
+ * pas sans mécanisme de partage à part entière (issue #14).
  */
 
 // Seuls les champs utiles à la liste sont passés à l'îlot : les résumés
@@ -36,7 +36,7 @@ const total = livres.reduce((n, l) => n + l.episodes.length, 0);
       </p>
     </header>
 
-    <SelecteurLivre client:load livres={livres} />
+    <Site client:load livres={livres} />
   </main>
 </Base>
 

@@ -282,6 +282,12 @@ Chips au-dessus du sommaire/résultats, combinables avec n'importe quel autre é
 - Un fichier JSON par livre.
 - `characters` calculé à l'import (guests + matching contre `data/characters.json`), pas en recherche à la volée. Facette combinable en ET, découverte par recherche à taper plutôt qu'un mur de ~100 chips.
 
+**Lecteur (issue #14)**
+- Un seul îlot Svelte (`Site.svelte`) plutôt que deux hydratés séparément : le lecteur et le sélecteur de livre doivent partager `livreActif`, ce qu'aucun des deux composants ne peut posséder seul. Le lecteur (`Lecteur.svelte`) et le sommaire (`SelecteurLivre.svelte`) restent chacun sans état de navigation propre — de purs exécutants, pilotés d'en haut.
+- Décision de navigation (rester sur la vidéo courante vs en charger une autre) isolée dans `src/lib/lecteur.ts`, testée — SonarCloud n'analysant pas les `.svelte`, c'est là que la seule branche logique réelle du composant doit vivre.
+- Bascule d'onglet seule (sans épisode choisi) : vidéo mise en attente (`cueVideoById`) sans lancer la lecture — un changement de livre ne doit pas se substituer à un geste de lecture que l'utilisateur n'a pas demandé.
+- Types `@types/youtube` (officiel, ambient, aucun runtime) plutôt que des types maison, pour les mêmes raisons que les autres dépendances : entretenu, standard, sans risque de dériver de l'API réelle.
+
 **Recherche et interface**
 - Passerelle B→C uniquement après échec de la recherche par titre.
 - Les deux modes de recherche (titre + résumé) partent ensemble dès le v1.
