@@ -288,6 +288,13 @@ Chips au-dessus du sommaire/résultats, combinables avec n'importe quel autre é
 - Bascule d'onglet seule (sans épisode choisi) : vidéo mise en attente (`cueVideoById`) sans lancer la lecture — un changement de livre ne doit pas se substituer à un geste de lecture que l'utilisateur n'a pas demandé.
 - Types `@types/youtube` (officiel, ambient, aucun runtime) plutôt que des types maison, pour les mêmes raisons que les autres dépendances : entretenu, standard, sans risque de dériver de l'API réelle.
 
+**Recherche par titre (issue #15)**
+- **Fuse.js** (7.5.0, épinglé) pour le flou : `keys: ['title']`, `threshold: 0.4`, `ignoreLocation: true` (titres courts, une correspondance n'importe où vaut autant qu'au début), `minMatchCharLength: 2`. Le `threshold` est le point de réglage si le flou ramène trop ou trop peu.
+- Index des ~400 titres construit une fois au montage de l'îlot ; la logique (`creerIndexTitres`, `chercherParTitre`) vit dans `site/src/lib/recherche.ts`, testée — SonarCloud n'analyse pas les `.svelte`.
+- Requête vide → sommaire du livre actif. Requête non vide → résultats globaux aux 4 livres, chacun étiqueté de son livre (badge). Zéro résultat → message simple (la passerelle #17 s'y branchera).
+- Un clic sur un résultat joue le bon épisode ; la bascule d'onglet sur un résultat d'un autre livre est laissée à #18 (l'onglet peut rester sur son livre entre-temps).
+- Épisode en cours de lecture (le dernier cliqué) mis en évidence dans le sommaire, repris du même vocabulaire visuel que l'onglet actif (`--accent-voile` / `--accent-fort` + filet `--accent`). Pas de scroll automatique vers lui.
+
 **Recherche et interface**
 - Passerelle B→C uniquement après échec de la recherche par titre.
 - Les deux modes de recherche (titre + résumé) partent ensemble dès le v1.

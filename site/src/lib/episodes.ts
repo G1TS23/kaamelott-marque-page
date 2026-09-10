@@ -68,6 +68,18 @@ export interface LivreEnListe {
   episodes: EpisodeListe[];
 }
 
+/**
+ * Un épisode sorti de son livre : la recherche est globale aux 4 livres
+ * (specs section 5), chaque résultat doit donc porter son numéro de livre
+ * pour l'étiqueter et savoir quelle vidéo charger.
+ */
+export type EpisodeAvecLivre = EpisodeListe & { livre: NumeroLivre };
+
+/** Aplati les 4 livres en une seule liste, chaque épisode gardant son livre. */
+export function aplatir(livres: LivreEnListe[]): EpisodeAvecLivre[] {
+  return livres.flatMap((l) => l.episodes.map((e) => ({ ...e, livre: l.livre })));
+}
+
 // Une seule assertion, à la frontière des données : TypeScript infère des
 // `string` larges pour les champs à valeurs contraintes (`timestamp_source`,
 // `confidence`…) en lisant le JSON. Ces fichiers sont produits et validés par

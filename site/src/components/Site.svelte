@@ -1,21 +1,42 @@
 <script lang="ts">
   /**
-   * Racine de l'îlot du site (issue #14) : possède `livreActif`, seul état
-   * que le lecteur et le sélecteur de livre doivent partager — c'est ce
-   * partage, pas l'un ou l'autre composant, qui justifie ce niveau.
+   * Racine de l'îlot du site : possède l'état que le lecteur, les onglets,
+   * le sommaire et la recherche doivent partager — `livreActif`, la requête
+   * de recherche, et l'épisode en cours de lecture.
    *
-   * Un clic sur un onglet ou un épisode ne fait rien lui-même : il ne fait
-   * que dire ici ce qui vient de se passer, et c'est cette fonction qui
-   * décide comment le lecteur doit réagir (specs section 6).
+   * Un clic (onglet, épisode, résultat) ne fait rien lui-même : il remonte
+   * ici, et c'est ce niveau qui décide comment le lecteur réagit
+   * (specs section 6) et ce que la liste affiche.
    */
-  import type { EpisodeListe, LivreEnListe, NumeroLivre } from '../lib/episodes.ts';
+  import {
+    aplatir,
+    type EpisodeListe,
+    type LivreEnListe,
+    type NumeroLivre,
+  } from '../lib/episodes.ts';
+  import { chercherParTitre, creerIndexTitres } from '../lib/recherche.ts';
   import Lecteur from './Lecteur.svelte';
   import SelecteurLivre from './SelecteurLivre.svelte';
 
   let { livres }: { livres: LivreEnListe[] } = $props();
 
   let livreActif = $state<NumeroLivre>(livres[0].livre);
+  let requete = $state('');
+  // Quel épisode le lecteur joue actuellement — c'est le dernier cliqué
+  // (#14 ne fournit pas d'événement « je suis rendu à l'épisode N » ;
+  // #56 l'affinera via getCurrentTime).
+  let episodeActif = $state<{ livre: NumeroLivre; episode: number } | null>(null);
   let lecteur: Lecteur;
+
+  // Index des ~400 titres, construit une fois : `requete` est réactif, pas
+  // l'index.
+  const indexTitres = creerIndexTitres(aplatir(livres));
+
+  // `null` = pas de recherche active → on montre le sommaire.
+  // `[]` = recherche sans résultat.
+  const resultats = $derived(
+    requete.trim() ? chercherParTitre(indexTitres, requete) : null,
+  );
 
   function videoIdDuLivre(livre: NumeroLivre): string {
     // Chaque épisode porte le video_id de son livre (redondant mais déjà
@@ -37,13 +58,68 @@
     lecteur?.choisirLivre(videoIdDuLivre(livre));
   }
 
-  function onEpisodeClick(episode: EpisodeListe) {
-    // Le sommaire ne liste que les épisodes du livre actif (#15/#18 pourront
-    // un jour proposer un résultat d'un autre livre ; pas encore le cas ici) :
-    // pas besoin de basculer d'onglet, seulement d'aller à la bonne seconde.
+  function onEpisodeClick(livre: NumeroLivre, episode: EpisodeListe) {
+    // La bascule d'onglet sur un résultat d'un autre livre est laissée à
+    // #18 : ici on joue le bon épisode, l'onglet peut rester sur son livre.
+    episodeActif = { livre, episode: episode.episode };
     lecteur?.allerA(episode.video_id, episode.start_seconds);
   }
 </script>
 
 <Lecteur bind:this={lecteur} {videoIdInitial} />
-<SelecteurLivre {livres} {livreActif} {onLivreChange} {onEpisodeClick} />
+
+<div class="recherche">
+  <label for="recherche-titre">Rechercher un épisode par titre</label>
+  <input
+    id="recherche-titre"
+    type="search"
+    bind:value={requete}
+    placeholder="filtrer par titre…"
+    autocomplete="off"
+  />
+</div>
+
+<SelecteurLivre
+  {livres}
+  {livreActif}
+  {requete}
+  {resultats}
+  {episodeActif}
+  {onLivreChange}
+  {onEpisodeClick}
+/>
+
+<style>
+  .recherche {
+    margin-bottom: var(--esp-4);
+  }
+
+  .recherche label {
+    display: block;
+    font-family: var(--police-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--encre-pale);
+    margin-bottom: var(--esp-1);
+  }
+
+  .recherche input {
+    width: 100%;
+    padding: var(--esp-2) var(--esp-3);
+    border: 1px solid var(--trait);
+    border-radius: var(--rayon-pilule);
+    background: var(--surface);
+    color: var(--encre);
+    font: inherit;
+  }
+
+  .recherche input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .recherche input::placeholder {
+    color: var(--encre-pale);
+  }
+</style>

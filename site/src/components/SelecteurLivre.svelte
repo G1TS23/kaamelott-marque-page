@@ -1,31 +1,45 @@
 <script lang="ts">
   /**
-   * Onglets de livre + liste des épisodes du livre actif (issue #13).
+   * Onglets de livre + zone de liste : sommaire du livre actif par défaut,
+   * résultats de recherche dès qu'une requête est tapée (issues #13, #15).
    *
-   * Purement présentationnel depuis l'issue #14 : `livreActif` et la
-   * navigation elle-même (bascule d'onglet, clic sur un épisode) sont
-   * décidées par `Site.svelte`, qui possède aussi le lecteur — un clic ici
-   * doit pouvoir à la fois changer l'onglet actif *et* faire réagir le
-   * lecteur, ce qu'un état interne à ce composant ne permettrait pas.
+   * Purement présentationnel : `livreActif`, la requête et l'épisode en
+   * cours sont décidés par `Site.svelte`, qui possède aussi le lecteur.
    */
-  import type { EpisodeListe, LivreEnListe, NumeroLivre } from '../lib/episodes.ts';
+  import type {
+    EpisodeAvecLivre,
+    EpisodeListe,
+    LivreEnListe,
+    NumeroLivre,
+  } from '../lib/episodes.ts';
   import { formaterTemps } from '../lib/temps.ts';
 
   let {
     livres,
     livreActif,
+    requete,
+    resultats,
+    episodeActif,
     onLivreChange,
     onEpisodeClick,
   }: {
     livres: LivreEnListe[];
     livreActif: NumeroLivre;
+    requete: string;
+    /** `null` = pas de recherche → sommaire ; `[]` = recherche sans résultat. */
+    resultats: EpisodeAvecLivre[] | null;
+    episodeActif: { livre: NumeroLivre; episode: number } | null;
     onLivreChange: (livre: NumeroLivre) => void;
-    onEpisodeClick: (episode: EpisodeListe) => void;
+    onEpisodeClick: (livre: NumeroLivre, episode: EpisodeListe) => void;
   } = $props();
 
-  const episodesAffiches = $derived(
+  const episodesDuLivre = $derived(
     livres.find((l) => l.livre === livreActif)?.episodes ?? [],
   );
+
+  function estActif(livre: NumeroLivre, episode: number): boolean {
+    return episodeActif?.livre === livre && episodeActif.episode === episode;
+  }
 </script>
 
 <nav class="onglets" aria-label="Choix du livre">
@@ -42,31 +56,47 @@
   {/each}
 </nav>
 
-<ol class="episodes">
-  {#each episodesAffiches as episode (episode.episode)}
-    <li>
-      <button type="button" onclick={() => onEpisodeClick(episode)}>
-        <span class="numero">{episode.episode}</span>
-        <span class="titre">{episode.title}</span>
-        <time datetime={`PT${Math.round(episode.start_seconds)}S`}>
-          {formaterTemps(episode.start_seconds)}
-        </time>
-      </button>
-    </li>
-  {/each}
-</ol>
+{#snippet ligne(livre: NumeroLivre, episode: EpisodeListe, avecLivre: boolean)}
+  <li>
+    <button
+      type="button"
+      class:actif={estActif(livre, episode.episode)}
+      aria-current={estActif(livre, episode.episode) ? 'true' : undefined}
+      onclick={() => onEpisodeClick(livre, episode)}
+    >
+      <span class="numero">{episode.episode}</span>
+      <span class="titre">{episode.title}</span>
+      {#if avecLivre}
+        <span class="badge">Livre {livre}</span>
+      {/if}
+      <time datetime={`PT${Math.round(episode.start_seconds)}S`}>
+        {formaterTemps(episode.start_seconds)}
+      </time>
+    </button>
+  </li>
+{/snippet}
+
+{#if resultats === null}
+  <ol class="episodes">
+    {#each episodesDuLivre as episode (episode.episode)}
+      {@render ligne(livreActif, episode, false)}
+    {/each}
+  </ol>
+{:else if resultats.length === 0}
+  <p class="vide">Aucun épisode ne correspond à «&nbsp;{requete.trim()}&nbsp;».</p>
+{:else}
+  <ol class="episodes" aria-label="Résultats de recherche">
+    {#each resultats as r (`${r.livre}-${r.episode}`)}
+      {@render ligne(r.livre, r, true)}
+    {/each}
+  </ol>
+{/if}
 
 <style>
   /*
    * Conventions du design system (issue #51, docs/SPECS.md section 8) :
-   * pilules pour les onglets, mono à chiffres tabulaires pour tout ce qui est
-   * un nombre, et l'état actif signalé par le couple --accent-voile /
-   * --accent-fort plutôt que par une couleur inventée ici.
-   *
-   * L'en-tête définitif (onglets collés au lecteur, comme dans la note de
-   * cadrage) viendra avec le lecteur lui-même (#14) ; en attendant les
-   * onglets vivent seuls, d'où la pilule complète plutôt qu'un onglet à
-   * angles bas droits qui ne serait accroché à rien.
+   * pilules pour les onglets, mono à chiffres tabulaires pour les nombres,
+   * état actif signalé par --accent-voile / --accent-fort.
    */
 
   .onglets {
@@ -120,12 +150,13 @@
 
   .episodes li button {
     display: grid;
-    grid-template-columns: 2.5rem 1fr auto;
+    grid-template-columns: 2.5rem 1fr auto auto;
     gap: var(--esp-3);
     align-items: baseline;
     width: 100%;
     padding: var(--esp-1) var(--esp-2);
     border: none;
+    border-left: 2px solid transparent;
     background: transparent;
     font: inherit;
     color: inherit;
@@ -135,6 +166,16 @@
 
   .episodes li button:hover {
     background: var(--surface);
+  }
+
+  .episodes li button.actif {
+    background: var(--accent-voile);
+    border-left-color: var(--accent);
+  }
+
+  .episodes li button.actif .titre {
+    color: var(--accent-fort);
+    font-weight: 600;
   }
 
   .numero,
@@ -147,5 +188,22 @@
 
   .numero {
     text-align: right;
+  }
+
+  .badge {
+    font-family: var(--police-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--encre-pale);
+    border: 1px solid var(--trait);
+    border-radius: var(--rayon-etiquette);
+    padding: 0 var(--esp-1);
+    align-self: center;
+  }
+
+  .vide {
+    color: var(--encre-douce);
+    padding: var(--esp-2);
   }
 </style>
