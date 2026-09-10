@@ -49,12 +49,23 @@
     // second player.
     if (window.YT?.Player) {
       creerPlayer();
-      return;
+    } else {
+      window.onYouTubeIframeAPIReady = creerPlayer;
+      const script = document.createElement('script');
+      script.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(script);
     }
-    window.onYouTubeIframeAPIReady = creerPlayer;
-    const script = document.createElement('script');
-    script.src = 'https://www.youtube.com/iframe_api';
-    document.head.appendChild(script);
+
+    // Le composant ne démonte jamais (page unique, îlot `client:load`) : ce
+    // nettoyage est là par correction, pas par nécessité. Le `<script>` de
+    // l'API n'est pas retiré — c'est une ressource globale réutilisable.
+    return () => {
+      if (window.onYouTubeIframeAPIReady === creerPlayer) {
+        window.onYouTubeIframeAPIReady = undefined;
+      }
+      player?.destroy();
+      player = undefined;
+    };
   });
 
   /**
@@ -67,10 +78,14 @@
     const commande = commandePourEpisode(etat, videoId, secondes);
     if (commande.action === 'seek') {
       player.seekTo(commande.secondes, true);
-      player.playVideo();
     } else {
       player.loadVideoById({ videoId: commande.videoId, startSeconds: commande.secondes });
     }
+    // `loadVideoById` est censé lancer la lecture lui-même, `seekTo` non : on
+    // appelle `playVideo` dans les deux cas pour que « cliquer un épisode »
+    // veuille toujours dire « joue-le », sans dépendre du contrat implicite
+    // d'une des deux méthodes.
+    player.playVideo();
     etat = { videoId, charge: true };
   }
 

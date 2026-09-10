@@ -29,16 +29,19 @@
   // la lier à `livreActif` recréerait un player à chaque bascule d'onglet.
   const videoIdInitial = videoIdDuLivre(livres[0].livre);
 
+  // `bind:this` est résolu au montage de l'enfant, avant tout clic — le `?.`
+  // n'est qu'une ceinture : un clic ne doit jamais lever si le lecteur n'est
+  // pas encore là, juste ne rien faire.
   function onLivreChange(livre: NumeroLivre) {
     livreActif = livre;
-    lecteur.choisirLivre(videoIdDuLivre(livre));
+    lecteur?.choisirLivre(videoIdDuLivre(livre));
   }
 
   function onEpisodeClick(episode: EpisodeListe) {
     // Le sommaire ne liste que les épisodes du livre actif (#15/#18 pourront
     // un jour proposer un résultat d'un autre livre ; pas encore le cas ici) :
     // pas besoin de basculer d'onglet, seulement d'aller à la bonne seconde.
-    lecteur.allerA(episode.video_id, episode.start_seconds);
+    lecteur?.allerA(episode.video_id, episode.start_seconds);
   }
 </script>
 

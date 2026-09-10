@@ -64,9 +64,9 @@ l'état interne piloté par `postMessage`) :
 
 ## Limites connues
 
-- Pas de `player.destroy()` au démontage : sans objet, le site est une page
-  unique et le composant ne démonte jamais. À ajouter si `Lecteur` devient un
-  jour rendu conditionnellement.
+- Le composant ne démonte jamais (page unique, îlot `client:load`) : le
+  teardown de l'effet (`player.destroy()` + détache le callback global) est
+  là par correction, il ne s'exécute pas en pratique.
 - `playerVars: { rel: 0 }` ne désactive plus les suggestions de fin depuis
   2018 (YouTube les limite seulement à la même chaîne). Réglage conservé par
   cohérence avec `tools/pointage-manuel.html`.
