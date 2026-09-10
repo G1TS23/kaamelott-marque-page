@@ -77,15 +77,14 @@
 
     const commande = commandePourEpisode(etat, videoId, secondes);
     if (commande.action === 'seek') {
+      // `seekTo` ne relance pas la lecture si le lecteur était en pause.
       player.seekTo(commande.secondes, true);
+      player.playVideo();
     } else {
+      // `loadVideoById` charge *et* lance la lecture (doc API IFrame) —
+      // vérifié bout en bout sur la preview de déploiement.
       player.loadVideoById({ videoId: commande.videoId, startSeconds: commande.secondes });
     }
-    // `loadVideoById` est censé lancer la lecture lui-même, `seekTo` non : on
-    // appelle `playVideo` dans les deux cas pour que « cliquer un épisode »
-    // veuille toujours dire « joue-le », sans dépendre du contrat implicite
-    // d'une des deux méthodes.
-    player.playVideo();
     etat = { videoId, charge: true };
   }
 
