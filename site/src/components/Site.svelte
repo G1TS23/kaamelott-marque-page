@@ -24,6 +24,11 @@
     return livres.find((l) => l.livre === livre)!.episodes[0].video_id;
   }
 
+  // Constante : la vidéo du livre affiché au chargement. `Lecteur` traque sa
+  // prop `videoIdInitial` comme dépendance de l'effet qui crée le player —
+  // la lier à `livreActif` recréerait un player à chaque bascule d'onglet.
+  const videoIdInitial = videoIdDuLivre(livres[0].livre);
+
   function onLivreChange(livre: NumeroLivre) {
     livreActif = livre;
     lecteur.choisirLivre(videoIdDuLivre(livre));
@@ -37,5 +42,5 @@
   }
 </script>
 
-<Lecteur bind:this={lecteur} videoIdInitial={videoIdDuLivre(livreActif)} />
+<Lecteur bind:this={lecteur} {videoIdInitial} />
 <SelecteurLivre {livres} {livreActif} {onLivreChange} {onEpisodeClick} />

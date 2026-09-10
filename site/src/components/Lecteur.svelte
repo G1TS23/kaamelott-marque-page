@@ -25,6 +25,7 @@
   let etat = $state<EtatLecteur | null>(null);
 
   function creerPlayer() {
+    if (player) return; // une seule instance pour la vie du composant
     player = new YT.Player(conteneur, {
       videoId: videoIdInitial,
       playerVars: { rel: 0 },
@@ -42,6 +43,10 @@
     // une déclaration top-level dans un module n'est pas attachée à `window`
     // automatiquement (contrairement à un script classique), il faut
     // l'exposer explicitement (même piège que tools/pointage-manuel.html).
+    //
+    // Le garde de `creerPlayer` et la constance de `videoIdInitial` (fixée
+    // par Site.svelte) évitent qu'une réexécution de cet effet ne crée un
+    // second player.
     if (window.YT?.Player) {
       creerPlayer();
       return;
