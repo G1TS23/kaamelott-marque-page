@@ -112,6 +112,50 @@ après le déclenchement de la pastille — identique au dixième de pixel près
 (95.1px) dans les deux cas. Les 4 livres se numérotant 1 à 4 (un seul
 chiffre), les onglets font maintenant tous exactement la même largeur.
 
+## Repositionnement de la pastille (retour d'usage)
+
+Le montage `gap` ci-dessus corrigeait la symétrie par des marges de
+compensation (un calage sur les valeurs, pas sur leur cause). Trois derniers
+retours, exploités sur plusieurs variantes comparées côte à côte avant de
+choisir, ont mené à une construction différente plutôt qu'à un nouveau
+réglage :
+
+- « Un livre est plus grand à gauche (placeholder du point) et l'espace
+  autour du point n'est toujours pas symétrique » — un point dans le flux,
+  quel que soit le `gap`/`margin`, ne peut pas garantir en même temps une
+  largeur d'onglet fixe, un padding symétrique autour du texte *et* un
+  espacement égal des deux côtés du point : ce sont trois contraintes sur
+  une seule dimension (le flux horizontal), sans degré de liberté pour les
+  satisfaire toutes.
+- « La largeur du badge ne doit pas changer avec ou sans le point » (déjà
+  acquis ci-dessus) et « même padding autour du texte, avec ou sans point ».
+- « Le nombre d'épisodes n'a pas d'utilité » (déjà traité ci-dessus).
+
+**Résolu en sortant le point du flux** : `.pastille` passe en
+`position: absolute`, centrée dans le padding gauche du bouton (`--esp-4`,
+20px, porté de 14px pour lui laisser de la place) plutôt que d'être un
+élément du flex qui pousse le texte. Le texte démarre alors toujours au
+même padding-left, jamais décalé par la pastille ; la largeur de l'onglet
+ne dépend plus de sa présence ; et l'espacement de chaque côté du point est
+symétrique par construction (`calc((--esp-4 - largeur du point - bordure) /
+2)`), pas par coïncidence de valeurs qu'un futur changement pourrait
+recasser. La hauteur de l'onglet (22.4px, plutôt que déduite du padding
+vertical + line-height hérité) a suivi pour laisser au point (8px) assez de
+marge sans être à l'étroit.
+
+Comparé plusieurs variantes (point dans le padding vs différentes valeurs de
+`gap`/`margin`) avant de choisir celle-ci — mesuré dans le navigateur plutôt
+que deviné : largeurs des 4 onglets identiques, padding symétrique (21px des
+deux côtés), espacement symétrique autour du point (6.5px des deux côtés).
+
+L'anneau qui irradie a aussi été retouché deux fois sur retour d'usage :
+d'abord un bug d'implémentation (le `::before` de l'anneau ne reprenait pas
+la nouvelle taille du point après son agrandissement à 8px, avec une
+position/taille par défaut qui le plaquait au coin haut-gauche du point au
+lieu de le centrer — corrigé en alignant explicitement sa taille sur celle
+du point) ; puis un ajustement de goût (rayon max de l'anneau réduit de
+2.8× à 2.4× le rayon du point, jugé trop imposant à 2.8×).
+
 ## Limites connues
 
 Lecture non vérifiable en navigateur automatisé (autoplay bloqué), seule la
