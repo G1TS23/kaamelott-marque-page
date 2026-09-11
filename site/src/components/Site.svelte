@@ -1,12 +1,21 @@
 <script lang="ts">
   /**
    * Racine de l'îlot du site : possède l'état que le lecteur, les onglets,
-   * le sommaire et la recherche doivent partager — `livreActif`, la requête
-   * de recherche, et l'épisode en cours de lecture.
+   * le sommaire et la recherche doivent partager.
    *
-   * Un clic (onglet, épisode, résultat) ne fait rien lui-même : il remonte
-   * ici, et c'est ce niveau qui décide comment le lecteur réagit
-   * (specs section 6) et ce que la liste affiche.
+   * Trois responsabilités bien séparées, retour d'usage sur #18 : parcourir
+   * un livre (onglet) et écouter un épisode (lecteur) sont deux actions
+   * indépendantes depuis que la recherche permet de lire un épisode d'un
+   * livre différent de celui affiché — avant, elles coïncidaient toujours,
+   * un onglet pouvait se permettre de piloter le lecteur sans que ça se
+   * voie. Ce n'est plus vrai :
+   * - `livreActif` — quel sommaire est affiché. Change au clic d'onglet et
+   *   au clic d'épisode (pour que le sommaire retrouve le bon livre une
+   *   fois la recherche effacée), jamais tout seul.
+   * - `requete` — la recherche en cours. Vidée par un clic d'onglet : un
+   *   onglet dit « montre-moi ce livre », pas « garde mes résultats ».
+   * - le lecteur — jamais touché par la navigation (onglet ou recherche),
+   *   seulement par un clic sur un épisode précis.
    */
   import {
     aplatir,
@@ -50,19 +59,20 @@
   // la lier à `livreActif` recréerait un player à chaque bascule d'onglet.
   const videoIdInitial = videoIdDuLivre(livres[0].livre);
 
-  // `bind:this` est résolu au montage de l'enfant, avant tout clic — le `?.`
-  // n'est qu'une ceinture : un clic ne doit jamais lever si le lecteur n'est
-  // pas encore là, juste ne rien faire.
+  // Un onglet ne fait que changer la liste affichée : ni la recherche
+  // (qui montrerait encore des résultats d'un autre livre) ni le lecteur
+  // (qui couperait une lecture en cours) ne doivent rester dans les
+  // pattes de ce geste de pure navigation.
   function onLivreChange(livre: NumeroLivre) {
     livreActif = livre;
-    lecteur?.choisirLivre(videoIdDuLivre(livre));
+    requete = '';
   }
 
   function onEpisodeClick(livre: NumeroLivre, episode: EpisodeListe) {
     // Un résultat de recherche peut venir d'un autre livre que celui affiché
     // (issue #18) : l'onglet suit, pour que le sommaire retrouve le bon
-    // livre une fois la recherche effacée. `allerA` charge déjà la bonne
-    // vidéo quel que soit l'onglet — pas besoin de `choisirLivre` en plus.
+    // livre une fois la recherche effacée. `bind:this` est résolu avant
+    // tout clic — le `?.` n'est qu'une ceinture.
     livreActif = livre;
     episodeActif = { livre, episode: episode.episode };
     lecteur?.allerA(episode.video_id, episode.start_seconds);

@@ -20,13 +20,14 @@ site (specs section 6 : un seul lecteur, jamais de mur de vignettes).
 | Geste | Appel API | Résultat |
 |---|---|---|
 | Chargement de la page | constructeur `YT.Player` (mise en attente) | Vignette du Livre 1, rien en lecture |
-| Bascule d'onglet seule | `cueVideoById` | Vignette du nouveau livre, rien en lecture |
 | Clic sur un épisode, vidéo pas encore réellement chargée | `loadVideoById` + `startSeconds` | Charge et joue à la bonne position |
 | Clic sur un épisode, vidéo déjà en lecture | `seekTo` + `playVideo` | Saut instantané, pas de rechargement |
 
-La bascule d'onglet ne lance jamais la lecture : changer de livre ne doit pas
-se substituer à un geste de lecture que l'utilisateur n'a pas demandé (specs
-section 8).
+> **Mis à jour par #18** : la ligne « bascule d'onglet seule → `cueVideoById` »
+> décrivait le comportement d'origine, retiré depuis — l'onglet ne touche
+> plus du tout au lecteur, pour ne pas couper une lecture en cours quand on
+> parcourt un autre livre pendant qu'un épisode joue (`Lecteur.choisirLivre`
+> supprimée). Voir `docs/qc-bascule-onglet-resultat.md`.
 
 ## Le gel après un changement de livre
 

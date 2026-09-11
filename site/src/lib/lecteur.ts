@@ -16,10 +16,13 @@ export type CommandeLecteur =
 /**
  * État de la vidéo actuellement affichée par le lecteur.
  *
- * `charge: false` = seulement mise en attente (`cueVideoById`, ou l'appel
- * initial du constructeur `YT.Player` — les deux ne font que préparer la
- * vignette, sans rien bufferiser). `charge: true` = réellement chargée via
- * `loadVideoById` ou `seekTo` sur une vidéo déjà en lecture.
+ * `charge: false` = seulement mise en attente : uniquement l'état initial,
+ * juste après le montage — le constructeur `YT.Player` ne fait que préparer
+ * la vignette du premier livre, sans rien bufferiser. Aucun autre chemin ne
+ * remet `charge` à `false` : l'onglet ne touche plus au lecteur depuis
+ * l'issue #18 (voir le commentaire sur `onLivreChange` dans `Site.svelte`).
+ * `charge: true` = réellement chargée via `loadVideoById` ou `seekTo` sur
+ * une vidéo déjà en lecture.
  *
  * La distinction existe pour une seule raison, trouvée en testant le vrai
  * site (issue #14) : un `seekTo` sur une vidéo seulement mise en attente
@@ -37,9 +40,9 @@ export interface EtatLecteur {
 /**
  * Un seul lecteur pour tout le site : cliquer un épisode déjà réellement
  * chargé ne fait qu'avancer dedans (`seekTo`, rapide et fiable puisque le
- * buffer existe déjà) ; cliquer un épisode qui n'est que mis en attente
- * (bascule d'onglet sans lecture, ou tout premier épisode de la session)
- * charge la vidéo pour de vrai, directement à la bonne position.
+ * buffer existe déjà) ; cliquer le tout premier épisode de la session,
+ * avant qu'aucune vidéo n'ait été réellement chargée, charge la vidéo pour
+ * de vrai, directement à la bonne position.
  */
 export function commandePourEpisode(
   etat: EtatLecteur | null,

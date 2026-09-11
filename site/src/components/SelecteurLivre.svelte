@@ -50,6 +50,10 @@
       aria-current={livre.livre === livreActif ? 'true' : undefined}
       onclick={() => onLivreChange(livre.livre)}
     >
+      {#if episodeActif?.livre === livre.livre}
+        <span class="pastille" aria-hidden="true"></span>
+        <span class="sr-only">En cours de lecture.</span>
+      {/if}
       Livre {livre.livre}
       <span class="compte">{livre.episodes.length}</span>
     </button>
@@ -126,6 +130,35 @@
     border-color: var(--accent);
     color: var(--accent-fort);
     font-weight: 600;
+  }
+
+  /* Le livre en cours de lecture peut différer du livre affiché (on
+     parcourt un autre sommaire pendant qu'un épisode joue, issue #18) :
+     une pastille distincte du style « onglet affiché » lève l'ambiguïté
+     sans dépendre de la couleur seule. */
+  .pastille {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: var(--esp-1);
+  }
+
+  .onglets button.actif .pastille {
+    background: var(--accent-fort);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .compte {
