@@ -17,9 +17,15 @@ const OPTIONS: IFuseOptions<EpisodeAvecLivre> = {
   // Les titres sont courts (2-4 mots) : une correspondance n'importe où dans
   // le titre compte autant qu'au début.
   ignoreLocation: true,
-  // 0 = identique, 1 = n'importe quoi. 0.4 laisse passer une faute ou deux
-  // sans ramener la moitié du catalogue.
-  threshold: 0.4,
+  // 0 = identique, 1 = n'importe quoi. Réglé empiriquement contre les 399
+  // vrais titres (retour d'usage : « hea » ramenait 49 résultats à 0.4,
+  // dont des titres sans rapport comme « Feu l'âne de Guethenoc »). Le
+  // plateau [0.13, 0.3] donne des résultats identiques et propres sur tout
+  // un jeu de requêtes courtes et de fautes réelles ; en dessous, une vraie
+  // faute de frappe ("tarte au myrtille") cesse de matcher dès 0.11. 0.3
+  // prend la marge haute du plateau : le plus de tolérance sans retomber
+  // dans le bruit.
+  threshold: 0.3,
   minMatchCharLength: 2,
 };
 

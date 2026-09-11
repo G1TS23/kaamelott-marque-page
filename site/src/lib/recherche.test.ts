@@ -13,6 +13,9 @@ const CATALOGUE: EpisodeAvecLivre[] = [
   ep(2, 1, 'Spangenhelm'),
   ep(2, 40, 'La Tarte de Trelan'),
   ep(3, 12, 'Le Baptême du roi'),
+  // Titres réels ajoutés pour le test de non-régression ci-dessous.
+  ep(1, 66, 'Haunted'),
+  ep(1, 76, 'Le Porte-bonheur'),
 ];
 
 const index = creerIndexTitres(CATALOGUE);
@@ -53,5 +56,13 @@ describe('chercherParTitre', () => {
     const titres = chercherParTitre(index, 'baptême').map((e) => e.title);
     expect(titres).toContain('Le Baptême du roi');
     expect(titres).not.toContain('Heat');
+  });
+
+  it('reste précis sur une requête courte (retour d\'usage)', () => {
+    // Contre les vrais titres, "hea" à threshold 0.4 ramenait 49 résultats,
+    // dont "Le Porte-bonheur" et "Haunted" — sans rapport avec ce qui a été
+    // tapé. Doit ne renvoyer que ce qui commence vraiment par "hea".
+    const titres = chercherParTitre(index, 'hea').map((e) => e.title);
+    expect(titres).toEqual(['Heat']);
   });
 });
