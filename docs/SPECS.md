@@ -229,7 +229,7 @@ Les noms sont francisés comme le reste du code ; leur équivalent dans la note 
 Une seule page, organisée en zones fixes. **Le sélecteur de livre ne pilote que le sommaire affiché** — ni la recherche (qu'il vide), ni le lecteur (qu'il ne touche jamais). Ces trois zones ont chacune une responsabilité disjointe (retour d'usage, issue #18) :
 
 - **En-tête** — nom du site + sélecteur de livre (onglets desktop, menu déroulant mobile). Change uniquement le sommaire affiché ; vide la recherche en cours ; sans effet sur le lecteur.
-- **Lecteur** — persistant, ne change que sur un clic d'épisode explicite (sommaire ou résultat de recherche), jamais par la seule navigation. Un onglet du livre en cours de lecture porte une pastille distincte de l'onglet affiché, quand ils diffèrent (on peut parcourir un livre pendant qu'un autre joue).
+- **Lecteur** — persistant, ne change que sur un clic d'épisode explicite (sommaire ou résultat de recherche), jamais par la seule navigation. L'onglet du livre en cours de lecture porte toujours une pastille « en direct », que cet onglet soit affiché ou non (on peut parcourir un livre pendant qu'un autre joue).
 - **Recherche** — barre par titre, globale aux 4 livres, avec passerelle vers la recherche par résumé si zéro résultat. Vidée par un clic d'onglet.
 - **Sommaire** — liste des épisodes du livre affiché, visible par défaut quand la recherche est vide.
 - **Pied de page** — lien vers la vidéo YouTube source et la page Wikipédia du livre actif, et vers la chaîne YouTube de Shisheyu (crédit permanent).

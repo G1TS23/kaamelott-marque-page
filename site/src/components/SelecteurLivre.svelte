@@ -125,7 +125,11 @@
        seul : la hauteur est explicite ci-dessous, pas déduite d'un padding
        vertical + line-height hérité. */
     padding: 0 var(--esp-4);
-    height: 22.4px;
+    /* rem (pas px) comme le reste du système de tailles — sinon le texte
+       déborde de la pilule dès que la police racine grandit (accessibilité
+       « agrandir le texte »), le padding suivant mais pas la hauteur.
+       22.4px / 16 = 1.4rem. */
+    height: 1.4rem;
     line-height: 1;
     border: 1px solid var(--trait);
     border-radius: var(--rayon-pilule);
@@ -164,14 +168,17 @@
      calc soustrait la bordure du bouton : le bloc de positionnement d'un
      absolu est le bord du *padding* de l'ancêtre, pas son bord visible —
      sans le soustraire, le point atterrit 1px trop loin du bord visible par
-     rapport au texte. Mesuré : 6.5px de marge des deux côtés du point. */
+     rapport au texte. Mesuré : 6.5px de marge des deux côtés du point.
+     Taille en rem (0.5rem = 8px) pour rester cohérente avec la hauteur de
+     l'onglet ci-dessus ; le -1px reste en px, la bordure ne changeant pas
+     avec la taille de police. */
   .pastille {
     position: absolute;
-    left: calc((var(--esp-4) - 8px - 1px) / 2);
+    left: calc((var(--esp-4) - 0.5rem - 1px) / 2);
     top: 50%;
     transform: translateY(-50%);
-    width: 8px;
-    height: 8px;
+    width: 0.5rem;
+    height: 0.5rem;
     border-radius: 50%;
     background: transparent;
   }

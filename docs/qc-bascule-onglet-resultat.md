@@ -37,9 +37,11 @@ en tête de `Site.svelte`) :
   juste après le montage.
 
 **Nouveau repère visuel** : une pastille rouge pulsante (« en direct »,
-`--alerte`) sur l'onglet du livre en cours de lecture, visible seulement
-quand il diffère de l'onglet affiché — pour ne pas perdre le fil de ce qui
-joue en parcourant un autre livre. Couleur fixe (rouge) plutôt que dérivée de
+`--alerte`) sur l'onglet du livre en cours de lecture — que cet onglet soit
+affiché ou non (choix confirmé en revue : la pastille doit toujours être
+présente quand une vidéo joue, pas seulement quand on parcourt un autre
+livre) — pour ne pas perdre le fil de ce qui joue en parcourant un autre
+livre. Couleur fixe (rouge) plutôt que dérivée de
 l'état « affiché »/« pas affiché » de l'onglet : un repère « en direct » qui
 changerait de couleur selon le contexte serait plus dur à reconnaître d'un
 coup d'œil. Alignement vertical assuré par `display: inline-flex` sur le
@@ -155,6 +157,27 @@ position/taille par défaut qui le plaquait au coin haut-gauche du point au
 lieu de le centrer — corrigé en alignant explicitement sa taille sur celle
 du point) ; puis un ajustement de goût (rayon max de l'anneau réduit de
 2.8× à 2.4× le rayon du point, jugé trop imposant à 2.8×).
+
+## Revue finale avant merge
+
+Deux constats en dernière relecture, avant merge :
+
+- **Tailles en px plutôt qu'en rem** : `height` de l'onglet (22.4px) et
+  taille du point (8px) étaient les deux seules valeurs en px de ce fichier,
+  alors que le reste (padding, police) suit `--esp-*`/`rem`. Vérifié en
+  simulant un agrandissement de police racine (`font-size: 250%` sur
+  `<html>`, cas d'accessibilité texte-seul) : le texte grandit, la pilule
+  reste figée à 22.4px, débordement d'une dizaine de pixels au-dessus et en
+  dessous. Corrigé en passant les deux en `rem` (22.4px = 1.4rem, 8px =
+  0.5rem) ; le `-1px` du calcul de position du point reste en px, une
+  bordure de 1px n'ayant pas vocation à grandir avec le texte.
+- **Pastille visible même sur l'onglet affiché** : le code ne l'a jamais
+  masquée quand l'onglet du livre en lecture est aussi l'onglet affiché
+  (contrairement à ce que l'entête de cette section affirmait plus haut,
+  corrigée) — un onglet peut donc cumuler le fond ocre « actif » et le point
+  rouge pulsant. Confirmé que c'est le comportement voulu : la pastille doit
+  toujours être présente tant qu'une vidéo joue, pas seulement quand on
+  parcourt un autre livre.
 
 ## Limites connues
 
