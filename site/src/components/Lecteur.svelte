@@ -17,11 +17,23 @@
    * Ne gère plus lui-même sa persistance au scroll (issue #54) : `reduit`
    * est décidé par `Site.svelte`, qui colle le lecteur *et* les onglets
    * ensemble (« groupe collant ») — deux composants frères, la position
-   * collante ne peut appartenir qu'à leur parent commun.
+   * collante ne peut appartenir qu'à leur parent commun. `Site.svelte` a
+   * en retour besoin de savoir si une vidéo *joue réellement* (pas juste
+   * affichée ou en pause) pour décider de réduire ou non — `onChangementLecture`
+   * relaie l'état posé par l'API IFrame (`onStateChange`), que ce
+   * composant est seul à connaître.
    */
   import { commandePourEpisode, type EtatLecteur } from '../lib/lecteur';
 
-  let { videoIdInitial, reduit }: { videoIdInitial: string; reduit: boolean } = $props();
+  let {
+    videoIdInitial,
+    reduit,
+    onChangementLecture,
+  }: {
+    videoIdInitial: string;
+    reduit: boolean;
+    onChangementLecture: (enLecture: boolean) => void;
+  } = $props();
 
   let conteneur: HTMLDivElement;
   let player: YT.Player | undefined;
@@ -40,6 +52,13 @@
         onReady: () => {
           pret = true;
           etat = { videoId: videoIdInitial, charge: false };
+        },
+        // Vignette affichée ou vidéo en pause ne comptent pas comme « en
+        // lecture » (retour d'usage sur #54) : seul `PLAYING` justifie de
+        // réduire le lecteur, sans quoi parcourir le sommaire sans rien
+        // écouter collerait quand même un lecteur en pleine taille.
+        onStateChange: (e) => {
+          onChangementLecture(e.data === YT.PlayerState.PLAYING);
         },
       },
     });
@@ -113,15 +132,18 @@
     transition: width 0.22s ease;
   }
 
-  /* Réduit en mini-lecteur une fois collé avec les onglets (issue #54,
-     retour d'usage — voir .groupe-collant dans Site.svelte) : rem plutôt
-     que px pour rester cohérent avec le reste du système de tailles (même
-     raison que la hauteur des onglets). `width` (pas `max-width`) : dans le
-     `display: flex` du groupe, la taille doit changer pour de vrai, pas
-     juste se plafonner. `aspect-ratio` reste intact, donc pas de recadrage
-     de l'image, juste une réduction proportionnelle. */
+  /* Réduit en mini-lecteur une fois collé avec les onglets, et seulement si
+     une vidéo joue réellement (issue #54, retour d'usage — voir
+     .groupe-collant dans Site.svelte). rem plutôt que px pour rester
+     cohérent avec le reste du système de tailles. `width` (pas
+     `max-width`) : dans le `display: flex` du groupe, la taille doit
+     changer pour de vrai, pas juste se plafonner. `aspect-ratio` reste
+     intact, donc pas de recadrage de l'image, juste une réduction
+     proportionnelle. 10rem (160px) plutôt que la première valeur essayée
+     (6rem/96px, retour d'usage : trop petit pour distinguer quoi que ce
+     soit à l'image). */
   .cadre.reduit {
-    width: 6rem;
+    width: 10rem;
   }
 
   /* YT.Player remplace le div par un iframe : on le fait remplir --cadre

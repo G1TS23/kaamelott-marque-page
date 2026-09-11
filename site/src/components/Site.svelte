@@ -17,13 +17,18 @@
    * - le lecteur — jamais touché par la navigation (onglet ou recherche),
    *   seulement par un clic sur un épisode précis.
    *
-   * Issue #54 (lecteur collant), après relecture d'un premier essai jugé
-   * trop brut (lecteur plein écran collé, sans marge, recherche/onglets
-   * inaccessibles, rien en dessous) : le nom du site et la recherche sont
-   * remontés dans un en-tête toujours collée (comme YouTube) ; le lecteur
-   * et les onglets collent *ensemble*, réduits, avec une marge visible
-   * (« groupe collant », direction comparée sur plusieurs maquettes avant
-   * d'être choisie — docs/qc-lecteur-collant.md).
+   * Issue #54 (lecteur collant), deux retours d'usage successifs :
+   * - un premier essai (lecteur plein écran collé au bord) jugé trop brut,
+   *   remplacé par un en-tête toujours collée (nom du site + recherche,
+   *   comme YouTube) et un groupe lecteur+onglets qui colle réduit, avec
+   *   une marge visible — direction comparée sur plusieurs maquettes avant
+   *   d'être choisie (docs/qc-lecteur-collant.md) ;
+   * - puis : l'en-tête devait remplacer le grand titre de la page et
+   *   prendre toute sa largeur (pas juste la largeur du contenu), et le
+   *   groupe ne doit se réduire que si une vidéo est *réellement* en
+   *   lecture — pas juste affichée (vignette) ou en pause, sans quoi
+   *   parcourir le sommaire sans rien écouter collait quand même un
+   *   lecteur en pleine taille inutilement.
    */
   import {
     aplatir,
@@ -46,11 +51,16 @@
   let episodeActif = $state<{ livre: NumeroLivre; episode: number } | null>(null);
   let lecteur: Lecteur;
   let sentinelle: HTMLDivElement;
-  // Vrai une fois le groupe lecteur + onglets réellement collé en haut de
-  // la fenêtre (issue #54) — `position: sticky` seul ne le dit pas, d'où la
-  // sentinelle plus bas. Pilote la réduction du lecteur et l'apparition du
-  // repère d'épisode à côté.
+  // Vrai une fois le groupe lecteur + onglets scrollé sous l'en-tête —
+  // ne suffit pas à lui seul à décider de la réduction, voir `reduit`.
   let collant = $state(false);
+  // Vrai quand le lecteur joue réellement (retour d'usage : une vignette
+  // affichée ou une vidéo en pause ne justifient pas de coller un mini-
+  // lecteur, seule une lecture active « perd son contexte » en scrollant).
+  let enLecture = $state(false);
+  // Les deux conditions à la fois pilotent la réduction du lecteur, le
+  // collage du groupe et l'apparition du repère d'épisode.
+  const reduit = $derived(collant && enLecture);
 
   // Index des ~400 titres, construit une fois : `requete` est réactif, pas
   // l'index.
@@ -89,10 +99,9 @@
     // groupe se colle réellement — technique standard : une sentinelle
     // sans hauteur utile juste au-dessus, observée par rapport à la
     // fenêtre. `rootMargin` décale la zone d'observation du même montant
-    // que le `top` du groupe (3rem d'en-tête + --esp-2 de marge, voir le
-    // CSS) : sans ça la sentinelle sortirait de la zone visible avant même
-    // que le groupe n'atteigne son seuil de collage, et il se réduirait
-    // trop tôt.
+    // que le `top` du groupe une fois réduit (3rem d'en-tête + --esp-2 de
+    // marge, voir le CSS) : sans ça la sentinelle sortirait de la zone
+    // visible avant même que le groupe n'atteigne son seuil de collage.
     const observateur = new IntersectionObserver(
       ([entree]) => {
         collant = !entree.isIntersecting;
@@ -128,35 +137,35 @@
 </script>
 
 <header class="entete-collante">
-  <span class="marque">Marque-Page</span>
-  <div class="recherche">
-    <label for="recherche-titre" class="sr-only">Rechercher un épisode par titre</label>
-    <input
-      id="recherche-titre"
-      type="search"
-      bind:value={requete}
-      placeholder="filtrer par titre…"
-      autocomplete="off"
-    />
+  <div class="entete-interieur">
+    <h1 class="marque">Marque-Page</h1>
+    <div class="recherche">
+      <label for="recherche-titre" class="sr-only">Rechercher un épisode par titre</label>
+      <input
+        id="recherche-titre"
+        type="search"
+        bind:value={requete}
+        placeholder="filtrer par titre…"
+        autocomplete="off"
+      />
+    </div>
   </div>
 </header>
 
 <div bind:this={sentinelle} class="sentinelle" aria-hidden="true"></div>
-<div class="groupe-collant">
-  <div class="groupe-interieur" class:collant>
-    <div class="groupe-ligne">
-      <Lecteur bind:this={lecteur} {videoIdInitial} reduit={collant} />
-      {#if collant}
-        <p class="groupe-repere">
-          Livre {episodeActif?.livre ?? livreActif}
-          {#if episodeActifDetails}
-            · <strong>{episodeActifDetails.title}</strong>
-          {/if}
-        </p>
-      {/if}
-    </div>
-    <Onglets {livres} {livreActif} {episodeActif} {onLivreChange} />
+<div class="groupe-collant" class:actif={reduit}>
+  <div class="groupe-ligne">
+    <Lecteur bind:this={lecteur} {videoIdInitial} {reduit} onChangementLecture={(v) => (enLecture = v)} />
+    {#if reduit}
+      <p class="groupe-repere">
+        Livre {episodeActif?.livre ?? livreActif}
+        {#if episodeActifDetails}
+          · <strong>{episodeActifDetails.title}</strong>
+        {/if}
+      </p>
+    {/if}
   </div>
+  <Onglets {livres} {livreActif} {episodeActif} {onLivreChange} />
 </div>
 
 <Sommaire {livres} {livreActif} {requete} {resultats} {episodeActif} {onEpisodeClick} />
@@ -164,24 +173,39 @@
 <style>
   /* Toujours collée dès le chargement, comme YouTube (issue #54, retour
      d'usage) : le nom du site et la recherche ne doivent pas attendre un
-     scroll pour redevenir accessibles. */
+     scroll pour redevenir accessibles. `fixed` (pas `sticky`) et non
+     confinée à la largeur du contenu (`--largeur-contenu`) : elle a
+     remplacé le grand titre de la page et doit occuper toute la largeur
+     de la fenêtre, comme sur YouTube — un `sticky` resterait contraint à
+     la largeur de son bloc englobant (`main`, centré et plafonné). */
   .entete-collante {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 6;
     height: 3rem;
+    background: var(--surface-haute);
+    border-bottom: 1px solid var(--trait);
+  }
+
+  /* Le contenu de l'en-tête reste aligné sur la même colonne que le reste
+     du site — seul son fond s'étire sur toute la largeur. */
+  .entete-interieur {
+    max-width: var(--largeur-contenu);
+    height: 100%;
+    margin: 0 auto;
     display: flex;
     align-items: center;
     gap: var(--esp-3);
-    padding: 0 var(--esp-3);
-    margin-bottom: var(--esp-4);
-    background: var(--surface-haute);
-    border-bottom: 1px solid var(--trait);
+    padding: 0 var(--esp-4);
   }
 
   .marque {
     font-family: var(--police-titre);
     font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0;
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -189,6 +213,7 @@
   .recherche {
     flex: 1;
     min-width: 0;
+    max-width: 28rem;
   }
 
   .recherche input {
@@ -216,27 +241,17 @@
     height: 1px;
   }
 
-  /* Le lecteur et les onglets collent ensemble, réduits, plutôt que le
-     lecteur seul en pleine taille (issue #54 — un premier essai en pleine
-     largeur prenait trop de place, cachait tout en dessous sans transition,
-     et rendait la recherche/les onglets inaccessibles). `top` avec une
-     marge (`--esp-2`), pas plaqué au bord de la fenêtre. */
-  .groupe-collant {
+  /* `position: static` par défaut — pas sticky tant que rien ne joue
+     réellement (retour d'usage) : parcourir le sommaire sans écouter ne
+     doit pas coller un lecteur en pleine taille pour rien, la vidéo doit
+     simplement défiler comme le reste du contenu. `.actif` (= `reduit` du
+     script) active le collage réduit, avec une marge visible plutôt que
+     plaqué au bord. */
+  .groupe-collant.actif {
     position: sticky;
     top: calc(3rem + var(--esp-2));
     z-index: 5;
-  }
-
-  /* La carte (fond + ombre) n'apparaît qu'une fois réellement collé : au
-     repos, le lecteur garde son propre cadre (Lecteur.svelte) sans carte
-     autour, comme n'importe quel contenu de la page. */
-  .groupe-interieur {
     border-radius: var(--rayon-carte);
-    padding: 0;
-    transition: padding 0.22s ease, box-shadow 0.22s ease;
-  }
-
-  .groupe-interieur.collant {
     padding: var(--esp-2);
     background: var(--surface);
     box-shadow: var(--ombre);
@@ -262,16 +277,11 @@
     color: var(--encre);
   }
 
-  .groupe-interieur:not(.collant) .groupe-repere {
-    display: none;
-  }
-
-  .groupe-interieur :global(.onglets) {
+  .groupe-collant :global(.onglets) {
     margin-top: var(--esp-3);
-    transition: margin-top 0.22s ease;
   }
 
-  .groupe-interieur.collant :global(.onglets) {
+  .groupe-collant.actif :global(.onglets) {
     margin-top: var(--esp-2);
   }
 
@@ -285,12 +295,5 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .groupe-interieur,
-    .groupe-interieur :global(.onglets) {
-      transition: none;
-    }
   }
 </style>

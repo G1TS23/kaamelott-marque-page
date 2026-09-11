@@ -31,21 +31,53 @@ ci-dessous.
 Deux éléments collants séparés, pas un seul :
 
 **En-tête** (`Site.svelte`, `.entete-collante`) — nom du site (« Marque-Page »,
-version courte) et champ de recherche, `position: sticky; top: 0`, toujours
-collée dès le chargement de la page (comme YouTube) : plus besoin d'attendre
-un scroll pour les retrouver.
+version courte, remplace le grand titre qui vivait dans `index.astro`) et
+champ de recherche, toujours collée dès le chargement de la page (comme
+YouTube). `position: fixed` (pas `sticky`) et non confinée à
+`--largeur-contenu` : un `sticky` reste contraint à la largeur de son bloc
+englobant (`main`, centré et plafonné), alors que l'en-tête doit occuper
+toute la largeur de la fenêtre — seul son contenu interne (nom + recherche)
+reste aligné sur la colonne du reste du site. `main` compense avec un
+padding-top égal à la hauteur de l'en-tête (`calc(3rem + var(--esp-4))`),
+sans quoi elle recouvrirait le début du contenu (un `fixed` est retiré du
+flux, contrairement à un `sticky`).
 
 **Groupe lecteur + onglets** (`Site.svelte`, `.groupe-collant`) —
-`position: sticky; top: calc(3rem + var(--esp-2))` : juste sous l'en-tête,
-avec une marge visible plutôt que plaqué au bord. Une fois réellement collé,
-le lecteur (`Lecteur.svelte`, prop `reduit`) se réduit à `6rem` de large
-(`width`, pas `max-width` : dans le `display: flex` du groupe, la taille doit
-changer pour de vrai) — `aspect-ratio: 16 / 9` reste intact, donc pas de
-recadrage, juste une réduction proportionnelle. Les onglets
-(`Onglets.svelte`, extrait de l'ex-`SelecteurLivre.svelte` pour que les deux
-soient des frères DOM directs) suivent juste en dessous. Un repère textuel
-(« Livre *N* · *Titre* ») apparaît à côté du lecteur réduit — absent au
-repos, pas la peine de dupliquer une info déjà lisible en plein format.
+`position: sticky; top: calc(3rem + var(--esp-2))` une fois actif
+seulement (voir plus bas) : juste sous l'en-tête, avec une marge visible
+plutôt que plaqué au bord. Le lecteur (`Lecteur.svelte`, prop `reduit`) se
+réduit à `10rem` de large (`width`, pas `max-width` : dans le
+`display: flex` du groupe, la taille doit changer pour de vrai) —
+`aspect-ratio: 16 / 9` reste intact, donc pas de recadrage, juste une
+réduction proportionnelle. Les onglets (`Onglets.svelte`, extrait de
+l'ex-`SelecteurLivre.svelte` pour que les deux soient des frères DOM
+directs) suivent juste en dessous. Un repère textuel (« Livre *N* · *Titre* »)
+apparaît à côté du lecteur réduit — absent au repos, pas la peine de
+dupliquer une info déjà lisible en plein format.
+
+## Deuxième retour d'usage
+
+Deux griefs après le premier tour de la nouvelle direction :
+
+- **Lecteur réduit illisible** : `6rem` (96px) ne laissait voir aucun détail
+  de l'image — juste une tache. Porté à `10rem` (160px, `Lecteur.svelte`).
+- **Se réduisait même sans lecture active** : scroller le sommaire par
+  simple curiosité, sans avoir cliqué play, collait quand même un lecteur en
+  pleine taille (vignette affichée, ou vidéo en pause) — repris du grief du
+  premier essai (« prend trop de place »), juste déplacé. Le vrai besoin de
+  #54 est de garder le contexte d'une **lecture en cours**, pas de coller le
+  lecteur en toute circonstance.
+
+  Résolu en distinguant deux signaux dans `Site.svelte` : `collant` (a-t-on
+  scrollé sous le seuil, comme avant) et `enLecture` (le lecteur joue
+  *réellement* — `Lecteur.svelte` relaie l'état posé par l'API IFrame,
+  `onStateChange`, seul à le connaître, via une prop `onChangementLecture`).
+  `reduit = collant && enLecture` pilote tout : la réduction du lecteur, le
+  repère, et même le `position: sticky` du groupe lui-même — au repos
+  (`.groupe-collant` sans la classe `.actif`), il est `static` et défile
+  normalement avec le reste de la page. Conséquence : passer en pause pendant
+  que le groupe est réduit le rend immédiatement à sa taille pleine et le
+  décolle, sans attendre un nouveau scroll.
 
 `position: sticky` ne signale jamais lui-même qu'il colle réellement :
 technique standard reprise du premier essai, une sentinelle sans contenu
@@ -81,16 +113,25 @@ commun, pas à l'un des deux frères.
 
 ## Vérifié sur le dev server
 
-- **Au repos** : `getComputedStyle(.cadre).width` = pleine largeur (mesuré à
-  720px sur la fenêtre de test), pas de réduction avant le seuil de collage.
-- **Collé** : après un scroll de ~250px, largeur du cadre réduite à 96px
-  (`6rem`), repère « Livre 1 » affiché à côté (pas d'épisode précis tant
-  qu'aucun n'a été cliqué).
+- **En-tête** : `getBoundingClientRect().width` de `.entete-collante` = 1062px
+  pour une fenêtre de 1077px (l'écart est la largeur de la scrollbar réservée,
+  `scrollbar-gutter: stable`) — occupe bien toute la largeur, pas seulement
+  celle de la colonne de contenu. Reste sur une seule ligne, collée dès le
+  chargement.
+- **Scroller sans lecture active** : vidéo affichée mais jamais lancée →
+  scroller le sommaire fait défiler le lecteur normalement, `.groupe-collant`
+  reste sans la classe `.actif`, aucun collage.
+- **Vidéo lancée pour de vrai** (clic sur le bouton play natif de l'iframe,
+  vérifié à l'image — sous-titres et son en mouvement, pas juste l'attribut
+  `src`) puis scroll : `.groupe-collant.actif` apparaît, `.cadre` mesuré à
+  160px (`10rem`) au lieu de 720px au repos, repère « Livre 1 » affiché.
+- **Mise en pause pendant que le groupe est réduit** (`postMessage`
+  `pauseVideo` vers l'iframe, protocole natif de l'API) : `.actif` disparaît
+  et `.cadre` revient à 720px immédiatement, sans nouveau scroll — confirme
+  que `reduit` dépend bien de l'état de lecture, pas seulement du scroll.
 - **Clic sur un épisode pendant que le groupe est réduit** : le titre du
   repère se met à jour (« Livre 1 · Heat »), la page remonte en douceur,
   `window.scrollY` revient à `0`, le lecteur reprend sa pleine largeur.
-- **En-tête** : reste sur une seule ligne (nom du site + recherche), collée
-  dès le chargement, avant même tout scroll.
 
 ## Hors périmètre
 
