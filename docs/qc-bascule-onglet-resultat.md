@@ -84,8 +84,33 @@ asymétrique. Mesuré précisément dans le navigateur plutôt que deviné
 (`getBoundingClientRect` de part et d'autre du point). Corrigé avec
 `margin-right: calc(var(--esp-3) - var(--esp-1))` sur la pastille : le
 complément exact pour que `gap + marge` égale le `padding` du bouton. Les
-deux espaces mesurent maintenant 15px et 14px (l'écart d'1px est de
-l'arrondi de rendu, imperceptible).
+deux espaces mesuraient alors 15px et 14px.
+
+## Simplification des onglets (retour d'usage)
+
+Trois retours groupés, un seul changement de fond :
+
+- Le nombre d'épisodes par livre (`<span class="compte">`, ex. « 100 ») sur
+  chaque onglet n'apporte rien — retiré.
+- L'espace autour du point pouvait revenir à sa taille naturelle : le
+  `margin-right` de compensation du retour précédent (qui égalait le `gap`
+  au `padding` du bouton, ~15px) redevient simplement le `gap` du bouton
+  (4px), maintenant que le compteur qui justifiait ce calage a disparu.
+- **Le vrai changement** : la pastille est désormais **toujours rendue**
+  (transparente si le livre ne joue pas), plutôt que montée/démontée par un
+  `{#if}`. Le `{#if}` faisait varier la largeur de l'onglet selon qu'un
+  livre y joue ou non — un livre qui commence ou arrête de jouer déplaçait
+  tous les onglets suivants. Réservée en permanence, la pastille garde une
+  largeur d'onglet strictement constante ; seule sa couleur et l'anneau
+  animé basculent via une classe `pastille-active`. Le texte affiché à
+  l'écran, lui, reste conditionnel (`{#if}` sur le seul `sr-only`) : pas de
+  fausse annonce « en cours de lecture » aux lecteurs d'écran sur un onglet
+  inactif.
+
+Vérifié : `getBoundingClientRect().width` des 4 onglets, mesuré avant et
+après le déclenchement de la pastille — identique au dixième de pixel près
+(95.1px) dans les deux cas. Les 4 livres se numérotant 1 à 4 (un seul
+chiffre), les onglets font maintenant tous exactement la même largeur.
 
 ## Limites connues
 

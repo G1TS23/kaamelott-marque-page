@@ -50,12 +50,15 @@
       aria-current={livre.livre === livreActif ? 'true' : undefined}
       onclick={() => onLivreChange(livre.livre)}
     >
+      <span
+        class="pastille"
+        class:pastille-active={episodeActif?.livre === livre.livre}
+        aria-hidden="true"
+      ></span>
       {#if episodeActif?.livre === livre.livre}
-        <span class="pastille" aria-hidden="true"></span>
         <span class="sr-only">En cours de lecture.</span>
       {/if}
       Livre {livre.livre}
-      <span class="compte">{livre.episodes.length}</span>
     </button>
   {/each}
 </nav>
@@ -139,23 +142,25 @@
      parcourt un autre sommaire pendant qu'un épisode joue, issue #18) :
      une pastille « en direct » lève l'ambiguïté sans dépendre de la couleur
      de l'onglet — rouge et pulsante quel que soit l'état de l'onglet
-     (affiché ou non), comme les indicateurs de direct habituels. L'alignement
-     vient du `display: inline-flex` du bouton, pas d'une marge bricolée. */
+     (affiché ou non), comme les indicateurs de direct habituels.
+     Toujours rendue (juste transparente si inactive), pas seulement quand
+     un livre joue : sinon la largeur de l'onglet changerait selon qu'un
+     livre est en cours de lecture ou non. L'alignement vient du
+     `display: inline-flex` du bouton, pas d'une marge bricolée. */
   .pastille {
     position: relative;
     flex-shrink: 0;
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--alerte);
-    /* Le `gap` du bouton (--esp-1) suffit entre les autres éléments, mais
-       laissé seul ici il rend le point plus proche du texte que du bord du
-       badge (padding --esp-3) — visuellement asymétrique. Le complément
-       aligne les deux espaces (gap + marge = --esp-3, comme le padding). */
-    margin-right: calc(var(--esp-3) - var(--esp-1));
+    background: transparent;
   }
 
-  .pastille::before {
+  .pastille-active {
+    background: var(--alerte);
+  }
+
+  .pastille-active::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -176,7 +181,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .pastille::before {
+    .pastille-active::before {
       animation: none;
     }
   }
@@ -191,15 +196,6 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
-  }
-
-  .compte {
-    color: var(--encre-pale);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .onglets button.actif .compte {
-    color: inherit;
   }
 
   .episodes {
