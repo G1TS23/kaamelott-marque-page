@@ -111,6 +111,9 @@
   }
 
   .onglets button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--esp-1);
     font-family: var(--police-mono);
     font-size: 0.82rem;
     padding: var(--esp-1) var(--esp-3);
@@ -134,19 +137,43 @@
 
   /* Le livre en cours de lecture peut différer du livre affiché (on
      parcourt un autre sommaire pendant qu'un épisode joue, issue #18) :
-     une pastille distincte du style « onglet affiché » lève l'ambiguïté
-     sans dépendre de la couleur seule. */
+     une pastille « en direct » lève l'ambiguïté sans dépendre de la couleur
+     de l'onglet — rouge et pulsante quel que soit l'état de l'onglet
+     (affiché ou non), comme les indicateurs de direct habituels. L'alignement
+     vient du `display: inline-flex` du bouton, pas d'une marge bricolée. */
   .pastille {
-    display: inline-block;
+    position: relative;
+    flex-shrink: 0;
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--accent);
-    margin-right: var(--esp-1);
+    background: var(--alerte);
   }
 
-  .onglets button.actif .pastille {
-    background: var(--accent-fort);
+  .pastille::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--alerte);
+    animation: pastille-irradie 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  @keyframes pastille-irradie {
+    from {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    to {
+      transform: scale(2.8);
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pastille::before {
+      animation: none;
+    }
   }
 
   .sr-only {
@@ -164,7 +191,6 @@
   .compte {
     color: var(--encre-pale);
     font-variant-numeric: tabular-nums;
-    margin-left: var(--esp-1);
   }
 
   .onglets button.actif .compte {

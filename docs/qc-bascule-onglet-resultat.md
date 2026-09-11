@@ -36,10 +36,15 @@ en tête de `Site.svelte`) :
   changement d'onglet — `charge: false` ne représente plus que l'état initial
   juste après le montage.
 
-**Nouveau repère visuel** : une pastille sur l'onglet du livre en cours de
-lecture, distincte du style « onglet affiché », visible seulement quand les
-deux diffèrent — pour ne pas perdre le fil de ce qui joue en parcourant un
-autre livre.
+**Nouveau repère visuel** : une pastille rouge pulsante (« en direct »,
+`--alerte`) sur l'onglet du livre en cours de lecture, visible seulement
+quand il diffère de l'onglet affiché — pour ne pas perdre le fil de ce qui
+joue en parcourant un autre livre. Couleur fixe (rouge) plutôt que dérivée de
+l'état « affiché »/« pas affiché » de l'onglet : un repère « en direct » qui
+changerait de couleur selon le contexte serait plus dur à reconnaître d'un
+coup d'œil. Alignement vertical assuré par `display: inline-flex` sur le
+bouton d'onglet (remplace les marges bricolées sur la pastille et le
+compteur).
 
 ## Vérifié sur la preview locale
 
@@ -56,6 +61,21 @@ autre livre.
   `playVideo`/`pauseVideo`/`stopVideo`) : **aucun appel au lecteur** suite au
   clic d'onglet, vidéo et position inchangées. Visuellement : recherche
   vidée, sommaire du Livre 2 affiché, pastille sur l'onglet Livre 4.
+
+## Retour d'usage sur la pastille
+
+Deux ajustements après premier essai :
+- **Alignement** : la pastille en `display: inline-block` + marge ne se
+  centrait pas verticalement avec le texte de l'onglet. Fixé en passant le
+  bouton d'onglet en `display: inline-flex; align-items: center; gap` —
+  alignement garanti par le flex plutôt que dépendant des métriques de la
+  police, marges manuelles retirées (pastille et compteur).
+- **Rouge pulsant plutôt qu'accent statique** : `--accent` (l'ocre utilisé
+  pour l'onglet affiché) se confondait avec ce vocabulaire existant. Un point
+  rouge (`--alerte`) avec un anneau qui irradie en boucle (`::before` animé,
+  `cubic-bezier` + `scale`/`opacity`) reprend le langage visuel habituel d'un
+  indicateur « en direct », sans dépendre d'une couleur déjà prise par autre
+  chose. `prefers-reduced-motion: reduce` coupe l'animation.
 
 ## Limites connues
 
