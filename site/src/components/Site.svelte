@@ -138,7 +138,7 @@
 
 <header class="entete-collante">
   <div class="entete-interieur">
-    <h1 class="marque">Marque-Page</h1>
+    <h1 class="marque">Le Marque-Page de la Relecture</h1>
     <div class="recherche">
       <label for="recherche-titre" class="sr-only">Rechercher un épisode par titre</label>
       <input
@@ -189,31 +189,44 @@
     border-bottom: 1px solid var(--trait);
   }
 
-  /* Le contenu de l'en-tête reste aligné sur la même colonne que le reste
-     du site — seul son fond s'étire sur toute la largeur. */
+  /* Contrairement au reste du site, le contenu de l'en-tête n'est *pas*
+     aligné sur --largeur-contenu (760px) : avec un titre complet
+     (« Le Marque-Page de la Relecture ») à gauche et une recherche de
+     largeur confortable vraiment centrée, les deux se chevauchent dans une
+     colonne aussi étroite — mathématiquement, pas un réglage à ajuster
+     (255px de titre + une recherche centrée de 448px ne tiennent pas dans
+     720px utiles). Comme sur YouTube, dont l'en-tête n'est pas non plus
+     calé sur la largeur de son contenu : elle utilise toute la largeur de
+     la fenêtre. Trois colonnes plutôt qu'un simple `flex` : `1fr` de
+     chaque côté absorbe la différence quelle que soit la longueur du
+     titre, en respectant d'abord son contenu minimal avant de s'égaliser —
+     la recherche reste ainsi centrée dans l'espace restant. */
   .entete-interieur {
-    max-width: var(--largeur-contenu);
     height: 100%;
-    margin: 0 auto;
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: var(--esp-3);
     padding: 0 var(--esp-4);
   }
 
   .marque {
+    grid-column: 1;
+    justify-self: start;
+    min-width: 0;
     font-family: var(--police-titre);
     font-size: 1.05rem;
     font-weight: 600;
     margin: 0;
     white-space: nowrap;
-    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .recherche {
-    flex: 1;
-    min-width: 0;
-    max-width: 28rem;
+    grid-column: 2;
+    width: 28rem;
+    max-width: 100%;
   }
 
   .recherche input {

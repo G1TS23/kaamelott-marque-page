@@ -97,6 +97,29 @@ jamais qu'en apparence de toute façon (son `aspect-ratio` et son
 `video_id` ne changent pas avec sa taille), donc remonter suffit à le
 montrer « en grand » sans logique d'ouverture séparée.
 
+## Troisième retour d'usage
+
+- **Recherche pas assez centrée, titre raccourci** : la version précédente
+  utilisait le titre court (« Marque-Page ») en `flex` juste à côté de la
+  recherche — celle-ci restait collée au titre plutôt que centrée dans
+  l'en-tête. Passage à une grille à 3 colonnes (`1fr auto 1fr`) : la
+  recherche (colonne centrale, largeur `28rem`) reste au milieu quelle que
+  soit la largeur du titre, les deux colonnes `1fr` absorbant la différence
+  de chaque côté. Le titre reprend sa forme complète (« Le Marque-Page de la
+  Relecture »), aligné à gauche (`justify-self: start`).
+- **Contrainte géométrique découverte en implémentant** : le titre complet
+  (255px) et une recherche de 448px vraiment centrée ne tiennent pas dans
+  les 720px utiles de `--largeur-contenu` (760px moins le padding) — pas un
+  réglage à ajuster, une question d'espace disponible. Résolu en ne
+  plafonnant plus `.entete-interieur` à `--largeur-contenu` : contrairement
+  au reste du site, l'en-tête utilise toute la largeur de la fenêtre pour
+  son contenu aussi, pas seulement pour son fond — cohérent avec la
+  référence explicite à YouTube, dont l'en-tête n'est pas non plus calée
+  sur la largeur de son contenu.
+- **Traits entre les épisodes retirés** (`Sommaire.svelte`,
+  `.episodes li { border-bottom }` supprimé) — simplification demandée,
+  sans contrepartie fonctionnelle à documenter.
+
 ## Découpage des composants
 
 `SelecteurLivre.svelte` supprimé, remplacé par deux composants :

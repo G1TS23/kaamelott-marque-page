@@ -93,10 +93,6 @@
     padding: 0;
   }
 
-  .episodes li {
-    border-bottom: 1px solid var(--trait);
-  }
-
   .episodes li button {
     display: grid;
     grid-template-columns: 2.5rem 1fr auto auto;
