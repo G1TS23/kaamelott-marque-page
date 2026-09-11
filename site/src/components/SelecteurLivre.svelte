@@ -148,6 +148,11 @@
     height: 6px;
     border-radius: 50%;
     background: var(--alerte);
+    /* Le `gap` du bouton (--esp-1) suffit entre les autres éléments, mais
+       laissé seul ici il rend le point plus proche du texte que du bord du
+       badge (padding --esp-3) — visuellement asymétrique. Le complément
+       aligne les deux espaces (gap + marge = --esp-3, comme le padding). */
+    margin-right: calc(var(--esp-3) - var(--esp-1));
   }
 
   .pastille::before {

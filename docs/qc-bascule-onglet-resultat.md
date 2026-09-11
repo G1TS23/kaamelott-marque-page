@@ -77,6 +77,16 @@ Deux ajustements après premier essai :
   indicateur « en direct », sans dépendre d'une couleur déjà prise par autre
   chose. `prefers-reduced-motion: reduce` coupe l'animation.
 
+Un troisième retour après ces deux corrections : l'espace entre le point et
+le bord du badge (15px, le `padding` du bouton) ne correspondait pas à
+l'espace entre le point et le texte (4px, le seul `gap` du flex) —
+asymétrique. Mesuré précisément dans le navigateur plutôt que deviné
+(`getBoundingClientRect` de part et d'autre du point). Corrigé avec
+`margin-right: calc(var(--esp-3) - var(--esp-1))` sur la pastille : le
+complément exact pour que `gap + marge` égale le `padding` du bouton. Les
+deux espaces mesurent maintenant 15px et 14px (l'écart d'1px est de
+l'arrondi de rendu, imperceptible).
+
 ## Limites connues
 
 Lecture non vérifiable en navigateur automatisé (autoplay bloqué), seule la
