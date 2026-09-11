@@ -13,20 +13,19 @@
    * recherche (#15). Elle ne réagit qu'aux clics sur un épisode, jamais à
    * la navigation seule (onglet, recherche) : parcourir le catalogue ne
    * doit jamais interrompre une lecture en cours (issue #18).
+   *
+   * Ne gère plus lui-même sa persistance au scroll (issue #54) : `reduit`
+   * est décidé par `Site.svelte`, qui colle le lecteur *et* les onglets
+   * ensemble (« groupe collant ») — deux composants frères, la position
+   * collante ne peut appartenir qu'à leur parent commun.
    */
   import { commandePourEpisode, type EtatLecteur } from '../lib/lecteur';
 
-  let { videoIdInitial }: { videoIdInitial: string } = $props();
+  let { videoIdInitial, reduit }: { videoIdInitial: string; reduit: boolean } = $props();
 
   let conteneur: HTMLDivElement;
-  let sentinelle: HTMLDivElement;
   let player: YT.Player | undefined;
   let pret = $state(false);
-  // Vrai dès que le lecteur est effectivement collé en haut de la fenêtre
-  // (issue #54) — `position: sticky` seul ne le dit pas, d'où la sentinelle
-  // ci-dessous. Ne sert qu'à basculer une mise en page réduite sur petit
-  // écran (voir le CSS) ; le lecteur lui-même se moque d'être collé ou non.
-  let collant = $state(false);
   // `charge: false` : le constructeur `YT.Player` ne fait que mettre la
   // vidéo en attente, comme `cueVideoById` — rien n'est encore bufferisé
   // (src/lib/lecteur.ts pour la raison de cette distinction).
@@ -76,22 +75,6 @@
     };
   });
 
-  $effect(() => {
-    // `position: sticky` ne déclenche aucun événement natif quand
-    // l'élément se colle réellement — technique standard : une sentinelle
-    // sans hauteur utile juste au-dessus, observée par rapport à la fenêtre
-    // (`root` non précisé = son défaut). Elle sort de l'intersection pile
-    // au moment où `.cadre` commence à coller (`top: 0` de part et d'autre).
-    const observateur = new IntersectionObserver(
-      ([entree]) => {
-        collant = !entree.isIntersecting;
-      },
-      { threshold: 0 },
-    );
-    observateur.observe(sentinelle);
-    return () => observateur.disconnect();
-  });
-
   /**
    * Naviguer vers un épisode précis — clic sur un résultat de titre (lecture
    * immédiate, specs section 6) ou sur un épisode du sommaire.
@@ -113,34 +96,32 @@
   }
 </script>
 
-<div bind:this={sentinelle} class="sentinelle" aria-hidden="true"></div>
-<div class="cadre" class:collant>
+<div class="cadre" class:reduit>
   <div bind:this={conteneur}></div>
 </div>
 
 <style>
-  /* Hauteur nulle : ne sert qu'à donner à l'IntersectionObserver un point
-     de mesure situé juste au-dessus de .cadre (voir le script). */
-  .sentinelle {
-    height: 1px;
-  }
-
   .cadre {
-    position: sticky;
-    /* Persistant au scroll (issue #54, specs section 6 : « Lecteur —
-       persistant ») : sans ça, faire défiler un long sommaire sort le
-       lecteur du champ et on perd le contexte de ce qu'on écoute. */
-    top: 0;
-    /* Au-dessus du contenu qui défile en dessous (barre de recherche,
-       onglets, sommaire) une fois collé. */
-    z-index: 1;
+    position: relative;
     width: 100%;
     aspect-ratio: 16 / 9;
-    margin-bottom: var(--esp-4);
     border-radius: var(--rayon-carte);
     overflow: hidden;
     background: var(--surface);
     box-shadow: var(--ombre);
+    flex-shrink: 0;
+    transition: width 0.22s ease;
+  }
+
+  /* Réduit en mini-lecteur une fois collé avec les onglets (issue #54,
+     retour d'usage — voir .groupe-collant dans Site.svelte) : rem plutôt
+     que px pour rester cohérent avec le reste du système de tailles (même
+     raison que la hauteur des onglets). `width` (pas `max-width`) : dans le
+     `display: flex` du groupe, la taille doit changer pour de vrai, pas
+     juste se plafonner. `aspect-ratio` reste intact, donc pas de recadrage
+     de l'image, juste une réduction proportionnelle. */
+  .cadre.reduit {
+    width: 6rem;
   }
 
   /* YT.Player remplace le div par un iframe : on le fait remplir --cadre
@@ -153,26 +134,8 @@
     border: 0;
   }
 
-  /* Sur petit écran, un lecteur collé en pleine largeur mange trop de
-     hauteur utile pour le sommaire en dessous (issue #54) : une fois
-     réellement collé (`.collant`, posé par l'IntersectionObserver — un
-     simple `position: sticky` ne suffit pas à le savoir), il rétrécit en
-     mini-lecteur aligné à droite. `max-width` (pas `width`) parce que
-     `aspect-ratio` doit rester intact : la hauteur suit proportionnellement,
-     pas de recadrage. 640px : premier point de rupture du site, pas encore
-     de convention établie ailleurs (le menu déroulant mobile du sélecteur
-     de livre, specs section 8, n'existe pas encore). */
-  @media (max-width: 640px) {
-    .cadre.collant {
-      max-width: 50%;
-      margin-left: auto;
-      margin-bottom: var(--esp-2);
-      transition: max-width 0.2s ease;
-    }
-  }
-
-  @media (max-width: 640px) and (prefers-reduced-motion: reduce) {
-    .cadre.collant {
+  @media (prefers-reduced-motion: reduce) {
+    .cadre {
       transition: none;
     }
   }
