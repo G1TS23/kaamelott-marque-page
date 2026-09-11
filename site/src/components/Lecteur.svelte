@@ -8,9 +8,11 @@
    * dans `src/lib/lecteur.ts`, testée ; ce composant ne fait qu'exécuter
    * cette décision contre l'API IFrame Player.
    *
-   * Deux méthodes exposées au parent via `bind:this` — la seule façon
-   * d'interagir avec une instance de lecteur unique partagée entre le
-   * sélecteur de livre et, plus tard, la recherche (#15 à #18).
+   * Une seule méthode exposée au parent via `bind:this` — la seule façon
+   * d'agir sur cette instance unique, partagée entre le sommaire et la
+   * recherche (#15). Elle ne réagit qu'aux clics sur un épisode, jamais à
+   * la navigation seule (onglet, recherche) : parcourir le catalogue ne
+   * doit jamais interrompre une lecture en cours (issue #18).
    */
   import { commandePourEpisode, type EtatLecteur } from '../lib/lecteur';
 
@@ -86,18 +88,6 @@
       player.loadVideoById({ videoId: commande.videoId, startSeconds: commande.secondes });
     }
     etat = { videoId, charge: true };
-  }
-
-  /**
-   * Bascule d'onglet seule, sans épisode choisi : la vidéo du livre change,
-   * sans lancer la lecture (specs section 8 — l'onglet change la vidéo
-   * chargée, il ne déclenche pas une lecture que l'utilisateur n'a pas
-   * demandée).
-   */
-  export function choisirLivre(videoId: string) {
-    if (!pret || !player || etat?.videoId === videoId) return;
-    player.cueVideoById(videoId);
-    etat = { videoId, charge: false };
   }
 </script>
 

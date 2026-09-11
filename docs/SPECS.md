@@ -226,12 +226,12 @@ Les noms sont francisés comme le reste du code ; leur équivalent dans la note 
 
 ### Structure de navigation
 
-Une seule page, organisée en zones fixes (le sélecteur de livre change la vidéo chargée, il ne restreint pas la recherche) :
+Une seule page, organisée en zones fixes. **Le sélecteur de livre ne pilote que le sommaire affiché** — ni la recherche (qu'il vide), ni le lecteur (qu'il ne touche jamais). Ces trois zones ont chacune une responsabilité disjointe (retour d'usage, issue #18) :
 
-- **En-tête** — nom du site + sélecteur de livre (onglets desktop, menu déroulant mobile).
-- **Lecteur** — persistant, ne recharge que si le livre actif change.
-- **Recherche** — barre par titre, globale aux 4 livres, avec passerelle vers la recherche par résumé si zéro résultat.
-- **Sommaire** — liste des épisodes du livre actif, visible par défaut quand la recherche est vide.
+- **En-tête** — nom du site + sélecteur de livre (onglets desktop, menu déroulant mobile). Change uniquement le sommaire affiché ; vide la recherche en cours ; sans effet sur le lecteur.
+- **Lecteur** — persistant, ne change que sur un clic d'épisode explicite (sommaire ou résultat de recherche), jamais par la seule navigation. L'onglet du livre en cours de lecture porte toujours une pastille « en direct », que cet onglet soit affiché ou non (on peut parcourir un livre pendant qu'un autre joue).
+- **Recherche** — barre par titre, globale aux 4 livres, avec passerelle vers la recherche par résumé si zéro résultat. Vidée par un clic d'onglet.
+- **Sommaire** — liste des épisodes du livre affiché, visible par défaut quand la recherche est vide.
 - **Pied de page** — lien vers la vidéo YouTube source et la page Wikipédia du livre actif, et vers la chaîne YouTube de Shisheyu (crédit permanent).
 
 ### Popin de première visite : remerciement à Shisheyu
@@ -292,7 +292,8 @@ Chips au-dessus du sommaire/résultats, combinables avec n'importe quel autre é
 - **Fuse.js** (7.5.0, épinglé) pour le flou : `keys: ['title']`, `threshold: 0.3`, `ignoreLocation: true` (titres courts, une correspondance n'importe où vaut autant qu'au début), `minMatchCharLength: 2`. `0.4` (valeur initiale) était trop permissif — retour d'usage : « hea » ramenait 49 résultats sans rapport ; `0.3` est la marge haute d'un plateau `[0.13, 0.3]` mesuré empiriquement contre les 399 vrais titres (docs/qc-recherche-titre.md).
 - Index des ~400 titres construit une fois au montage de l'îlot ; la logique (`creerIndexTitres`, `chercherParTitre`) vit dans `site/src/lib/recherche.ts`, testée — SonarCloud n'analyse pas les `.svelte`.
 - Requête vide → sommaire du livre actif. Requête non vide → résultats globaux aux 4 livres, chacun étiqueté de son livre (badge). Zéro résultat → message simple (la passerelle #17 s'y branchera).
-- Un clic sur un résultat joue le bon épisode ; la bascule d'onglet sur un résultat d'un autre livre est laissée à #18 (l'onglet peut rester sur son livre entre-temps).
+- Un clic sur un résultat joue le bon épisode et bascule l'onglet sur son livre (issue #18) — le sommaire retrouve le bon livre une fois la recherche effacée.
+- Onglet, recherche et lecteur découplés (retour d'usage sur #18, section 8) : un clic d'onglet ne change que le sommaire affiché (et vide la recherche), il ne touche jamais au lecteur — sinon parcourir un livre pendant qu'un autre joue coupait la lecture. `choisirLivre` (mise en attente sur clic d'onglet) supprimée en conséquence, devenue sans appelant.
 - Épisode en cours de lecture (le dernier cliqué) mis en évidence dans le sommaire, repris du même vocabulaire visuel que l'onglet actif (`--accent-voile` / `--accent-fort` + filet `--accent`). Pas de scroll automatique vers lui.
 
 **Recherche et interface**

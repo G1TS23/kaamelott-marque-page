@@ -50,9 +50,9 @@ sans retomber dans le bruit du seuil précédent.
 | `[]` | « Aucun épisode ne correspond à « … ». » — la passerelle #17 s'y branchera |
 | non vide | résultats des 4 livres, chacun avec un badge « Livre N » |
 
-Un clic sur un résultat joue le bon épisode (`Lecteur.allerA`). La bascule
-d'onglet sur un résultat d'un autre livre est **laissée à #18** : entre-temps
-l'onglet peut rester sur son livre, le lecteur joue quand même le bon.
+Un clic sur un résultat joue le bon épisode (`Lecteur.allerA`) et bascule
+l'onglet sur son livre (issue #18) : le sommaire retrouve le bon livre une
+fois la recherche effacée.
 
 `episodeActif` = le dernier épisode cliqué (#14 ne fournit pas d'événement
 « je suis rendu à l'épisode N » ; #56 l'affinera). La ligne correspondante
