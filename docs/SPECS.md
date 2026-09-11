@@ -292,7 +292,7 @@ Chips au-dessus du sommaire/résultats, combinables avec n'importe quel autre é
 - **Fuse.js** (7.5.0, épinglé) pour le flou : `keys: ['title']`, `threshold: 0.3`, `ignoreLocation: true` (titres courts, une correspondance n'importe où vaut autant qu'au début), `minMatchCharLength: 2`. `0.4` (valeur initiale) était trop permissif — retour d'usage : « hea » ramenait 49 résultats sans rapport ; `0.3` est la marge haute d'un plateau `[0.13, 0.3]` mesuré empiriquement contre les 399 vrais titres (docs/qc-recherche-titre.md).
 - Index des ~400 titres construit une fois au montage de l'îlot ; la logique (`creerIndexTitres`, `chercherParTitre`) vit dans `site/src/lib/recherche.ts`, testée — SonarCloud n'analyse pas les `.svelte`.
 - Requête vide → sommaire du livre actif. Requête non vide → résultats globaux aux 4 livres, chacun étiqueté de son livre (badge). Zéro résultat → message simple (la passerelle #17 s'y branchera).
-- Un clic sur un résultat joue le bon épisode ; la bascule d'onglet sur un résultat d'un autre livre est laissée à #18 (l'onglet peut rester sur son livre entre-temps).
+- Un clic sur un résultat joue le bon épisode et bascule l'onglet sur son livre (issue #18) — le sommaire retrouve le bon livre une fois la recherche effacée.
 - Épisode en cours de lecture (le dernier cliqué) mis en évidence dans le sommaire, repris du même vocabulaire visuel que l'onglet actif (`--accent-voile` / `--accent-fort` + filet `--accent`). Pas de scroll automatique vers lui.
 
 **Recherche et interface**

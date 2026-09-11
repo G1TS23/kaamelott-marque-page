@@ -59,8 +59,11 @@
   }
 
   function onEpisodeClick(livre: NumeroLivre, episode: EpisodeListe) {
-    // La bascule d'onglet sur un résultat d'un autre livre est laissée à
-    // #18 : ici on joue le bon épisode, l'onglet peut rester sur son livre.
+    // Un résultat de recherche peut venir d'un autre livre que celui affiché
+    // (issue #18) : l'onglet suit, pour que le sommaire retrouve le bon
+    // livre une fois la recherche effacée. `allerA` charge déjà la bonne
+    // vidéo quel que soit l'onglet — pas besoin de `choisirLivre` en plus.
+    livreActif = livre;
     episodeActif = { livre, episode: episode.episode };
     lecteur?.allerA(episode.video_id, episode.start_seconds);
   }
