@@ -28,8 +28,10 @@ export function creerIndexTitres(episodes: EpisodeAvecLivre[]): Fuse<EpisodeAvec
 }
 
 /**
- * Résultats triés par pertinence. Requête vide ou d'un seul caractère →
- * aucun résultat (on montre le sommaire, pas 400 lignes).
+ * Résultats triés par pertinence. Requête vide, blanche ou d'un seul
+ * caractère → tableau vide (à qui appelle de décider quoi afficher :
+ * `Site.svelte` montre le sommaire pour une requête vide, le message
+ * « aucun résultat » sinon).
  */
 export function chercherParTitre(
   index: Fuse<EpisodeAvecLivre>,
