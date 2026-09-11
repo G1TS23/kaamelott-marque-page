@@ -40,6 +40,15 @@ const { titre = 'Kaamelott — Le Marque-Page de la Relecture' } = Astro.props;
     box-sizing: border-box;
   }
 
+  /* Réserve la place de la scrollbar en permanence : sans ça, une page dont
+     le contenu passe sous la hauteur de la fenêtre (résultat de recherche
+     court, #15) perd sa scrollbar et tout le contenu centré glisse vers la
+     droite pour récupérer cette largeur — un décalage visible à chaque
+     frappe qui réduit la liste. */
+  html {
+    scrollbar-gutter: stable;
+  }
+
   body {
     margin: 0;
     background: var(--fond);
