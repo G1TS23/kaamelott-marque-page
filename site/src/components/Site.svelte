@@ -244,8 +244,10 @@
     margin-right: calc(-1 * var(--gouttiere, 0px));
     z-index: 6;
     height: 3rem;
-    background: var(--surface-haute);
-    border-bottom: 1px solid var(--trait);
+    /* Même fond que la page, pas de bordure : l'en-tête ne doit pas se
+       détacher visuellement du contenu (retour d'usage) — seul le champ de
+       recherche, lui, garde un fond distinct (voir .recherche input). */
+    background: var(--fond);
   }
 
   /* Contrairement au reste du site, le contenu de l'en-tête n'est *pas*
@@ -293,7 +295,9 @@
     padding: 0.4em var(--esp-3);
     border: 1px solid var(--trait);
     border-radius: var(--rayon-pilule);
-    background: var(--surface);
+    /* Se détache du fond de l'en-tête (retour d'usage) — l'ancien fond de
+       l'en-tête lui-même, avant qu'il ne devienne transparent. */
+    background: var(--surface-haute);
     color: var(--encre);
     font: inherit;
   }

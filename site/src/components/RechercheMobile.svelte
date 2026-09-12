@@ -165,8 +165,10 @@
     gap: var(--esp-2);
     height: 3rem;
     padding: 0 var(--esp-3);
-    background: var(--surface-haute);
-    border-bottom: 1px solid var(--trait);
+    /* Même traitement que l'en-tête principal (Site.svelte, retour
+       d'usage) : même fond que la page, pas de bordure — seul le champ de
+       recherche se détache visuellement. */
+    background: var(--fond);
   }
 
   .retour {
@@ -185,7 +187,7 @@
     padding: 0.4em var(--esp-3);
     border: 1px solid var(--trait);
     border-radius: var(--rayon-pilule);
-    background: var(--surface);
+    background: var(--surface-haute);
     color: var(--encre);
     font: inherit;
   }
