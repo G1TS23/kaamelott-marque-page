@@ -102,8 +102,15 @@ describe('usage des tokens dans le site', () => {
     const inconnues = new Map<string, string[]>();
 
     for (const fichier of fichiersDeStyle()) {
-      for (const nom of consommees(readFileSync(fichier, 'utf8'))) {
-        if (!disponibles.has(nom)) {
+      const contenu = readFileSync(fichier, 'utf8');
+      // Une variable posée par le composant lui-même (ex. une mesure JS
+      // passée en style inline, `style="--x: {valeur}px"`) n'est pas un
+      // token du design system à surveiller ici — seule une variable qui
+      // n'existe ni dans tokens.css ni dans son propre fichier est
+      // suspecte (typo d'un vrai token).
+      const disponiblesIci = new Set([...disponibles, ...declarees(contenu)]);
+      for (const nom of consommees(contenu)) {
+        if (!disponiblesIci.has(nom)) {
           inconnues.set(nom, [...(inconnues.get(nom) ?? []), fichier]);
         }
       }
