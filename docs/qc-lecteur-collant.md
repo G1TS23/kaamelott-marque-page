@@ -304,8 +304,33 @@ ailleurs cette session, qui a semblé faire dériver `collant` indépendamment
 du changement testé. Le code a été relu et vérifié statiquement plutôt que
 re-testé en boucle sur un signal peu fiable.
 
-## Hors périmètre
+## Huitième retour d'usage : le repère n'indiquait que le livre
 
-Mise en évidence de l'épisode en cours dans le sommaire (#15, déjà fait),
-mini-timeline et indicateur de chargement (#56) — cette issue ne fait que
-rendre le lecteur persistant et gérer sa taille au scroll.
+Le repère affiché à côté du mini-lecteur réduit ne montrait que le nom du
+livre (« Livre 1 ») — pas assez pour se repérer parmi une centaine
+d'épisodes par livre. Retour d'usage : ajouter le numéro et le titre de
+l'épisode, sur une seconde ligne (« 1 - Heat »).
+
+`Site.svelte` : `.groupe-repere` passe d'un simple texte à deux lignes
+(`display: flex; flex-direction: column`) — `.groupe-repere-livre`
+(petit, majuscules, `--encre-pale`) et `.groupe-repere-episode`
+(`--encre`, un rien plus grand), chacune avec `text-overflow: ellipsis` au
+cas où un titre long dépasserait la place laissée par le mini-lecteur.
+Même piège que le titre de l'en-tête (retour d'usage plus haut) :
+`min-width: 0` est nécessaire sur le conteneur flex *et* sur chaque ligne
+pour que l'ellipse s'applique — sans ça, un enfant de flex ne rétrécit
+jamais sous son contenu par défaut. La seconde ligne ne s'affiche que si
+`episodeActifDetails` est connu (un épisode a été cliqué au moins une
+fois) ; sinon seule la ligne du livre reste.
+
+**Limite de vérification, consignée pour être honnête** : le changement a
+été relu directement dans le code et dans le rendu compilé (`astro check`
+et `vitest run` restent au vert), mais n'a pas pu être re-confirmé
+visuellement en direct dans cet environnement automatisé — l'onglet y
+tourne en permanence avec `document.visibilityState === 'hidden'`, ce qui
+empêche l'`IntersectionObserver` du groupe collant de livrer son callback
+(`collant` reste bloqué à `false` quel que soit le scroll, y compris un
+vrai scroll déclenché hors JavaScript) : la même limite déjà rencontrée et
+consignée plus haut dans ce document. La lecture réelle, elle, a bien été
+déclenchée (sous-titres visibles, ligne « Heat » surlignée dans le
+sommaire) — seul le passage à l'état réduit n'a pas pu être observé ici.

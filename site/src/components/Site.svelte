@@ -208,12 +208,14 @@
   <div class="groupe-ligne">
     <Lecteur bind:this={lecteur} {videoIdInitial} {reduit} onChangementEngagement={(v) => (lectureEngagee = v)} />
     {#if reduit}
-      <p class="groupe-repere">
-        Livre {episodeActif?.livre ?? livreActif}
+      <div class="groupe-repere">
+        <span class="groupe-repere-livre">Livre {episodeActif?.livre ?? livreActif}</span>
         {#if episodeActifDetails}
-          · <strong>{episodeActifDetails.title}</strong>
+          <span class="groupe-repere-episode">
+            {episodeActifDetails.episode} - {episodeActifDetails.title}
+          </span>
         {/if}
-      </p>
+      </div>
     {/if}
   </div>
   <Onglets {livres} {livreActif} {episodeActif} {onLivreChange} />
@@ -397,17 +399,37 @@
     gap: var(--esp-3);
   }
 
+  /* Sur deux lignes plutôt qu'une (retour d'usage) : le livre seul ne
+     suffit pas à se repérer parmi ~100 épisodes par livre, il faut aussi
+     le numéro. `min-width: 0` sur le conteneur et chaque ligne : dans un
+     flex (`.groupe-ligne`), un enfant ne rétrécit pas sous son contenu par
+     défaut, l'ellipse ne s'appliquerait donc jamais sans ça (déjà rencontré
+     avec le titre de l'en-tête, voir plus haut). */
   .groupe-repere {
-    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1em;
+    min-width: 0;
     font-family: var(--police-mono);
-    font-size: 0.78rem;
-    color: var(--encre-douce);
+  }
+
+  .groupe-repere-livre,
+  .groupe-repere-episode {
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .groupe-repere strong {
+  .groupe-repere-livre {
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--encre-pale);
+  }
+
+  .groupe-repere-episode {
+    font-size: 0.78rem;
     color: var(--encre);
   }
 
