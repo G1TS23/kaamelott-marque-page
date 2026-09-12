@@ -241,6 +241,41 @@ commun, pas à l'un des deux frères.
   largeur de la recherche mesurée à chaque fois (218 → 448px, plafonnée à
   1000px et au-delà).
 
+## Sixième retour d'usage : le flou invisible dans Chrome
+
+Signalé après coup : le flou de l'en-tête se voyait dans Safari, pas dans
+Chrome (juste la transparence). Un premier ajustement (opacité réduite,
+`transform: translateZ(0)`) n'a pas réglé le problème — parce que ce
+n'était pas la bonne piste.
+
+**Root cause trouvée en inspectant le CSS réellement livré**, pas en
+devinant : `chrome://gpu` de l'usager ne montrait aucun signal (compositing
+et rasterization bien accélérés matériellement), ce qui a écarté
+l'hypothèse GPU. Reproduit ensuite sur la preview Netlify déployée (pas le
+serveur de dev) : `getComputedStyle(...).backdropFilter` valait `"none"`.
+En inspectant la règle CSS réellement chargée par le navigateur
+(`document.styleSheets`), `backdrop-filter` avait disparu — il ne restait
+que `-webkit-backdrop-filter`.
+
+Confirmé en local : `dist/_astro/*.css` après `astro build` ne contient
+que la forme préfixée. Avec la minification CSS désactivée
+(`vite.build.cssMinify: false`), les deux déclarations survivent intactes
+— la minification (esbuild, le minifieur CSS par défaut de Vite) est bien
+en cause : elle traite `backdrop-filter` et `-webkit-backdrop-filter`
+comme deux formes redondantes d'une même propriété et n'en garde qu'une,
+la dernière déclarée dans le fichier source. Chrome ne reconnaît que la
+forme standard ; Safari reconnaissait les deux (d'où l'écart observé).
+
+Retirer `-webkit-backdrop-filter` plutôt que réordonner les deux
+déclarations : un test avec Lightning CSS comme minifieur (`vite.build.
+cssMinify: 'lightningcss'`, conscient des navigateurs réellement ciblés
+via `browserslist`) aboutit spontanément à la même conclusion — la forme
+standard seule suffit pour les navigateurs visés par ce site. Un
+`browserslist` (`"defaults"`) a été ajouté à `package.json` par la même
+occasion : bonne pratique générale pour tout futur CSS préfixé, même si ce
+n'est pas lui qui a réglé ce cas précis (esbuild, le minifieur utilisé ici,
+ne le consulte pas).
+
 ## Hors périmètre
 
 Mise en évidence de l'épisode en cours dans le sommaire (#15, déjà fait),

@@ -252,19 +252,23 @@
        étant déjà uni. `color-mix` plutôt qu'une couleur en dur : reste un
        alias de `--fond`, pas une valeur qui échapperait au thème sombre.
 
-       Constaté par l'usager : visible dans Safari, quasi invisible dans
-       Chrome (juste la transparence, sans flou perceptible) — à 85%
-       opaque, l'essentiel de ce qui se voit est déjà le fond uni, ce qui
-       laisse très peu de place au flou pour se remarquer ; les deux
-       moteurs semblent aussi ne pas rendre le flou avec la même intensité
-       perçue. Opacité réduite à 70% pour laisser passer davantage
-       d'arrière-plan flouté, et `transform: translateZ(0)` pour forcer un
-       calque GPU dédié — Chrome a plusieurs bugs connus où
-       `backdrop-filter` se recalcule mal sur un élément `position: fixed`
-       sans cette incitation. */
+       Constaté par l'usager : le flou se voyait dans Safari, pas dans
+       Chrome (juste la transparence) — pas un bug de rendu, un bug de
+       build. `-webkit-backdrop-filter` et `backdrop-filter` déclarés tous
+       les deux (habitude par prudence) étaient traités comme deux formes
+       redondantes de la même propriété par le minifieur CSS de Vite/Astro,
+       qui n'en gardait qu'une seule (la préfixée, la dernière déclarée) —
+       vérifié en inspectant `dist/_astro/*.css` après un build local, avec
+       et sans minification. Chrome ne reconnaît que la forme standard,
+       Safari reconnaissait les deux : d'où l'écart. `-webkit-` retiré
+       plutôt que réordonné : rebuild avec Lightning CSS (le minifieur de
+       Vite conscient des navigateurs réellement ciblés, --browserslist)
+       confirme que la forme standard seule suffit désormais. */
     background: color-mix(in srgb, var(--fond) 70%, transparent);
     backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    /* Calque GPU dédié : mesure de robustesse standard pour
+       `backdrop-filter` sur un `position: fixed`, gardée par prudence même
+       après avoir trouvé la vraie cause ci-dessus. */
     transform: translateZ(0);
   }
 
