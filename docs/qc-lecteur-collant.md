@@ -120,6 +120,41 @@ montrer « en grand » sans logique d'ouverture séparée.
   `.episodes li { border-bottom }` supprimé) — simplification demandée,
   sans contrepartie fonctionnelle à documenter.
 
+## Quatrième retour d'usage
+
+- **En-tête pas vraiment plein format** : un liseré du fond de la page
+  restait visible à droite. Cause : `scrollbar-gutter: stable` sur `html`
+  (Base.astro) réserve une place pour la scrollbar que `position: fixed`
+  ne couvre pas de lui-même — `right: 0` s'arrête au bord de cette réserve,
+  pas de la fenêtre. L'astuce CSS habituelle (`100vw - 100%` en marge
+  négative) s'est révélée égale à 0 dans ce navigateur : `vw` y est déjà
+  réduit par `scrollbar-gutter`, pas fiable ici. Mesurée en JS à la place
+  (`gouttiere = window.innerWidth - document.documentElement.clientWidth`,
+  posée en variable CSS `--gouttiere` sur l'en-tête) — 0 sur mobile
+  (scrollbar en survol, pas de réserve), variable selon OS/navigateur sur
+  desktop.
+- **Recherche débordante sur mobile** : le champ en ligne n'a pas la place
+  d'exister à côté du nom du site sous 640px. Plutôt que de le rétrécir
+  jusqu'à l'illisible, une loupe (`.recherche-bouton`, visible seulement
+  sous 640px) ouvre `RechercheMobile.svelte` — écran plein écran avec son
+  propre champ, qui **remplace** le champ en ligne (masqué à la même
+  largeur) plutôt que de s'y ajouter.
+
+  Requête vide → recherches récentes, persistées dans `localStorage`
+  (`marque-page:recherches-recentes`, 8 maximum, la plus récente en tête,
+  dédoublonnées insensible à la casse) — enregistrées à la fermeture de
+  l'écran ou au clic sur un résultat, jamais à chaque frappe. Lecture et
+  écriture dans un bloc `try/catch` : un stockage indisponible (navigation
+  privée, quota) doit dégrader en « pas de récentes », jamais casser la
+  recherche elle-même. Requête non vide → `Sommaire.svelte` réutilisé tel
+  quel (même logique « résultats vides » vs « liste »), pas de rendu
+  d'épisode dupliqué.
+
+  Vérifié sur le dev server à 500px de large : la loupe remplace le champ,
+  l'écran s'ouvre avec le focus sur son champ, un résultat cliqué joue
+  l'épisode et ferme l'écran, la recherche réapparaît dans « récentes » à
+  la réouverture après avoir vidé le champ.
+
 ## Découpage des composants
 
 `SelecteurLivre.svelte` supprimé, remplacé par deux composants :
@@ -128,6 +163,9 @@ montrer « en grand » sans logique d'ouverture séparée.
   comprise, issue #18), pour pouvoir coller à côté du lecteur réduit.
 - `Sommaire.svelte` — juste la liste des épisodes (sommaire ou résultats de
   recherche), inchangée sinon.
+
+`RechercheMobile.svelte` (nouveau, quatrième retour d'usage) — écran de
+recherche plein écran sous 640px, décrit plus haut.
 
 `Lecteur.svelte` ne gère plus lui-même sa persistance au scroll : il reçoit
 une prop `reduit` décidée par `Site.svelte`, qui colle le lecteur et les

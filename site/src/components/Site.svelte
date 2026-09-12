@@ -39,12 +39,18 @@
   import { chercherParTitre, creerIndexTitres } from '../lib/recherche.ts';
   import Lecteur from './Lecteur.svelte';
   import Onglets from './Onglets.svelte';
+  import RechercheMobile from './RechercheMobile.svelte';
   import Sommaire from './Sommaire.svelte';
 
   let { livres }: { livres: LivreEnListe[] } = $props();
 
   let livreActif = $state<NumeroLivre>(livres[0].livre);
   let requete = $state('');
+  // Champ de recherche en ligne dans l'en-tête (desktop) vs plein écran
+  // ouvert par une loupe (mobile, sous 640px) — retour d'usage : le champ
+  // en ligne débordait sur un petit écran, pas la place pour le nom du
+  // site *et* un champ utilisable (voir le CSS de l'en-tête).
+  let rechercheMobileOuverte = $state(false);
   // Quel épisode le lecteur joue actuellement — c'est le dernier cliqué
   // (#14 ne fournit pas d'événement « je suis rendu à l'épisode N » ;
   // #56 l'affinera via getCurrentTime).
@@ -61,6 +67,22 @@
   // Les deux conditions à la fois pilotent la réduction du lecteur, le
   // collage du groupe et l'apparition du repère d'épisode.
   const reduit = $derived(collant && enLecture);
+
+  // Largeur de la place réservée à la scrollbar (`scrollbar-gutter: stable`
+  // sur `html`, Base.astro) — 0 sur mobile (scrollbar en survol, pas de
+  // réserve). Sert uniquement à étirer l'en-tête collée jusqu'au vrai bord
+  // de la fenêtre (voir `.entete-collante` plus bas) : `position: fixed`
+  // s'arrête sinon au bord de cette réserve, pas de la fenêtre elle-même.
+  let gouttiere = $state(0);
+
+  $effect(() => {
+    function mesurer() {
+      gouttiere = window.innerWidth - document.documentElement.clientWidth;
+    }
+    mesurer();
+    window.addEventListener('resize', mesurer);
+    return () => window.removeEventListener('resize', mesurer);
+  });
 
   // Index des ~400 titres, construit une fois : `requete` est réactif, pas
   // l'index.
@@ -136,7 +158,7 @@
   }
 </script>
 
-<header class="entete-collante">
+<header class="entete-collante" style="--gouttiere: {gouttiere}px">
   <div class="entete-interieur">
     <h1 class="marque">Le Marque-Page de la Relecture</h1>
     <div class="recherche">
@@ -149,8 +171,34 @@
         autocomplete="off"
       />
     </div>
+    <button
+      type="button"
+      class="recherche-bouton"
+      onclick={() => (rechercheMobileOuverte = true)}
+      aria-label="Rechercher un épisode par titre"
+    >
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path
+          d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14Z"
+          fill="currentColor"
+        />
+      </svg>
+    </button>
   </div>
 </header>
+
+{#if rechercheMobileOuverte}
+  <RechercheMobile
+    {livres}
+    {livreActif}
+    {requete}
+    {resultats}
+    {episodeActif}
+    onRequeteChange={(v) => (requete = v)}
+    {onEpisodeClick}
+    onFermer={() => (rechercheMobileOuverte = false)}
+  />
+{/if}
 
 <div bind:this={sentinelle} class="sentinelle" aria-hidden="true"></div>
 <div class="groupe-collant" class:actif={reduit}>
@@ -183,6 +231,17 @@
     top: 0;
     left: 0;
     right: 0;
+    /* `right: 0` s'arrête au bord de la place réservée pour la scrollbar
+       (`scrollbar-gutter: stable` sur `html`, Base.astro) : un `fixed` ne
+       la couvre pas de lui-même, d'où un liseré du fond de la page visible
+       à droite (retour d'usage). `100vw - 100%` (l'astuce CSS habituelle
+       pour ce cas) s'est révélé égal à 0 dans ce navigateur — `vw` y est
+       déjà réduit par `scrollbar-gutter`, pas fiable ici. Mesurée en JS à
+       la place (`--gouttiere`, ci-dessous) : différence entre la largeur
+       de la fenêtre et celle réellement disponible, quelle que soit la
+       largeur de la scrollbar (variable selon OS/navigateur, nulle sur
+       mobile). */
+    margin-right: calc(-1 * var(--gouttiere, 0px));
     z-index: 6;
     height: 3rem;
     background: var(--surface-haute);
@@ -246,6 +305,32 @@
 
   .recherche input::placeholder {
     color: var(--encre-pale);
+  }
+
+  /* Juste une loupe sous 640px (retour d'usage) : le champ en ligne n'a
+     pas la place d'exister à côté du nom du site sur un petit écran — au
+     lieu de le rétrécir jusqu'à l'illisible, un écran de recherche dédié
+     (RechercheMobile.svelte) s'ouvre au clic. Caché par défaut : c'est le
+     champ en ligne la variante par défaut, pour les écrans assez larges. */
+  .recherche-bouton {
+    display: none;
+    grid-column: 3;
+    justify-self: end;
+    padding: var(--esp-1);
+    border: none;
+    background: transparent;
+    color: var(--encre);
+    cursor: pointer;
+  }
+
+  @media (max-width: 640px) {
+    .recherche {
+      display: none;
+    }
+
+    .recherche-bouton {
+      display: flex;
+    }
   }
 
   /* Hauteur nulle : ne sert qu'à donner à l'IntersectionObserver un point
