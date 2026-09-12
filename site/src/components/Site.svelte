@@ -257,21 +257,26 @@
   }
 
   /* Contrairement au reste du site, le contenu de l'en-tête n'est *pas*
-     aligné sur --largeur-contenu (760px) : avec un titre complet
-     (« Le Marque-Page de la Relecture ») à gauche et une recherche de
-     largeur confortable vraiment centrée, les deux se chevauchent dans une
-     colonne aussi étroite — mathématiquement, pas un réglage à ajuster
-     (255px de titre + une recherche centrée de 448px ne tiennent pas dans
-     720px utiles). Comme sur YouTube, dont l'en-tête n'est pas non plus
-     calé sur la largeur de son contenu : elle utilise toute la largeur de
-     la fenêtre. Trois colonnes plutôt qu'un simple `flex` : `1fr` de
-     chaque côté absorbe la différence quelle que soit la longueur du
-     titre, en respectant d'abord son contenu minimal avant de s'égaliser —
-     la recherche reste ainsi centrée dans l'espace restant. */
+     aligné sur --largeur-contenu (760px) : elle utilise toute la largeur
+     de la fenêtre, comme sur YouTube. Trois colonnes : le titre (`auto`,
+     jamais rétréci sous son contenu — voir plus bas pourquoi c'est
+     important), la recherche (`1fr`, centrée dans l'espace qu'il reste),
+     la loupe mobile (`auto`, vide sur desktop).
+
+     Une vraie colonne centrale symétrique (`1fr auto 1fr`, essayée d'abord)
+     imposerait la même largeur des deux côtés du titre — pour ne pas le
+     recouvrir, le côté vide de droite devrait réserver *autant* de place
+     que le titre en occupe à gauche, ce qui ne laisse plus assez de place
+     pour une recherche utilisable entre 640 et ~1000px de large : question
+     de géométrie, pas de réglage. Centrer la recherche dans l'espace
+     restant *après* le titre (au lieu du milieu de la barre entière) coûte
+     un centrage visuel légèrement décalé sur les très grands écrans, mais
+     garantit que le titre ne soit jamais ni recouvert ni tronqué, à
+     n'importe quelle largeur. */
   .entete-interieur {
     height: 100%;
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: var(--esp-3);
     padding: 0 var(--esp-4);
@@ -279,21 +284,23 @@
 
   .marque {
     grid-column: 1;
-    justify-self: start;
-    min-width: 0;
     font-family: var(--police-titre);
     font-size: 1.05rem;
     font-weight: 600;
     margin: 0;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   .recherche {
     grid-column: 2;
-    width: 28rem;
-    max-width: 100%;
+    justify-self: center;
+    /* Rétrécit avec la fenêtre plutôt que de rester fixe à 28rem (retour
+       d'usage : elle recouvrait le titre entre 640 et 1000px) — un
+       pourcentage de sa propre colonne (déjà nette du titre et de ses
+       marges) plutôt que du viewport : s'adapte à la place réellement
+       disponible, pas à une largeur de fenêtre qui ignorerait la longueur
+       du titre. */
+    width: min(28rem, 65%);
   }
 
   .recherche input {

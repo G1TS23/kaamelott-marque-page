@@ -194,6 +194,53 @@ commun, pas à l'un des deux frères.
   repère se met à jour (« Livre 1 · Heat »), la page remonte en douceur,
   `window.scrollY` revient à `0`, le lecteur reprend sa pleine largeur.
 
+## Cinquième retour d'usage
+
+- **La loupe agrandie** (20px → 26px), sans toucher à la hauteur fixe de
+  l'en-tête (3rem) ; l'en-tête devient légèrement translucide avec
+  `backdrop-filter: blur(8px)` (`color-mix` pour rester un alias de
+  `--fond`, pas une couleur en dur) ; le halo de focus est retiré sur le
+  champ de `RechercheMobile.svelte`, déjà concentré à l'ouverture — il
+  apparaîtrait sinon systématiquement, sans la même utilité qu'au clavier
+  sur un contexte tactile.
+
+- **Recherche qui recouvrait le titre entre 640 et 1000px de large.**
+  Cause réelle, trouvée en mesurant plutôt qu'en devinant
+  (`getBoundingClientRect` du titre et de la recherche) : la grille
+  `1fr auto 1fr` laissait la colonne du titre rétrécir (`min-width: 0`,
+  ajouté pour permettre l'ellipse), mais le `<h1>` lui-même n'était pas
+  contraint à la largeur de cette colonne (`justify-self: start` le
+  dimensionne à son contenu, pas à sa piste) — sa boîte débordait donc
+  simplement dans la colonne voisine au lieu d'être tronquée par
+  `text-overflow: ellipsis`, d'où le recouvrement.
+
+  Plutôt qu'un correctif ponctuel (contraindre le titre à `width: 100%` de
+  sa colonne), la contrainte géométrique sous-jacente a été retravaillée :
+  avec une colonne centrale *symétrique* (`1fr` des deux côtés), empêcher
+  le titre d'être recouvert impose que le côté vide, à droite, réserve
+  *autant* de place que le titre à gauche — ce qui ne laisse plus assez de
+  place pour une recherche utilisable entre 640 et ~1000px, quelle que soit
+  sa largeur (démontré par le calcul, pas juste observé). Grille changée en
+  `auto 1fr auto` : le titre (colonne 1) est dimensionné à son contenu et
+  ne rétrécit donc plus jamais en dessous — recouvrement structurellement
+  impossible, à n'importe quelle largeur. La recherche (colonne 2) se
+  centre dans l'espace qu'il reste après le titre, avec une largeur en
+  `min(28rem, 65%)` de ce qui lui reste (pas du viewport entier) : elle
+  rétrécit avec la fenêtre plutôt que de rester bloquée à 28rem.
+
+  Contrepartie assumée : sur un très grand écran, la recherche n'est plus
+  centrée dans la barre entière, mais dans l'espace restant après le
+  titre — légèrement décalée à droite du centre réel (mesuré : ~128px à
+  1300px de large). Aucune configuration symétrique ne peut à la fois
+  centrer parfaitement sur toute la largeur *et* garantir que le titre ne
+  soit jamais recouvert dans la plage 640–1000px ; ce compromis a été
+  choisi parce que le recouvrement était le problème concret signalé,
+  l'écart de centrage sur grand écran ne l'était pas.
+
+  Vérifié à 660, 700, 850, 1000 et 1300px de large : aucun recouvrement,
+  largeur de la recherche mesurée à chaque fois (218 → 448px, plafonnée à
+  1000px et au-delà).
+
 ## Hors périmètre
 
 Mise en évidence de l'épisode en cours dans le sommaire (#15, déjà fait),
