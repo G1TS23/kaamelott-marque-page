@@ -177,7 +177,7 @@
       onclick={() => (rechercheMobileOuverte = true)}
       aria-label="Rechercher un épisode par titre"
     >
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
         <path
           d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14Z"
           fill="currentColor"
@@ -246,8 +246,14 @@
     height: 3rem;
     /* Même fond que la page, pas de bordure : l'en-tête ne doit pas se
        détacher visuellement du contenu (retour d'usage) — seul le champ de
-       recherche, lui, garde un fond distinct (voir .recherche input). */
-    background: var(--fond);
+       recherche, lui, garde un fond distinct (voir .recherche input).
+       Légèrement translucide + `backdrop-filter` (retour d'usage) : sans
+       transparence, un flou n'aurait rien à flouter, le fond du dessous
+       étant déjà uni. `color-mix` plutôt qu'une couleur en dur : reste un
+       alias de `--fond`, pas une valeur qui échapperait au thème sombre. */
+    background: color-mix(in srgb, var(--fond) 85%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   /* Contrairement au reste du site, le contenu de l'en-tête n'est *pas*

@@ -192,9 +192,12 @@
     font: inherit;
   }
 
+  /* Pas de halo de focus ici (retour d'usage) : l'écran se concentre déjà
+     ce champ au clic sur la loupe (voir le script) — le halo apparaîtrait
+     donc systématiquement à l'ouverture, sur un contexte tactile où il
+     n'a pas la même utilité qu'au clavier. */
   .ecran-entete input:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 1px;
+    outline: none;
   }
 
   .ecran-entete input::placeholder {
