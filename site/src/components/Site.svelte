@@ -60,13 +60,16 @@
   // Vrai une fois le groupe lecteur + onglets scrollé sous l'en-tête —
   // ne suffit pas à lui seul à décider de la réduction, voir `reduit`.
   let collant = $state(false);
-  // Vrai quand le lecteur joue réellement (retour d'usage : une vignette
-  // affichée ou une vidéo en pause ne justifient pas de coller un mini-
-  // lecteur, seule une lecture active « perd son contexte » en scrollant).
-  let enLecture = $state(false);
+  // Vrai dès qu'une vidéo a été lancée, et tant qu'elle ne repasse pas à
+  // l'état « vignette » (retour d'usage : une simple vignette affichée ne
+  // justifie pas de coller un mini-lecteur — mais une fois lancée, une
+  // pause ne doit pas le décoller pour autant, on garde le contexte de ce
+  // qu'on écoutait). Voir `Lecteur.svelte` pour le détail des états qui
+  // comptent comme « engagée ».
+  let lectureEngagee = $state(false);
   // Les deux conditions à la fois pilotent la réduction du lecteur, le
   // collage du groupe et l'apparition du repère d'épisode.
-  const reduit = $derived(collant && enLecture);
+  const reduit = $derived(collant && lectureEngagee);
 
   // Largeur de la place réservée à la scrollbar (`scrollbar-gutter: stable`
   // sur `html`, Base.astro) — 0 sur mobile (scrollbar en survol, pas de
@@ -203,7 +206,7 @@
 <div bind:this={sentinelle} class="sentinelle" aria-hidden="true"></div>
 <div class="groupe-collant" class:actif={reduit}>
   <div class="groupe-ligne">
-    <Lecteur bind:this={lecteur} {videoIdInitial} {reduit} onChangementLecture={(v) => (enLecture = v)} />
+    <Lecteur bind:this={lecteur} {videoIdInitial} {reduit} onChangementEngagement={(v) => (lectureEngagee = v)} />
     {#if reduit}
       <p class="groupe-repere">
         Livre {episodeActif?.livre ?? livreActif}

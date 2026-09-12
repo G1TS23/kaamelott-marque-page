@@ -18,21 +18,21 @@
    * est décidé par `Site.svelte`, qui colle le lecteur *et* les onglets
    * ensemble (« groupe collant ») — deux composants frères, la position
    * collante ne peut appartenir qu'à leur parent commun. `Site.svelte` a
-   * en retour besoin de savoir si une vidéo *joue réellement* (pas juste
-   * affichée ou en pause) pour décider de réduire ou non — `onChangementLecture`
-   * relaie l'état posé par l'API IFrame (`onStateChange`), que ce
-   * composant est seul à connaître.
+   * en retour besoin de savoir si une vidéo a été *engagée* (lancée, et pas
+   * juste affichée en vignette) pour décider de réduire ou non —
+   * `onChangementEngagement` relaie l'état posé par l'API IFrame
+   * (`onStateChange`), que ce composant est seul à connaître.
    */
   import { commandePourEpisode, type EtatLecteur } from '../lib/lecteur';
 
   let {
     videoIdInitial,
     reduit,
-    onChangementLecture,
+    onChangementEngagement,
   }: {
     videoIdInitial: string;
     reduit: boolean;
-    onChangementLecture: (enLecture: boolean) => void;
+    onChangementEngagement: (engagee: boolean) => void;
   } = $props();
 
   let conteneur: HTMLDivElement;
@@ -53,12 +53,19 @@
           pret = true;
           etat = { videoId: videoIdInitial, charge: false };
         },
-        // Vignette affichée ou vidéo en pause ne comptent pas comme « en
-        // lecture » (retour d'usage sur #54) : seul `PLAYING` justifie de
-        // réduire le lecteur, sans quoi parcourir le sommaire sans rien
-        // écouter collerait quand même un lecteur en pleine taille.
+        // Une vignette jamais lancée (`CUED`/`UNSTARTED`) ne compte pas
+        // comme « engagée » (retour d'usage sur #54) : sans quoi parcourir
+        // le sommaire sans rien écouter collerait quand même un lecteur en
+        // pleine taille. Une fois lancée, en revanche, une pause ne doit
+        // pas décoller le lecteur (autre retour d'usage) : `PAUSED` et
+        // `BUFFERING` comptent autant que `PLAYING`. Seule la fin de la
+        // vidéo (`ENDED`) remet à zéro, comme un retour à l'état initial.
         onStateChange: (e) => {
-          onChangementLecture(e.data === YT.PlayerState.PLAYING);
+          const enSession =
+            e.data === YT.PlayerState.PLAYING ||
+            e.data === YT.PlayerState.PAUSED ||
+            e.data === YT.PlayerState.BUFFERING;
+          onChangementEngagement(enSession);
         },
       },
     });

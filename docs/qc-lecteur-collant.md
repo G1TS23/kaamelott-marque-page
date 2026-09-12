@@ -276,6 +276,34 @@ occasion : bonne pratique générale pour tout futur CSS préfixé, même si ce
 n'est pas lui qui a réglé ce cas précis (esbuild, le minifieur utilisé ici,
 ne le consulte pas).
 
+## Septième retour d'usage : la pause décollait le lecteur
+
+Dernier réglage : une pause remettait le lecteur en pleine taille (logique
+d'origine — seul `PLAYING` comptait comme « engagé », #54 ci-dessus).
+Retour d'usage : une pause ne doit pas faire perdre le repère, seule la
+vignette jamais lancée (`CUED`/`UNSTARTED`) le justifie.
+
+`Lecteur.svelte` (`onStateChange`) traite maintenant `PLAYING`, `PAUSED` et
+`BUFFERING` comme un seul état « engagé » (`enSession`, relayé via
+`onChangementEngagement` — renommé depuis `onChangementLecture`, qui ne
+disait plus vrai). Seul `ENDED` (fin de vidéo) ou un retour à
+`CUED`/`UNSTARTED` (nouvelle vignette) remet à zéro. `Site.svelte` :
+`enLecture` renommé `lectureEngagee` pour la même raison.
+
+**Limite de vérification, consignée pour être honnête** : le changement de
+logique est confirmé dans le bundle compilé servi par le serveur de dev
+(`PLAYING || PAUSED || BUFFERING`), et le passage plein→réduit à la lecture
+a été revérifié en direct sans régression. Le passage lecture→pause n'a en
+revanche pas pu être re-confirmé de façon concluante dans cet
+environnement automatisé : la mise en pause y a été simulée par
+`postMessage` vers l'iframe plutôt que par un vrai clic (l'automatisation
+ne déclenche pas de façon fiable les contrôles natifs de l'iframe YouTube),
+et cet onglet tourne avec `document.visibilityState === 'hidden'` — la
+même limite d'`IntersectionObserver` en arrière-plan déjà rencontrée
+ailleurs cette session, qui a semblé faire dériver `collant` indépendamment
+du changement testé. Le code a été relu et vérifié statiquement plutôt que
+re-testé en boucle sur un signal peu fiable.
+
 ## Hors périmètre
 
 Mise en évidence de l'épisode en cours dans le sommaire (#15, déjà fait),
