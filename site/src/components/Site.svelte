@@ -250,10 +250,22 @@
        Légèrement translucide + `backdrop-filter` (retour d'usage) : sans
        transparence, un flou n'aurait rien à flouter, le fond du dessous
        étant déjà uni. `color-mix` plutôt qu'une couleur en dur : reste un
-       alias de `--fond`, pas une valeur qui échapperait au thème sombre. */
-    background: color-mix(in srgb, var(--fond) 85%, transparent);
+       alias de `--fond`, pas une valeur qui échapperait au thème sombre.
+
+       Constaté par l'usager : visible dans Safari, quasi invisible dans
+       Chrome (juste la transparence, sans flou perceptible) — à 85%
+       opaque, l'essentiel de ce qui se voit est déjà le fond uni, ce qui
+       laisse très peu de place au flou pour se remarquer ; les deux
+       moteurs semblent aussi ne pas rendre le flou avec la même intensité
+       perçue. Opacité réduite à 70% pour laisser passer davantage
+       d'arrière-plan flouté, et `transform: translateZ(0)` pour forcer un
+       calque GPU dédié — Chrome a plusieurs bugs connus où
+       `backdrop-filter` se recalcule mal sur un élément `position: fixed`
+       sans cette incitation. */
+    background: color-mix(in srgb, var(--fond) 70%, transparent);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    transform: translateZ(0);
   }
 
   /* Contrairement au reste du site, le contenu de l'en-tête n'est *pas*
