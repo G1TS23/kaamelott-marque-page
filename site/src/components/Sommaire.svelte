@@ -89,13 +89,13 @@
 
   .episodes {
     list-style: none;
-    margin: 0;
+    /*margin: 0;*/
     padding: 0;
   }
 
   .episodes li button {
     display: grid;
-    grid-template-columns: 2.5rem 1fr auto auto;
+    grid-template-columns: 1.5rem 1fr auto auto;
     gap: var(--esp-3);
     align-items: baseline;
     width: 100%;
@@ -132,7 +132,7 @@
   }
 
   .numero {
-    text-align: right;
+    text-align: center;
   }
 
   .badge {
