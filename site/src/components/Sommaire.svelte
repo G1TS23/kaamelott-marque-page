@@ -1,36 +1,32 @@
 <script lang="ts">
   /**
-   * Liste des épisodes : sommaire du livre actif par défaut, résultats de
-   * recherche dès qu'une requête est tapée (issues #13, #15).
+   * Sommaire du livre actif (issue #13).
    *
    * Anciennement `SelecteurLivre.svelte` — renommé quand les onglets en ont
    * été extraits (`Onglets.svelte`, issue #54) : ce composant ne montre
    * plus que la liste elle-même.
    *
-   * Purement présentationnel : `livreActif`, la requête et l'épisode en
-   * cours sont décidés par `Site.svelte`, qui possède aussi le lecteur.
+   * Ne montre plus jamais les résultats de recherche (issue #16) : ils
+   * vivent dans leur propre panneau (`ResultatsRecherche.svelte`, flottant
+   * sur desktop dans `Site.svelte`, plein écran dans `RechercheMobile.svelte`)
+   * plutôt que de remplacer cette liste en place — retour d'usage sur la
+   * maquette, un panneau ancré au champ se lit mieux qu'un sommaire qui
+   * change de nature sous les yeux.
+   *
+   * Purement présentationnel : `livreActif` et l'épisode en cours sont
+   * décidés par `Site.svelte`, qui possède aussi le lecteur.
    */
-  import type {
-    EpisodeAvecLivre,
-    EpisodeListe,
-    LivreEnListe,
-    NumeroLivre,
-  } from '../lib/episodes.ts';
+  import type { EpisodeListe, LivreEnListe, NumeroLivre } from '../lib/episodes.ts';
   import { formaterTemps } from '../lib/temps.ts';
 
   let {
     livres,
     livreActif,
-    requete,
-    resultats,
     episodeActif,
     onEpisodeClick,
   }: {
     livres: LivreEnListe[];
     livreActif: NumeroLivre;
-    requete: string;
-    /** `null` = pas de recherche → sommaire ; `[]` = recherche sans résultat. */
-    resultats: EpisodeAvecLivre[] | null;
     episodeActif: { livre: NumeroLivre; episode: number } | null;
     onEpisodeClick: (livre: NumeroLivre, episode: EpisodeListe) => void;
   } = $props();
@@ -44,7 +40,7 @@
   }
 </script>
 
-{#snippet ligne(livre: NumeroLivre, episode: EpisodeListe, avecLivre: boolean)}
+{#snippet ligne(livre: NumeroLivre, episode: EpisodeListe)}
   <li>
     <button
       type="button"
@@ -54,9 +50,6 @@
     >
       <span class="numero">{episode.episode}</span>
       <span class="titre">{episode.title}</span>
-      {#if avecLivre}
-        <span class="badge">Livre {livre}</span>
-      {/if}
       <time datetime={`PT${Math.round(episode.start_seconds)}S`}>
         {formaterTemps(episode.start_seconds)}
       </time>
@@ -64,21 +57,11 @@
   </li>
 {/snippet}
 
-{#if resultats === null}
-  <ol class="episodes">
-    {#each episodesDuLivre as episode (episode.episode)}
-      {@render ligne(livreActif, episode, false)}
-    {/each}
-  </ol>
-{:else if resultats.length === 0}
-  <p class="vide">Aucun épisode ne correspond à «&nbsp;{requete.trim()}&nbsp;».</p>
-{:else}
-  <ol class="episodes" aria-label="Résultats de recherche">
-    {#each resultats as r (`${r.livre}-${r.episode}`)}
-      {@render ligne(r.livre, r, true)}
-    {/each}
-  </ol>
-{/if}
+<ol class="episodes">
+  {#each episodesDuLivre as episode (episode.episode)}
+    {@render ligne(livreActif, episode)}
+  {/each}
+</ol>
 
 <style>
   /*
@@ -94,7 +77,7 @@
 
   .episodes li button {
     display: grid;
-    grid-template-columns: 1.5rem 1fr auto auto;
+    grid-template-columns: 1.5rem 1fr auto;
     gap: var(--esp-3);
     align-items: baseline;
     width: 100%;
@@ -134,20 +117,4 @@
     text-align: center;
   }
 
-  .badge {
-    font-family: var(--police-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--encre-pale);
-    border: 1px solid var(--trait);
-    border-radius: var(--rayon-etiquette);
-    padding: 0 var(--esp-1);
-    align-self: center;
-  }
-
-  .vide {
-    color: var(--encre-douce);
-    padding: var(--esp-2);
-  }
 </style>

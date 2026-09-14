@@ -116,15 +116,29 @@ Le champ `characters_source` (`fandom` | `heuristic`) trace laquelle des deux a 
 
 | Mode | Ce que tape l'utilisateur | Technique |
 |------|---------------------------|-----------|
-| Par titre | « tartes aux myrtilles », « heat » | Recherche floue classique (Fuse.js ou équivalent) |
-| Par souvenir de scène | « celui où ils discutent de la table ronde avec l'artisan » | Recherche sémantique par embeddings |
+| Par titre | « tartes aux myrtilles », « heat » | Recherche floue classique (Fuse.js) |
+| Par personnage (issue #16) | « Léodagan » | Recherche floue classique (Fuse.js), sur `characters` |
+| Par souvenir de scène (issue #16) | « celui où ils discutent de la table ronde avec l'artisan » | Recherche plein texte lexicale (BM25) sur `summary` |
 | Par réplique (issue #45) | « des petites paysannes », « c'est pas faux » | Recherche tolérante dans la transcription YouTube, croisée avec `start_seconds` |
 
-Les deux premiers modes partent ensemble dès le lancement, avec le modèle d'embeddings **embarqué dans le navigateur** (transformers.js, pas de serveur). Les embeddings des ~400 résumés sont précalculés une fois pour toutes ; seule la requête utilisateur est vectorisée à la volée.
+**Correction post-implémentation (issue #16)** : les embeddings envisagés
+initialement pour le résumé ont été écartés avant construction, sans être
+essayés en production — un modèle multilingue viable pèse ~141 Mo tout
+compris (poids + tokenizer), à héberger et charger côté client pour un gain
+non démontré face au lexical (voir issue #60). Titre, personnage et résumé
+sont fusionnés en une seule liste dédupliquée triée par pertinence, plutôt
+qu'affichés comme des modes séparés que l'utilisateur choisirait — pattern
+validé sur une maquette avant construction (artifact lié dans l'issue #60).
+Détails et limites mesurées : `docs/qc-recherche-resume.md`.
 
-**Portée : recherche globale aux quatre livres**, pas seulement le livre affiché. L'index (fuzzy comme sémantique) combine les fiches des 4 fichiers JSON ; chaque résultat garde son `video_id` propre pour savoir quel livre charger au clic.
+**Portée : recherche globale aux quatre livres**, pas seulement le livre affiché. L'index (fuzzy comme lexical) combine les fiches des 4 fichiers JSON ; chaque résultat garde son `video_id` propre pour savoir quel livre charger au clic.
 
-**Filtre personnages (issue #24) : orthogonal, pas un 4ᵉ mode.** Le champ `characters` n'alimente aucun des modes de recherche — c'est une facette combinable (section 8) qui restreint ce qui est déjà affiché (sommaire ou résultats), pas une façon de chercher qui rivaliserait avec les modes ci-dessus.
+**Personnage dans la recherche (issue #16) : révise la décision ci-dessous.**
+`characters` alimente désormais aussi la recherche libre, en plus de rester
+la donnée d'une facette combinable à construire (issue #61, toujours
+orthogonale — voir section 8) : les deux mécanismes coexistent
+délibérément, ce n'est pas une redondance à résoudre (arbitrage en
+conversation, tracé dans l'issue #60).
 
 ### Recherche par réplique (post-v1)
 
@@ -152,7 +166,7 @@ Un seul lecteur pour tout le site (une seule instance IFrame Player API), qui ch
 - **Même livre → jamais de rechargement.** Cliquer un autre épisode du même livre appelle `player.seekTo(timestamp, true)` sur le lecteur déjà en place — pas de rechargement, au pire une fraction de seconde de rebufferisation.
 - **Changement de livre → seule la source change.** Nouveau `video_id` chargé dans le même lecteur (paramètre `start=`), la page ne recharge pas.
 - **Lien profond partageable** : `kaamelott-marque-page.fr/?livre=1&episode=s1e02` doit ouvrir directement le bon lecteur à la bonne seconde.
-- **Clic sur un résultat de titre** → lecture immédiate en un clic. **Résultat du mode résumé** → carte de justification affichée avant lecture (correspondance probabiliste, mérite explication).
+- **Clic sur un résultat, quel que soit ce qui a matché** → lecture immédiate. **Correction post-implémentation (issue #16)** : pas de carte de justification séparée pour le résumé — le panneau de résultats unifié (section 5) affiche déjà, à côté du titre, ce qui a matché (`titre`/`personnage`/`résumé`), ce qui en tient lieu sans écran intermédiaire.
 
 ## 7. Stack technique
 
@@ -160,8 +174,8 @@ Un seul lecteur pour tout le site (une seule instance IFrame Player API), qui ch
 |--------|--------------|
 | Site (front-end) | **Astro + Svelte + TypeScript** ✅ (issue #13) — voir ci-dessous |
 | Hébergement | **Netlify** ✅ (issue #13) — `netlify.toml` à la racine, base `site/`, publication `site/dist` |
-| Données | ~400 fiches JSON statiques (1 fichier par livre) + vecteurs d'embeddings précalculés |
-| Recherche sémantique | transformers.js, modèle compact (~25-50 Mo), navigateur |
+| Données | ~400 fiches JSON statiques (1 fichier par livre) + `/recherche.json` (résumés/personnages, chargé à part — issue #16) |
+| Recherche par résumé | BM25 écrit à la main (`site/src/lib/bm25.ts`), navigateur — pas d'embeddings (issue #16, voir section 5) |
 | Scripts hors-site (import, jingle, transcription) | Python — librosa/numpy (audio), BeautifulSoup (Wikipédia) |
 
 - **v1** : site statique, données figées, recherche double (titre + résumé) dès le lancement. Aucun serveur, aucune base de données.
@@ -177,7 +191,7 @@ Un seul lecteur pour tout le site (une seule instance IFrame Player API), qui ch
 
 ## 8. Design / UX / UI
 
-Direction retenue : **le sommaire du livre** comme structure principale (lecteur fixe, table des matières fidèle au nom « Livre », recherche par titre globale), avec une **passerelle vers la recherche par résumé** qui n'apparaît qu'en cas d'échec de la recherche par titre.
+Direction retenue : **le sommaire du livre** comme structure principale (lecteur fixe, table des matières fidèle au nom « Livre »), avec un **panneau de résultats unifié** ancré au champ de recherche (titre, résumé, personnage — issue #16, section 5), pas de passerelle séparée conditionnée à un échec préalable — **correction post-implémentation** : l'idée d'origine (passerelle n'apparaissant qu'après échec de la recherche par titre, issue #17) a été remplacée par un panneau toujours disponible dès 2 caractères tapés, pattern validé sur une maquette avant construction (issue #60).
 
 ### Direction artistique et design system (issue #51)
 
@@ -243,16 +257,24 @@ Affichée à la toute première visite (indicateur `localStorage`, pas de compte
 
 ### États de la zone recherche
 
+**Correction post-implémentation (issue #16)** : les 4 états ci-dessous
+décrivaient le plan d'origine (passerelle conditionnée à un échec du
+titre, résultats sémantiques avec carte de justification séparée) — voir
+« Direction retenue » ci-dessus pour ce qui a été construit à la place.
+Toujours vrai : sommaire par défaut, requête vide → sommaire du livre
+affiché ; un résultat d'un autre livre porte une étiquette et bascule
+l'onglet actif au clic.
+
 1. **Sommaire** (par défaut, sans requête) — liste des épisodes du livre affiché.
-2. **Zéro résultat par titre** — la passerelle apparaît (« Tu te souviens juste de la scène ? Décris-la plutôt → ») à la place d'une liste vide.
-3. **Recherche par résumé** — résultats sémantiques avec justification (« correspond : ... »).
-4. **Recherche globale** — un résultat titre issu d'un autre livre porte une étiquette (ex. « Livre 3 ») ; le clic bascule l'onglet actif puis lance la lecture.
+2. **Recherche** (dès 2 caractères) — panneau unifié titre + résumé + personnage, dédupliqué, trié par pertinence, avec l'indication de ce qui a matché à côté du titre (section 5).
+3. **Zéro résultat** — message dédié dans le panneau, pas de liste vide.
+4. **Recherche globale** — un résultat issu d'un autre livre que celui affiché reste visible (portée globale, section 5) ; le clic bascule l'onglet actif puis lance la lecture.
 
-*(Maquettes visuelles de ces 4 états : voir l'artifact lié en tête de document.)*
+*(Les maquettes visuelles liées en tête de document montrent les 4 états d'origine, pas le panneau unifié — voir l'artifact de l'issue #60 pour ce dernier.)*
 
-### Facette personnages (issue #24)
+### Facette personnages (issue #24, UI à construire — issue #61)
 
-Chips au-dessus du sommaire/résultats, combinables avec n'importe quel autre état de la page — **pas un 3ᵉ mode de recherche** (section 5), un filtre orthogonal.
+Chips au-dessus du sommaire/résultats, combinables avec n'importe quel autre état de la page — un filtre orthogonal, **en plus** du raccourci de recherche par personnage (pas à sa place — voir section 5, révisé par l'issue #16).
 
 - **Sélection multiple en ET** : cocher plusieurs personnages (ex. Léodagan + Arthur + Guenièvre) restreint aux épisodes où ils apparaissent *tous ensemble* (intersection sur `characters`), pas l'union — contrairement à la convention habituelle des facettes e-commerce.
 - **Pas de mur de chips** : la liste canonique fait ~100 entrées (`data/characters.json`) — les chips n'affichent que les personnages **déjà sélectionnés**. La découverte passe par un petit champ « + ajouter un personnage » qui filtre en tapant (tag-picker), pas une liste exhaustive toujours visible.
@@ -265,7 +287,7 @@ Chips au-dessus du sommaire/résultats, combinables avec n'importe quel autre é
 1. **Import Wikipédia** — script qui extrait titres + résumés des 4 pages vers 4 fichiers JSON. Contenu prêt, sans timestamp.
 2. **Échantillon test du pipeline C + F** — sur 10-15 épisodes d'un seul livre : détecter le jingle, lire le numéro annoncé. Confirmer la fiabilité avant d'investir dans l'outillage complet.
 3. **Généralisation + correction des trous** — pipeline validé sur les 4 livres, garde-fous de cohérence, pointage manuel des seuls cas non résolus.
-4. **Site v1** — une seule page, un seul lecteur (source changée selon le livre actif), sommaire filtrable par titre avec passerelle vers la recherche par résumé, les deux modes de recherche déjà en place, données statiques. Pas de contribution communautaire à ce stade.
+4. **Site v1** — une seule page, un seul lecteur (source changée selon le livre actif), sommaire filtrable par titre, recherche unifiée titre + résumé + personnage dès le lancement (issue #16, révisé depuis la passerelle/embeddings d'origine — voir section 5), données statiques. Pas de contribution communautaire à ce stade.
 5. **Recherche par réplique** (post-v1, pas un prérequis du lancement) — 3ᵉ mode de recherche dans la transcription (section 5), une fois le v1 en place. Scope propre (matching tolérant, dédoublonnage, arbitrage droit d'auteur sur l'affichage) qui ne doit pas retarder le lancement.
 
 ## 10. Décisions prises
@@ -290,22 +312,31 @@ Chips au-dessus du sommaire/résultats, combinables avec n'importe quel autre é
 **Recherche par titre (issue #15)**
 - **Fuse.js** (7.5.0, épinglé) pour le flou : `keys: ['title']`, `threshold: 0.3`, `ignoreLocation: true` (titres courts, une correspondance n'importe où vaut autant qu'au début), `minMatchCharLength: 2`. `0.4` (valeur initiale) était trop permissif — retour d'usage : « hea » ramenait 49 résultats sans rapport ; `0.3` est la marge haute d'un plateau `[0.13, 0.3]` mesuré empiriquement contre les 399 vrais titres (docs/qc-recherche-titre.md).
 - Index des ~400 titres construit une fois au montage de l'îlot ; la logique (`creerIndexTitres`, `chercherParTitre`) vit dans `site/src/lib/recherche.ts`, testée — SonarCloud n'analyse pas les `.svelte`.
-- Requête vide → sommaire du livre actif. Requête non vide → résultats globaux aux 4 livres, chacun étiqueté de son livre (badge). Zéro résultat → message simple (la passerelle #17 s'y branchera).
+- Requête vide → sommaire du livre actif. Requête non vide → résultats globaux aux 4 livres, badge « Livre N » sur un résultat qui n'est pas du livre affiché. **Correction post-implémentation (issue #16)** : plus de remplacement en place du sommaire — les résultats vivent dans le panneau unifié (`ResultatsRecherche.svelte`), le sommaire ne montre plus que le livre actif.
 - Un clic sur un résultat joue le bon épisode et bascule l'onglet sur son livre (issue #18) — le sommaire retrouve le bon livre une fois la recherche effacée.
 - Onglet, recherche et lecteur découplés (retour d'usage sur #18, section 8) : un clic d'onglet ne change que le sommaire affiché (et vide la recherche), il ne touche jamais au lecteur — sinon parcourir un livre pendant qu'un autre joue coupait la lecture. `choisirLivre` (mise en attente sur clic d'onglet) supprimée en conséquence, devenue sans appelant.
 - Épisode en cours de lecture (le dernier cliqué) mis en évidence dans le sommaire, repris du même vocabulaire visuel que l'onglet actif (`--accent-voile` / `--accent-fort` + filet `--accent`). Pas de scroll automatique vers lui.
 
+**Recherche par résumé + personnage, fusion (issue #16)**
+- **BM25** écrit à la main (`site/src/lib/bm25.ts`) pour le résumé, pas des embeddings : décidé après avoir chiffré le coût réel d'un modèle multilingue viable (~141 Mo tout compris) sans gain démontré face au lexical sur des requêtes réelles (issue #60). `k1=1.5`, `b=0.75` (valeurs par défaut d'Okapi BM25, pas encore raffinées — voir `docs/qc-recherche-resume.md`).
+- **Fuse.js** pour le personnage (`keys: ['characters']`), mêmes réglages que le titre — même terrain (chaînes courtes, vocabulaire fermé).
+- `characters` alimente donc bien un mode de recherche : révise la décision de la section 5 d'origine (« orthogonal, pas un mode ») — coexiste avec la facette combinable à construire (#61), ce n'est pas une redondance.
+- `chercherEpisodes` fusionne titre + personnage + résumé en une seule liste dédupliquée par épisode, triée par un score combiné (poids fixes pour titre/personnage, BM25 normalisé min-max par requête) — pas de panneau groupé par catégorie, pas de vue combinant plusieurs critères (« recherche avancée » explorée puis écartée pour cette itération, issue #60).
+- Résumé et personnage chargés à part du HTML initial via `/recherche.json` (`site/src/pages/recherche.json.ts`, ~150 Ko / ~46 Ko gzippé pour 399 épisodes) — `EpisodeListe` ne les contient pas, la recherche par titre reste utilisable seule le temps du fetch.
+- Panneau de résultats (`ResultatsRecherche.svelte`) ancré au champ sur desktop (largeur minimale supérieure au champ, alignée sur son bord droit — demande explicite), plein écran dans `RechercheMobile.svelte`. Remplace le remplacement en place de l'ancien sommaire (issue #15) : `Sommaire.svelte` ne montre plus que le livre actif.
+- Un clic sur un résultat referme le panneau desktop (`requete` vidée) — contrairement à l'ancien comportement où les résultats de titre restaient affichés après un clic.
+
 **Recherche et interface**
-- Passerelle B→C uniquement après échec de la recherche par titre.
-- Les deux modes de recherche (titre + résumé) partent ensemble dès le v1.
-- Recherche globale aux quatre livres par défaut.
-- Clic sur un résultat de titre = lecture immédiate ; carte de justification réservée au mode résumé.
+- Panneau de résultats toujours disponible dès 2 caractères tapés — pas de passerelle conditionnée à un échec préalable (issue #16 révise la section 8 d'origine ; issue #17 en devient sans objet, voir issue #60).
+- Titre, personnage et résumé partent ensemble dès le v1 (issue #16, révise « les deux modes » de la version d'origine).
+- Recherche globale aux quatre livres par défaut, badge « Livre N » sur un résultat hors du livre affiché.
+- Clic sur un résultat = lecture immédiate, quel que soit ce qui a matché ; pas de carte de justification séparée (issue #16 révise la section 6 d'origine).
 - Recherche par réplique (section 5) : post-v1, pas au lancement. Index pré-joint par épisode au build, matching tolérant à l'orthographe obligatoire (pas de sous-chaîne exacte), affichage d'un court extrait seulement (jamais la transcription intégrale d'un épisode).
 
 **Stack technique**
 - **Règle générale : viser la LTS active** à chaque choix ou épinglage de version — ni la dernière publiée, ni le plancher déclaré par une dépendance. Un `engines: >=X` est une contrainte minimale, pas une recommandation : s'y coller revient à tourner sur la plus vieille ligne encore supportée, donc la première à sortir du support. Épingler une majeure explicite plutôt qu'un alias auto-résolu (`lts/*`), sinon l'arrivée d'une nouvelle LTS décale la CI sans décaler la production. Node est ainsi en **24** (LTS active) en CI comme sur Netlify, et non en 22 (borne d'Astro).
 - Front-end : **Astro + Svelte + TypeScript** (issue #13), dans `site/`. TypeScript épinglé en 6.0.3, la version imposée par la chaîne Astro ; la 7 est sortie mais pas encore supportée, à retenter plus tard. Hébergement : **Netlify**, déploiement continu depuis `main`, prévisualisation par PR.
-- Recherche sémantique : modèle compact (~25-50 Mo), transformers.js, navigateur.
+- Recherche par résumé : BM25 écrit à la main, navigateur — pas d'embeddings (issue #16, voir « Recherche par résumé + personnage » ci-dessus).
 - Scripts hors-site : Python.
 
 **Direction artistique**

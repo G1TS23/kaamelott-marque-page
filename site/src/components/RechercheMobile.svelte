@@ -9,32 +9,25 @@
    * Requête vide → recherches récentes (`localStorage`, tolérant : une
    * recherche qui ne persiste pas d'une visite à l'autre — navigation
    * privée, quota — ne doit pas empêcher de chercher). Requête non vide →
-   * `Sommaire.svelte`, qui sait déjà afficher des résultats ou un message
-   * « aucun résultat » ; pas de logique dupliquée ici.
+   * `ResultatsRecherche.svelte` (issue #16), en pleine largeur — pas de
+   * logique de rendu dupliquée ici, le même composant sert le panneau
+   * flottant desktop dans `Site.svelte`.
    */
-  import type {
-    EpisodeAvecLivre,
-    EpisodeListe,
-    LivreEnListe,
-    NumeroLivre,
-  } from '../lib/episodes.ts';
-  import Sommaire from './Sommaire.svelte';
+  import type { EpisodeListe, NumeroLivre } from '../lib/episodes.ts';
+  import type { ResultatRecherche } from '../lib/recherche.ts';
+  import ResultatsRecherche from './ResultatsRecherche.svelte';
 
   let {
-    livres,
-    livreActif,
     requete,
     resultats,
-    episodeActif,
+    livreActif,
     onRequeteChange,
     onEpisodeClick,
     onFermer,
   }: {
-    livres: LivreEnListe[];
-    livreActif: NumeroLivre;
     requete: string;
-    resultats: EpisodeAvecLivre[] | null;
-    episodeActif: { livre: NumeroLivre; episode: number } | null;
+    resultats: ResultatRecherche[];
+    livreActif: NumeroLivre;
     onRequeteChange: (v: string) => void;
     onEpisodeClick: (livre: NumeroLivre, episode: EpisodeListe) => void;
     onFermer: () => void;
@@ -136,14 +129,7 @@
         </ul>
       {/if}
     {:else}
-      <Sommaire
-        {livres}
-        {livreActif}
-        {requete}
-        {resultats}
-        {episodeActif}
-        onEpisodeClick={clicEpisode}
-      />
+      <ResultatsRecherche {resultats} {livreActif} onEpisodeClick={clicEpisode} />
     {/if}
   </div>
 </div>
