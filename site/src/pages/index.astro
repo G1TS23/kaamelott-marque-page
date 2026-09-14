@@ -23,19 +23,10 @@ const livres: LivreEnListe[] = LIVRES.map((livre) => ({
     video_id,
   })),
 }));
-
-const total = livres.reduce((n, l) => n + l.episodes.length, 0);
 ---
 
 <Base>
   <main>
-    <header>
-      <h1>Le Marque-Page de la Relecture</h1>
-      <p class="sous-titre">
-        Les {total} épisodes de Kaamelott, situés dans les lectures de Shisheyu.
-      </p>
-    </header>
-
     <Site client:load livres={livres} />
   </main>
 </Base>
@@ -44,17 +35,10 @@ const total = livres.reduce((n, l) => n + l.episodes.length, 0);
   main {
     max-width: var(--largeur-contenu);
     margin: 0 auto;
-    padding: var(--esp-5) var(--esp-4) var(--esp-6);
-  }
-
-  h1 {
-    margin: 0 0 var(--esp-1);
-    font-size: 2rem;
-    line-height: 1.1;
-  }
-
-  .sous-titre {
-    margin: 0 0 var(--esp-5);
-    color: var(--encre-douce);
+    /* Le haut compense la hauteur de l'en-tête collée (Site.svelte,
+       `position: fixed` — issue #54), qui a remplacé le grand titre qui
+       vivait ici : sans cette marge, l'en-tête recouvrirait le début du
+       contenu. */
+    padding: calc(3rem + var(--esp-4)) var(--esp-4) var(--esp-6);
   }
 </style>

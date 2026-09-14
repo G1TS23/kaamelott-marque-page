@@ -13,10 +13,38 @@
    * recherche (#15). Elle ne réagit qu'aux clics sur un épisode, jamais à
    * la navigation seule (onglet, recherche) : parcourir le catalogue ne
    * doit jamais interrompre une lecture en cours (issue #18).
+   *
+   * Ne gère plus lui-même sa persistance au scroll (issue #54) : `reduit`
+   * est décidé par `Site.svelte`, qui colle le lecteur *et* les onglets
+   * ensemble (« groupe collant ») — deux composants frères, la position
+   * collante ne peut appartenir qu'à leur parent commun. `Site.svelte` a
+   * en retour besoin de savoir si une vidéo a été *engagée* (lancée, et pas
+   * juste affichée en vignette) pour décider de réduire ou non —
+   * `onChangementEngagement` relaie l'état posé par l'API IFrame
+   * (`onStateChange`), que ce composant est seul à connaître.
+   *
+   * De même pour la position de lecture (issue #56) : `Site.svelte` déduit
+   * l'épisode « en cours » (ligne surlignée du sommaire, repère du lecteur
+   * réduit) du couple vidéo + position plutôt que du dernier épisode
+   * cliqué — sans quoi la vidéo qui avance toute seule jusqu'à l'épisode
+   * suivant, ou un clic dans la barre de progrès YouTube, laisseraient
+   * l'ancien épisode surligné. `onStateChange` ne dit que « en lecture »,
+   * pas « à quelle seconde » : `onProgression` relaie `getCurrentTime()`,
+   * seule l'API IFrame le sait.
    */
   import { commandePourEpisode, type EtatLecteur } from '../lib/lecteur';
 
-  let { videoIdInitial }: { videoIdInitial: string } = $props();
+  let {
+    videoIdInitial,
+    reduit,
+    onChangementEngagement,
+    onProgression,
+  }: {
+    videoIdInitial: string;
+    reduit: boolean;
+    onChangementEngagement: (engagee: boolean) => void;
+    onProgression: (secondes: number) => void;
+  } = $props();
 
   let conteneur: HTMLDivElement;
   let player: YT.Player | undefined;
@@ -25,6 +53,20 @@
   // vidéo en attente, comme `cueVideoById` — rien n'est encore bufferisé
   // (src/lib/lecteur.ts pour la raison de cette distinction).
   let etat = $state<EtatLecteur | null>(null);
+  // Sondage de `getCurrentTime()` (issue #56) : l'API IFrame ne notifie que
+  // les changements d'état (`onStateChange`), jamais l'avancement continu
+  // de la lecture — un intervalle est la seule façon de suivre la position.
+  // 1s : assez réactif pour rattraper un changement d'épisode ou un saut
+  // dans la barre de progrès sans perceptible retard, sans solliciter l'API
+  // à chaque frame pour une info qui n'a pas besoin de cette précision.
+  let intervalleProgression: ReturnType<typeof setInterval> | undefined;
+
+  function demarrerSuiviProgression() {
+    if (intervalleProgression !== undefined) return; // un seul sondage à la fois
+    intervalleProgression = setInterval(() => {
+      if (player) onProgression(player.getCurrentTime());
+    }, 1000);
+  }
 
   function creerPlayer() {
     if (player) return; // une seule instance pour la vie du composant
@@ -35,6 +77,21 @@
         onReady: () => {
           pret = true;
           etat = { videoId: videoIdInitial, charge: false };
+          demarrerSuiviProgression();
+        },
+        // Une vignette jamais lancée (`CUED`/`UNSTARTED`) ne compte pas
+        // comme « engagée » (retour d'usage sur #54) : sans quoi parcourir
+        // le sommaire sans rien écouter collerait quand même un lecteur en
+        // pleine taille. Une fois lancée, en revanche, une pause ne doit
+        // pas décoller le lecteur (autre retour d'usage) : `PAUSED` et
+        // `BUFFERING` comptent autant que `PLAYING`. Seule la fin de la
+        // vidéo (`ENDED`) remet à zéro, comme un retour à l'état initial.
+        onStateChange: (e) => {
+          const enSession =
+            e.data === YT.PlayerState.PLAYING ||
+            e.data === YT.PlayerState.PAUSED ||
+            e.data === YT.PlayerState.BUFFERING;
+          onChangementEngagement(enSession);
         },
       },
     });
@@ -65,6 +122,10 @@
       if (window.onYouTubeIframeAPIReady === creerPlayer) {
         window.onYouTubeIframeAPIReady = undefined;
       }
+      if (intervalleProgression !== undefined) {
+        clearInterval(intervalleProgression);
+        intervalleProgression = undefined;
+      }
       player?.destroy();
       player = undefined;
     };
@@ -91,7 +152,7 @@
   }
 </script>
 
-<div class="cadre">
+<div class="cadre" class:reduit>
   <div bind:this={conteneur}></div>
 </div>
 
@@ -100,11 +161,26 @@
     position: relative;
     width: 100%;
     aspect-ratio: 16 / 9;
-    margin-bottom: var(--esp-4);
     border-radius: var(--rayon-carte);
     overflow: hidden;
     background: var(--surface);
     box-shadow: var(--ombre);
+    flex-shrink: 0;
+    transition: width 0.22s ease;
+  }
+
+  /* Réduit en mini-lecteur une fois collé avec les onglets, et seulement si
+     une vidéo joue réellement (issue #54, retour d'usage — voir
+     .groupe-collant dans Site.svelte). rem plutôt que px pour rester
+     cohérent avec le reste du système de tailles. `width` (pas
+     `max-width`) : dans le `display: flex` du groupe, la taille doit
+     changer pour de vrai, pas juste se plafonner. `aspect-ratio` reste
+     intact, donc pas de recadrage de l'image, juste une réduction
+     proportionnelle. 10rem (160px) plutôt que la première valeur essayée
+     (6rem/96px, retour d'usage : trop petit pour distinguer quoi que ce
+     soit à l'image). */
+  .cadre.reduit {
+    width: 10rem;
   }
 
   /* YT.Player remplace le div par un iframe : on le fait remplir --cadre
@@ -115,5 +191,11 @@
     width: 100%;
     height: 100%;
     border: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cadre {
+      transition: none;
+    }
   }
 </style>

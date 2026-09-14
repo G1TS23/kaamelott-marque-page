@@ -1,45 +1,28 @@
 <script lang="ts">
   /**
-   * Onglets de livre + zone de liste : sommaire du livre actif par défaut,
-   * résultats de recherche dès qu'une requête est tapée (issues #13, #15).
+   * Sélecteur de livre (onglets) — extrait de l'ex-`SelecteurLivre.svelte`
+   * (issue #54, retour d'usage sur la première version du lecteur collant).
+   * Le lecteur réduit doit coller juste à côté des onglets (« groupe
+   * collant », voir le style de `Site.svelte`), ce qui suppose que les deux
+   * soient des frères DOM directs — impossible tant que les onglets
+   * vivaient dans le même composant que la liste des épisodes.
    *
-   * Purement présentationnel : `livreActif`, la requête et l'épisode en
-   * cours sont décidés par `Site.svelte`, qui possède aussi le lecteur.
+   * Purement présentationnel, comme avant l'extraction : `livreActif` et
+   * l'épisode en cours sont décidés par `Site.svelte`.
    */
-  import type {
-    EpisodeAvecLivre,
-    EpisodeListe,
-    LivreEnListe,
-    NumeroLivre,
-  } from '../lib/episodes.ts';
-  import { formaterTemps } from '../lib/temps.ts';
+  import type { LivreEnListe, NumeroLivre } from '../lib/episodes.ts';
 
   let {
     livres,
     livreActif,
-    requete,
-    resultats,
     episodeActif,
     onLivreChange,
-    onEpisodeClick,
   }: {
     livres: LivreEnListe[];
     livreActif: NumeroLivre;
-    requete: string;
-    /** `null` = pas de recherche → sommaire ; `[]` = recherche sans résultat. */
-    resultats: EpisodeAvecLivre[] | null;
     episodeActif: { livre: NumeroLivre; episode: number } | null;
     onLivreChange: (livre: NumeroLivre) => void;
-    onEpisodeClick: (livre: NumeroLivre, episode: EpisodeListe) => void;
   } = $props();
-
-  const episodesDuLivre = $derived(
-    livres.find((l) => l.livre === livreActif)?.episodes ?? [],
-  );
-
-  function estActif(livre: NumeroLivre, episode: number): boolean {
-    return episodeActif?.livre === livre && episodeActif.episode === episode;
-  }
 </script>
 
 <nav class="onglets" aria-label="Choix du livre">
@@ -58,59 +41,28 @@
       {#if episodeActif?.livre === livre.livre}
         <span class="sr-only">En cours de lecture.</span>
       {/if}
-      Livre {livre.livre}
+      <span class="libelle-long">Livre {livre.livre}</span>
+      <span class="libelle-court">L.&nbsp;{livre.livre}</span>
     </button>
   {/each}
 </nav>
 
-{#snippet ligne(livre: NumeroLivre, episode: EpisodeListe, avecLivre: boolean)}
-  <li>
-    <button
-      type="button"
-      class:actif={estActif(livre, episode.episode)}
-      aria-current={estActif(livre, episode.episode) ? 'true' : undefined}
-      onclick={() => onEpisodeClick(livre, episode)}
-    >
-      <span class="numero">{episode.episode}</span>
-      <span class="titre">{episode.title}</span>
-      {#if avecLivre}
-        <span class="badge">Livre {livre}</span>
-      {/if}
-      <time datetime={`PT${Math.round(episode.start_seconds)}S`}>
-        {formaterTemps(episode.start_seconds)}
-      </time>
-    </button>
-  </li>
-{/snippet}
-
-{#if resultats === null}
-  <ol class="episodes">
-    {#each episodesDuLivre as episode (episode.episode)}
-      {@render ligne(livreActif, episode, false)}
-    {/each}
-  </ol>
-{:else if resultats.length === 0}
-  <p class="vide">Aucun épisode ne correspond à «&nbsp;{requete.trim()}&nbsp;».</p>
-{:else}
-  <ol class="episodes" aria-label="Résultats de recherche">
-    {#each resultats as r (`${r.livre}-${r.episode}`)}
-      {@render ligne(r.livre, r, true)}
-    {/each}
-  </ol>
-{/if}
-
 <style>
   /*
    * Conventions du design system (issue #51, docs/SPECS.md section 8) :
-   * pilules pour les onglets, mono à chiffres tabulaires pour les nombres,
-   * état actif signalé par --accent-voile / --accent-fort.
+   * pilules pour les onglets, état actif signalé par --accent-voile /
+   * --accent-fort.
    */
 
   .onglets {
     display: flex;
     gap: var(--esp-2);
-    flex-wrap: wrap;
-    margin-bottom: var(--esp-4);
+    /* Plus de retour à la ligne (retour d'usage, mobile) : quatre onglets
+       sur deux lignes cassait le rythme du groupe collant juste en dessous
+       du lecteur. `.libelle-court` + le padding réduit sous 640px (voir plus
+       bas) suffisent à les faire tenir sur une seule ligne, y compris sur un
+       petit mobile (320px de large). */
+    flex-wrap: nowrap;
   }
 
   .onglets button {
@@ -123,8 +75,11 @@
        ce padding (voir .pastille) au lieu d'agrandir l'onglet — à 14px elle
        n'avait que 4.5px de marge de chaque côté, trop serré. Horizontal
        seul : la hauteur est explicite ci-dessous, pas déduite d'un padding
-       vertical + line-height hérité. */
-    padding: 0 var(--esp-4);
+       vertical + line-height hérité. Variable plutôt que valeur en dur :
+       réduite sous 640px (voir plus bas), et `.pastille` doit suivre la
+       même valeur pour rester centrée dans ce padding. */
+    --onglet-pad-h: var(--esp-4);
+    padding: 0 var(--onglet-pad-h);
     /* rem (pas px) comme le reste du système de tailles — sinon le texte
        déborde de la pilule dès que la police racine grandit (accessibilité
        « agrandir le texte »), le padding suivant mais pas la hauteur.
@@ -153,10 +108,10 @@
      parcourt un autre sommaire pendant qu'un épisode joue, issue #18) :
      une pastille « en direct » lève l'ambiguïté sans dépendre de la couleur
      de l'onglet — rouge et pulsante quel que soit l'état de l'onglet
-     (affiché ou non), comme les indicateurs de direct habituels.
-     Toujours rendue (juste transparente si inactive), pas seulement quand
-     un livre joue : sinon la largeur de l'onglet changerait selon qu'un
-     livre est en cours de lecture ou non.
+     (affiché ou non), comme les indicateurs de direct habituels. Toujours
+     rendue (juste transparente si inactive), pas seulement quand un livre
+     joue : sinon la largeur de l'onglet changerait selon qu'un livre est en
+     cours de lecture ou non.
 
      Positionnée en absolu et centrée dans le padding gauche du bouton,
      plutôt qu'un élément du flex qui pousse le texte (retour d'usage après
@@ -168,13 +123,10 @@
      calc soustrait la bordure du bouton : le bloc de positionnement d'un
      absolu est le bord du *padding* de l'ancêtre, pas son bord visible —
      sans le soustraire, le point atterrit 1px trop loin du bord visible par
-     rapport au texte. Mesuré : 6.5px de marge des deux côtés du point.
-     Taille en rem (0.5rem = 8px) pour rester cohérente avec la hauteur de
-     l'onglet ci-dessus ; le -1px reste en px, la bordure ne changeant pas
-     avec la taille de police. */
+     rapport au texte. Mesuré : 6.5px de marge des deux côtés du point. */
   .pastille {
     position: absolute;
-    left: calc((var(--esp-4) - 0.5rem - 1px) / 2);
+    left: calc((var(--onglet-pad-h) - 0.5rem - 1px) / 2);
     top: 50%;
     transform: translateY(-50%);
     width: 0.5rem;
@@ -215,6 +167,34 @@
     }
   }
 
+  /* Libellé court sous 640px (retour d'usage) : « Livre N » sur 4 onglets
+     ne tenait plus sur une seule ligne dès qu'un mobile étroit réduisait la
+     largeur disponible — « L. N » libère assez de place, combiné au
+     padding réduit ci-dessous. `display: none` (pas juste visuel) sur celui
+     des deux qui ne s'affiche pas : un lecteur d'écran ne doit annoncer que
+     l'un des deux libellés, jamais les deux. */
+  .libelle-court {
+    display: none;
+  }
+
+  @media (max-width: 640px) {
+    .onglets {
+      gap: var(--esp-1);
+    }
+
+    .onglets button {
+      --onglet-pad-h: var(--esp-3);
+    }
+
+    .libelle-long {
+      display: none;
+    }
+
+    .libelle-court {
+      display: inline;
+    }
+  }
+
   .sr-only {
     position: absolute;
     width: 1px;
@@ -225,74 +205,5 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
-  }
-
-  .episodes {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .episodes li {
-    border-bottom: 1px solid var(--trait);
-  }
-
-  .episodes li button {
-    display: grid;
-    grid-template-columns: 2.5rem 1fr auto auto;
-    gap: var(--esp-3);
-    align-items: baseline;
-    width: 100%;
-    padding: var(--esp-1) var(--esp-2);
-    border: none;
-    border-left: 2px solid transparent;
-    background: transparent;
-    font: inherit;
-    color: inherit;
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .episodes li button:hover {
-    background: var(--surface);
-  }
-
-  .episodes li button.actif {
-    background: var(--accent-voile);
-    border-left-color: var(--accent);
-  }
-
-  .episodes li button.actif .titre {
-    color: var(--accent-fort);
-    font-weight: 600;
-  }
-
-  .numero,
-  time {
-    font-family: var(--police-mono);
-    font-variant-numeric: tabular-nums;
-    color: var(--encre-pale);
-    font-size: 0.82rem;
-  }
-
-  .numero {
-    text-align: right;
-  }
-
-  .badge {
-    font-family: var(--police-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--encre-pale);
-    border: 1px solid var(--trait);
-    border-radius: var(--rayon-etiquette);
-    padding: 0 var(--esp-1);
-    align-self: center;
-  }
-
-  .vide {
-    color: var(--encre-douce);
-    padding: var(--esp-2);
   }
 </style>
