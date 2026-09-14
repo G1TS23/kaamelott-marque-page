@@ -22,6 +22,15 @@
    * juste affichée en vignette) pour décider de réduire ou non —
    * `onChangementEngagement` relaie l'état posé par l'API IFrame
    * (`onStateChange`), que ce composant est seul à connaître.
+   *
+   * De même pour la position de lecture (issue #56) : `Site.svelte` déduit
+   * l'épisode « en cours » (ligne surlignée du sommaire, repère du lecteur
+   * réduit) du couple vidéo + position plutôt que du dernier épisode
+   * cliqué — sans quoi la vidéo qui avance toute seule jusqu'à l'épisode
+   * suivant, ou un clic dans la barre de progrès YouTube, laisseraient
+   * l'ancien épisode surligné. `onStateChange` ne dit que « en lecture »,
+   * pas « à quelle seconde » : `onProgression` relaie `getCurrentTime()`,
+   * seule l'API IFrame le sait.
    */
   import { commandePourEpisode, type EtatLecteur } from '../lib/lecteur';
 
@@ -29,10 +38,12 @@
     videoIdInitial,
     reduit,
     onChangementEngagement,
+    onProgression,
   }: {
     videoIdInitial: string;
     reduit: boolean;
     onChangementEngagement: (engagee: boolean) => void;
+    onProgression: (secondes: number) => void;
   } = $props();
 
   let conteneur: HTMLDivElement;
@@ -42,6 +53,20 @@
   // vidéo en attente, comme `cueVideoById` — rien n'est encore bufferisé
   // (src/lib/lecteur.ts pour la raison de cette distinction).
   let etat = $state<EtatLecteur | null>(null);
+  // Sondage de `getCurrentTime()` (issue #56) : l'API IFrame ne notifie que
+  // les changements d'état (`onStateChange`), jamais l'avancement continu
+  // de la lecture — un intervalle est la seule façon de suivre la position.
+  // 1s : assez réactif pour rattraper un changement d'épisode ou un saut
+  // dans la barre de progrès sans perceptible retard, sans solliciter l'API
+  // à chaque frame pour une info qui n'a pas besoin de cette précision.
+  let intervalleProgression: ReturnType<typeof setInterval> | undefined;
+
+  function demarrerSuiviProgression() {
+    if (intervalleProgression !== undefined) return; // un seul sondage à la fois
+    intervalleProgression = setInterval(() => {
+      if (player) onProgression(player.getCurrentTime());
+    }, 1000);
+  }
 
   function creerPlayer() {
     if (player) return; // une seule instance pour la vie du composant
@@ -52,6 +77,7 @@
         onReady: () => {
           pret = true;
           etat = { videoId: videoIdInitial, charge: false };
+          demarrerSuiviProgression();
         },
         // Une vignette jamais lancée (`CUED`/`UNSTARTED`) ne compte pas
         // comme « engagée » (retour d'usage sur #54) : sans quoi parcourir
@@ -95,6 +121,10 @@
     return () => {
       if (window.onYouTubeIframeAPIReady === creerPlayer) {
         window.onYouTubeIframeAPIReady = undefined;
+      }
+      if (intervalleProgression !== undefined) {
+        clearInterval(intervalleProgression);
+        intervalleProgression = undefined;
       }
       player?.destroy();
       player = undefined;

@@ -362,3 +362,42 @@ Deux changements sous 640px (même seuil que le reste de l'en-tête) :
 `flex-wrap` passe de `wrap` à `nowrap` : les deux changements ci-dessus
 suffisent à tenir sur une ligne jusqu'à 320px (mesuré), un retour à la
 ligne n'est donc plus la solution de repli à garder.
+
+## Dixième retour d'usage : l'épisode « en cours » suivait le clic, pas la vidéo
+
+`episodeActif` ne changeait qu'au clic sur un épisode (#14) : en laissant
+la vidéo tourner jusqu'à l'épisode suivant, ou en sautant dans la barre de
+progrès YouTube, la ligne surlignée du sommaire et le repère du lecteur
+réduit restaient bloqués sur le dernier épisode cliqué — annoncé #56 dès
+le premier tour (commentaire déjà présent à l'époque : « #56 l'affinera
+via getCurrentTime »).
+
+`Lecteur.svelte` sonde désormais `player.getCurrentTime()` toutes les
+secondes (`onProgression`, un `setInterval` démarré à `onReady` et arrêté
+au démontage) — l'API IFrame ne notifie que les changements d'état
+(`onStateChange`), jamais l'avancement continu de la lecture, un sondage
+est la seule façon de le suivre. `Site.svelte` retient la vidéo chargée
+(`videoIdActif`) et la position (`tempsCourant`, mise à jour par
+`onProgression`, et de façon optimiste au clic pour ne pas attendre
+jusqu'à une seconde) ; l'épisode « en cours »
+(`episodeActif`/`episodeActifDetails`) en est déduit à chaque rendu : le
+dernier épisode du livre en cours dont le `start_seconds` est atteint. Un
+simple parcours suffit — les épisodes d'un livre sont triés par numéro
+(`chargerLivre`), donc aussi par `start_seconds` croissant.
+
+Conséquence correcte et pas anticipée au départ : avant le premier épisode
+d'un livre (le générique/jingle en tête de vidéo), `episodeActif` reste
+`null` — aucun épisode n'est réellement « en cours » à ce moment, rien ne
+doit être surligné.
+
+Vérifié en direct (pas seulement relu) : un `seekTo` vers un instant de
+l'épisode 1 puis de l'épisode 2 (sans aucun clic dans le sommaire) fait
+changer la ligne surlignée et le repère du lecteur réduit d'un épisode à
+l'autre, dans le sommaire comme dans le mini-lecteur.
+
+## Hors périmètre
+
+Mini-timeline et indicateur de chargement dans le lecteur (#56, pour la
+partie qui reste à faire) — cette issue ne fait que rendre le lecteur
+persistant, gérer sa taille au scroll, et suivre l'épisode en cours ; une
+frise visuelle de la progression dans l'épisode est une autre affaire.

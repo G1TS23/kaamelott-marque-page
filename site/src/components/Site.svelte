@@ -51,10 +51,17 @@
   // en ligne débordait sur un petit écran, pas la place pour le nom du
   // site *et* un champ utilisable (voir le CSS de l'en-tête).
   let rechercheMobileOuverte = $state(false);
-  // Quel épisode le lecteur joue actuellement — c'est le dernier cliqué
-  // (#14 ne fournit pas d'événement « je suis rendu à l'épisode N » ;
-  // #56 l'affinera via getCurrentTime).
-  let episodeActif = $state<{ livre: NumeroLivre; episode: number } | null>(null);
+  // La vidéo actuellement chargée dans le lecteur et la position de lecture
+  // (secondes) — c'est ce couple, pas « le dernier épisode cliqué », qui
+  // détermine l'épisode en cours (`episodeActif` plus bas, issue #56) :
+  // laisser la vidéo avancer jusqu'à l'épisode suivant sans rien cliquer,
+  // ou sauter dans la barre de progrès YouTube, doivent aussi mettre à jour
+  // la ligne surlignée du sommaire et le repère du lecteur réduit — un état
+  // posé une fois au clic ne le permettrait pas. `videoIdActif` change au
+  // clic (`onEpisodeClick`) ; `tempsCourant` suit aussi `onProgression`
+  // (Lecteur.svelte), qui sonde `getCurrentTime()`.
+  let videoIdActif = $state(videoIdDuLivre(livres[0].livre));
+  let tempsCourant = $state(0);
   let lecteur: Lecteur;
   let sentinelle: HTMLDivElement;
   // Vrai une fois le groupe lecteur + onglets scrollé sous l'en-tête —
@@ -97,16 +104,6 @@
     requete.trim() ? chercherParTitre(indexTitres, requete) : null,
   );
 
-  // Titre de l'épisode en cours, pour le repère affiché à côté du lecteur
-  // réduit — `null` tant qu'aucun épisode n'a été explicitement cliqué (le
-  // lecteur affiche alors juste la vidéo du premier livre, sans qu'un
-  // épisode précis soit « en cours » au sens de #14).
-  const episodeActifDetails = $derived.by(() => {
-    if (!episodeActif) return null;
-    const livre = livres.find((l) => l.livre === episodeActif.livre);
-    return livre?.episodes.find((e) => e.episode === episodeActif.episode) ?? null;
-  });
-
   function videoIdDuLivre(livre: NumeroLivre): string {
     // Chaque épisode porte le video_id de son livre (redondant mais déjà
     // établi par le modèle de données, docs/SPECS.md section 4) : le premier
@@ -118,6 +115,43 @@
   // prop `videoIdInitial` comme dépendance de l'effet qui crée le player —
   // la lier à `livreActif` recréerait un player à chaque bascule d'onglet.
   const videoIdInitial = videoIdDuLivre(livres[0].livre);
+
+  // Sens inverse de `videoIdDuLivre` : à quel livre appartient la vidéo
+  // chargée. Chaque livre a sa propre vidéo (jamais partagée), une
+  // correspondance directe suffit — pas besoin de connaître l'épisode.
+  function livreDuVideoId(videoId: string): NumeroLivre {
+    return livres.find((l) => l.episodes[0].video_id === videoId)?.livre ?? livres[0].livre;
+  }
+
+  const livreEnCours = $derived(livreDuVideoId(videoIdActif));
+
+  // Dernier épisode du livre en cours dont le `start_seconds` est atteint —
+  // les épisodes d'un livre sont triés par numéro (`chargerLivre`), donc
+  // aussi par `start_seconds` croissant, un simple parcours suffit. `null`
+  // uniquement si `tempsCourant` est avant le premier épisode (ne devrait
+  // pas arriver en pratique, chaque vidéo commençant par son épisode 1).
+  const episodeEnCoursDetails = $derived.by(() => {
+    const episodes = livres.find((l) => l.livre === livreEnCours)?.episodes ?? [];
+    let trouve: EpisodeListe | null = null;
+    for (const episode of episodes) {
+      if (episode.start_seconds > tempsCourant) break;
+      trouve = episode;
+    }
+    return trouve;
+  });
+
+  // `null` tant qu'aucune vidéo n'a été réellement lancée (retour d'usage
+  // #54) : sans lecture engagée, ni la ligne du sommaire ni le repère du
+  // lecteur réduit ne doivent pointer un épisode — le lecteur n'affiche
+  // encore qu'une vignette, pas une lecture en cours (issue #56 : suit
+  // maintenant la position de lecture, pas le dernier épisode cliqué, voir
+  // `videoIdActif`/`tempsCourant` plus haut).
+  const episodeActif = $derived(
+    lectureEngagee && episodeEnCoursDetails
+      ? { livre: livreEnCours, episode: episodeEnCoursDetails.episode }
+      : null,
+  );
+  const episodeActifDetails = $derived(lectureEngagee ? episodeEnCoursDetails : null);
 
   $effect(() => {
     // `position: sticky` ne déclenche aucun événement natif quand le
@@ -152,7 +186,12 @@
     // livre une fois la recherche effacée. `bind:this` est résolu avant
     // tout clic — le `?.` n'est qu'une ceinture.
     livreActif = livre;
-    episodeActif = { livre, episode: episode.episode };
+    // Mise à jour optimiste (issue #56) : `onProgression` (sondage,
+    // `Lecteur.svelte`) rattraperait ces valeurs de toute façon, mais dans
+    // la seconde qui suit le clic — sans ça la ligne surlignée et le repère
+    // resteraient un instant sur l'ancien épisode.
+    videoIdActif = episode.video_id;
+    tempsCourant = episode.start_seconds;
     lecteur?.allerA(episode.video_id, episode.start_seconds);
     // Retour en douceur en haut (issue #54, retour d'usage) : cliquer un
     // épisode pendant que le groupe est réduit doit ramener le lecteur en
@@ -206,10 +245,16 @@
 <div bind:this={sentinelle} class="sentinelle" aria-hidden="true"></div>
 <div class="groupe-collant" class:actif={reduit}>
   <div class="groupe-ligne">
-    <Lecteur bind:this={lecteur} {videoIdInitial} {reduit} onChangementEngagement={(v) => (lectureEngagee = v)} />
+    <Lecteur
+      bind:this={lecteur}
+      {videoIdInitial}
+      {reduit}
+      onChangementEngagement={(v) => (lectureEngagee = v)}
+      onProgression={(s) => (tempsCourant = s)}
+    />
     {#if reduit}
       <div class="groupe-repere">
-        <span class="groupe-repere-livre">Livre {episodeActif?.livre ?? livreActif}</span>
+        <span class="groupe-repere-livre">Livre {livreEnCours}</span>
         {#if episodeActifDetails}
           <span class="groupe-repere-episode">
             {episodeActifDetails.episode} - {episodeActifDetails.title}
