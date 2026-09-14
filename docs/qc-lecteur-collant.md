@@ -334,3 +334,31 @@ vrai scroll déclenché hors JavaScript) : la même limite déjà rencontrée et
 consignée plus haut dans ce document. La lecture réelle, elle, a bien été
 déclenchée (sous-titres visibles, ligne « Heat » surlignée dans le
 sommaire) — seul le passage à l'état réduit n'a pas pu être observé ici.
+
+*Mise à jour* : re-testé dans une session suivante, sur un onglet où
+`document.visibilityState` valait cette fois `'visible'` — le passage à
+l'état réduit s'observe bien, et le repère à deux lignes affiche
+correctement le livre et l'épisode.
+
+## Neuvième retour d'usage : les onglets passaient sur deux lignes en mobile
+
+`.onglets` (`flex-wrap: wrap`, quatre pilules « Livre 1 » à « Livre 4 »)
+tenait sur une ligne aux largeurs testées jusqu'ici, mais pas sur un
+mobile étroit (~370px et moins) : la quatrième pilule retombait seule sur
+une seconde ligne, cassant le rythme juste sous le lecteur réduit.
+
+Deux changements sous 640px (même seuil que le reste de l'en-tête) :
+- un libellé court, « L. 1 » plutôt que « Livre 1 » — `.libelle-long` et
+  `.libelle-court` sont deux `<span>` toujours rendus, un seul affiché à la
+  fois via `display: none` (jamais juste visuel) pour qu'un lecteur d'écran
+  n'en annonce qu'un des deux ;
+- un padding horizontal réduit, porté par une variable locale
+  (`--onglet-pad-h`, `--esp-4` par défaut, `--esp-3` sous 640px) plutôt
+  qu'une valeur en dur : `.pastille` (la pastille « en direct ») se
+  positionne à partir de ce même padding pour rester centrée dedans quelle
+  que soit sa valeur — deux valeurs en dur désynchroniseraient la pastille
+  du texte sous 640px.
+
+`flex-wrap` passe de `wrap` à `nowrap` : les deux changements ci-dessus
+suffisent à tenir sur une ligne jusqu'à 320px (mesuré), un retour à la
+ligne n'est donc plus la solution de repli à garder.

@@ -41,7 +41,8 @@
       {#if episodeActif?.livre === livre.livre}
         <span class="sr-only">En cours de lecture.</span>
       {/if}
-      Livre {livre.livre}
+      <span class="libelle-long">Livre {livre.livre}</span>
+      <span class="libelle-court">L.&nbsp;{livre.livre}</span>
     </button>
   {/each}
 </nav>
@@ -56,7 +57,12 @@
   .onglets {
     display: flex;
     gap: var(--esp-2);
-    flex-wrap: wrap;
+    /* Plus de retour à la ligne (retour d'usage, mobile) : quatre onglets
+       sur deux lignes cassait le rythme du groupe collant juste en dessous
+       du lecteur. `.libelle-court` + le padding réduit sous 640px (voir plus
+       bas) suffisent à les faire tenir sur une seule ligne, y compris sur un
+       petit mobile (320px de large). */
+    flex-wrap: nowrap;
   }
 
   .onglets button {
@@ -69,8 +75,11 @@
        ce padding (voir .pastille) au lieu d'agrandir l'onglet — à 14px elle
        n'avait que 4.5px de marge de chaque côté, trop serré. Horizontal
        seul : la hauteur est explicite ci-dessous, pas déduite d'un padding
-       vertical + line-height hérité. */
-    padding: 0 var(--esp-4);
+       vertical + line-height hérité. Variable plutôt que valeur en dur :
+       réduite sous 640px (voir plus bas), et `.pastille` doit suivre la
+       même valeur pour rester centrée dans ce padding. */
+    --onglet-pad-h: var(--esp-4);
+    padding: 0 var(--onglet-pad-h);
     /* rem (pas px) comme le reste du système de tailles — sinon le texte
        déborde de la pilule dès que la police racine grandit (accessibilité
        « agrandir le texte »), le padding suivant mais pas la hauteur.
@@ -117,7 +126,7 @@
      rapport au texte. Mesuré : 6.5px de marge des deux côtés du point. */
   .pastille {
     position: absolute;
-    left: calc((var(--esp-4) - 0.5rem - 1px) / 2);
+    left: calc((var(--onglet-pad-h) - 0.5rem - 1px) / 2);
     top: 50%;
     transform: translateY(-50%);
     width: 0.5rem;
@@ -155,6 +164,34 @@
   @media (prefers-reduced-motion: reduce) {
     .pastille-active::before {
       animation: none;
+    }
+  }
+
+  /* Libellé court sous 640px (retour d'usage) : « Livre N » sur 4 onglets
+     ne tenait plus sur une seule ligne dès qu'un mobile étroit réduisait la
+     largeur disponible — « L. N » libère assez de place, combiné au
+     padding réduit ci-dessous. `display: none` (pas juste visuel) sur celui
+     des deux qui ne s'affiche pas : un lecteur d'écran ne doit annoncer que
+     l'un des deux libellés, jamais les deux. */
+  .libelle-court {
+    display: none;
+  }
+
+  @media (max-width: 640px) {
+    .onglets {
+      gap: var(--esp-1);
+    }
+
+    .onglets button {
+      --onglet-pad-h: var(--esp-3);
+    }
+
+    .libelle-long {
+      display: none;
+    }
+
+    .libelle-court {
+      display: inline;
     }
   }
 
