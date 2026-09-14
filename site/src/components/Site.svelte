@@ -25,10 +25,15 @@
    *   d'être choisie (docs/qc-lecteur-collant.md) ;
    * - puis : l'en-tête devait remplacer le grand titre de la page et
    *   prendre toute sa largeur (pas juste la largeur du contenu), et le
-   *   groupe ne doit se réduire que si une vidéo est *réellement* en
-   *   lecture — pas juste affichée (vignette) ou en pause, sans quoi
-   *   parcourir le sommaire sans rien écouter collait quand même un
-   *   lecteur en pleine taille inutilement.
+   *   groupe ne doit se réduire que si une vidéo a été *réellement* lancée
+   *   — pas juste affichée en vignette, sans quoi parcourir le sommaire
+   *   sans rien écouter collait quand même un lecteur en pleine taille
+   *   inutilement. Une pause, elle, ne décolle pas le groupe : voir
+   *   `lectureEngagee` plus bas pour le détail des états qui comptent.
+   * - enfin (#56) : l'épisode « en cours » (ligne surlignée du sommaire,
+   *   repère du lecteur réduit) suit la position de lecture réelle, pas
+   *   seulement le dernier épisode cliqué — voir `videoIdActif` et
+   *   `tempsCourant` plus bas.
    */
   import {
     aplatir,
