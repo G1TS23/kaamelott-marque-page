@@ -40,15 +40,20 @@ export function creerIndexTitres(episodes: EpisodeAvecLivre[]): Fuse<EpisodeAvec
  * Résultats triés par pertinence. Requête vide, blanche ou d'un seul
  * caractère → tableau vide (à qui appelle de décider quoi afficher :
  * `Site.svelte` montre le sommaire pour une requête vide, le message
- * « aucun résultat » sinon).
+ * « aucun résultat » sinon). Partagée par `chercherParTitre` et
+ * `chercherParPersonnage` — même mécanique Fuse, seul le champ indexé change.
  */
+function chercherFuse<T>(index: Fuse<T>, requete: string): T[] {
+  const q = requete.trim();
+  if (q.length < 2) return [];
+  return index.search(q).map((r) => r.item);
+}
+
 export function chercherParTitre(
   index: Fuse<EpisodeAvecLivre>,
   requete: string,
 ): EpisodeAvecLivre[] {
-  const q = requete.trim();
-  if (q.length < 2) return [];
-  return index.search(q).map((r) => r.item);
+  return chercherFuse(index, requete);
 }
 
 /**
@@ -89,9 +94,7 @@ export function chercherParPersonnage(
   index: Fuse<EpisodeRecherche>,
   requete: string,
 ): EpisodeRecherche[] {
-  const q = requete.trim();
-  if (q.length < 2) return [];
-  return index.search(q).map((r) => r.item);
+  return chercherFuse(index, requete);
 }
 
 export function creerIndexResumes(episodes: EpisodeRecherche[]): IndexBM25<EpisodeRecherche> {
