@@ -20,14 +20,12 @@
   let {
     requete,
     resultats,
-    livreActif,
     onRequeteChange,
     onEpisodeClick,
     onFermer,
   }: {
     requete: string;
     resultats: ResultatRecherche[];
-    livreActif: NumeroLivre;
     onRequeteChange: (v: string) => void;
     onEpisodeClick: (livre: NumeroLivre, episode: EpisodeListe) => void;
     onFermer: () => void;
@@ -129,7 +127,7 @@
         </ul>
       {/if}
     {:else}
-      <ResultatsRecherche {resultats} {livreActif} onEpisodeClick={clicEpisode} />
+      <ResultatsRecherche {resultats} onEpisodeClick={clicEpisode} />
     {/if}
   </div>
 </div>

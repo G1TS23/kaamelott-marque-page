@@ -285,7 +285,7 @@
       />
       {#if rechercheActive}
         <div class="panneau-resultats">
-          <ResultatsRecherche {resultats} {livreActif} onEpisodeClick={onResultatClick} />
+          <ResultatsRecherche {resultats} onEpisodeClick={onResultatClick} />
         </div>
       {/if}
     </div>
@@ -309,7 +309,6 @@
   <RechercheMobile
     {requete}
     {resultats}
-    {livreActif}
     onRequeteChange={(v) => (requete = v)}
     {onEpisodeClick}
     onFermer={() => (rechercheMobileOuverte = false)}

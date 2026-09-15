@@ -16,12 +16,9 @@
 
   let {
     resultats,
-    livreActif,
     onEpisodeClick,
   }: {
     resultats: ResultatRecherche[];
-    /** Pour l'étiquette « Livre N » sur un résultat d'un autre livre (portée globale, docs/SPECS.md section 5). */
-    livreActif: NumeroLivre;
     onEpisodeClick: (livre: NumeroLivre, episode: EpisodeListe) => void;
   } = $props();
 
@@ -39,14 +36,14 @@
     {#each resultats as r (r.episode.id)}
       <li>
         <button type="button" onclick={() => onEpisodeClick(r.episode.livre, r.episode)}>
-          <span class="ligne-titre">
-            <span class="numero">{r.episode.episode}</span>
-            <span class="titre">{r.episode.title}</span>
-            {#if r.episode.livre !== livreActif}
+          <span class="numero">{r.episode.episode}</span>
+          <span class="corps">
+            <span class="ligne-titre">
+              <span class="titre">{r.episode.title}</span>
               <span class="badge">Livre {r.episode.livre}</span>
-            {/if}
+            </span>
+            <span class="correspond">{r.correspond.map((t) => LIBELLES[t]).join(' · ')}</span>
           </span>
-          <span class="correspond">{r.correspond.map((t) => LIBELLES[t]).join(' · ')}</span>
         </button>
       </li>
     {/each}
@@ -70,8 +67,7 @@
   .liste li button {
     display: flex;
     align-items: baseline;
-    flex-wrap: wrap;
-    gap: 2px var(--esp-2);
+    gap: var(--esp-2);
     width: 100%;
     padding: var(--esp-1) 0;
     border: none;
@@ -82,26 +78,23 @@
     cursor: pointer;
   }
 
+  /* Tout ce qui n'est pas le numéro : titre+badge et l'indication de match
+     s'alignent ensemble à sa droite, pas au bord du bouton — sur une seule
+     ligne desktop, l'une sous l'autre en mobile (juste en-dessous). */
+  .corps {
+    display: flex;
+    align-items: baseline;
+    flex: 1;
+    flex-wrap: wrap;
+    gap: 2px var(--esp-2);
+    min-width: 0;
+  }
+
   .ligne-titre {
     display: flex;
     align-items: baseline;
     flex-wrap: wrap;
     gap: 2px var(--esp-2);
-  }
-
-  /* Sous 640px (retour d'usage) : le détail de ce qui a matché passe sous
-     le titre plutôt que de se disputer la ligne avec lui — même seuil que
-     le reste du site (Site.svelte, Onglets.svelte). */
-  @media (max-width: 640px) {
-    .liste li button {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 2px;
-    }
-
-    .correspond {
-      margin-left: 0;
-    }
   }
 
   .liste li button:hover .titre,
@@ -144,6 +137,24 @@
     font-family: var(--police-mono);
     font-size: 0.72rem;
     color: var(--encre-pale);
+  }
+
+  /* Sous 640px (retour d'usage) : le détail de ce qui a matché passe sous
+     le titre plutôt que de se disputer la ligne avec lui, aligné avec lui
+     (pas avec le numéro) — même seuil que le reste du site (Site.svelte,
+     Onglets.svelte). Placé après les règles qu'elle corrige : une media
+     query ne gagne pas en spécificité sur un sélecteur de même poids,
+     seul l'ordre dans la feuille de style tranche. */
+  @media (max-width: 640px) {
+    .corps {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+    }
+
+    .correspond {
+      margin-left: 0;
+    }
   }
 
   .vide {
