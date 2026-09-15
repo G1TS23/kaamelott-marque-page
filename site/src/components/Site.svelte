@@ -267,6 +267,18 @@
     onEpisodeClick(livre, episode);
     requete = '';
   }
+
+  // Referme le clavier virtuel sur Entrée (retour d'usage, RechercheMobile) :
+  // sans <form> à soumettre, la touche Entrée n'a aucune action définie —
+  // certains claviers mobiles l'affichent alors comme un retour à la ligne.
+  // Les résultats sont déjà à jour à chaque frappe : Entrée n'a qu'à dégager
+  // le clavier.
+  function surEntreeRecherche(e: KeyboardEvent) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      (e.currentTarget as HTMLInputElement).blur();
+    }
+  }
 </script>
 
 <header class="entete-collante" style="--gouttiere: {gouttiere}px">
@@ -280,8 +292,10 @@
         id="recherche-titre"
         type="search"
         bind:value={requete}
+        onkeydown={surEntreeRecherche}
         placeholder="titre, résumé, personnage…"
         autocomplete="off"
+        enterkeyhint="search"
       />
       {#if rechercheActive}
         <button

@@ -79,6 +79,19 @@
     if (e.key === 'Escape') fermer();
   }
 
+  // Referme le clavier virtuel sur Entrée (retour d'usage : sans ça, sur
+  // mobile, la touche Entrée du clavier n'avait aucune action définie — pas
+  // de <form> à soumettre — et certains claviers l'affichent alors comme un
+  // retour à la ligne plutôt qu'une action de recherche). Les résultats sont
+  // déjà à jour à chaque frappe (`oninput`) : Entrée n'a qu'à dégager le
+  // clavier pour les montrer.
+  function surEntree(e: KeyboardEvent) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      champ?.blur();
+    }
+  }
+
   $effect(() => {
     champ?.focus();
   });
@@ -114,8 +127,10 @@
         type="search"
         value={requete}
         oninput={(e) => onRequeteChange(e.currentTarget.value)}
+        onkeydown={surEntree}
         placeholder="titre, résumé, personnage…"
         autocomplete="off"
+        enterkeyhint="search"
       />
       {#if requete}
         <button
