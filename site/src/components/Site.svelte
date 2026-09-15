@@ -284,6 +284,19 @@
         autocomplete="off"
       />
       {#if rechercheActive}
+        <button
+          type="button"
+          class="effacer"
+          onclick={() => (requete = '')}
+          aria-label="Effacer la recherche"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <path
+              d="M18.3 5.71 12 12.01l-6.3-6.3-1.41 1.41 6.3 6.3-6.3 6.3 1.41 1.41 6.3-6.3 6.3 6.3 1.41-1.41-6.3-6.3 6.3-6.3z"
+              fill="currentColor"
+            />
+          </svg>
+        </button>
         <div class="panneau-resultats">
           <ResultatsRecherche {resultats} onEpisodeClick={onResultatClick} />
         </div>
@@ -491,7 +504,9 @@
 
   .recherche input {
     width: 100%;
-    padding: 0.4em var(--esp-3);
+    /* Marge à droite pour laisser la place au bouton d'effacement
+       ci-dessous. */
+    padding: 0.4em 2.1em 0.4em var(--esp-3);
     border: 1px solid var(--trait);
     border-radius: var(--rayon-pilule);
     /* Se détache du fond de l'en-tête (retour d'usage) — l'ancien fond de
@@ -499,6 +514,27 @@
     background: var(--surface-haute);
     color: var(--encre);
     font: inherit;
+  }
+
+  /* La croix native de type="search" est incohérente d'un navigateur à
+     l'autre (retour d'usage : absente sur certains mobiles alors que
+     Chrome l'affiche) — un bouton à nous, partout pareil, la remplace. */
+  .recherche input[type='search']::-webkit-search-cancel-button,
+  .recherche input[type='search']::-webkit-search-decoration {
+    appearance: none;
+  }
+
+  .recherche .effacer {
+    position: absolute;
+    right: 0.35em;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    padding: var(--esp-1);
+    border: none;
+    background: transparent;
+    color: var(--encre-pale);
+    cursor: pointer;
   }
 
   .recherche input:focus-visible {

@@ -108,14 +108,34 @@
         />
       </svg>
     </button>
-    <input
-      bind:this={champ}
-      type="search"
-      value={requete}
-      oninput={(e) => onRequeteChange(e.currentTarget.value)}
-      placeholder="filtrer par titre…"
-      autocomplete="off"
-    />
+    <div class="champ-recherche">
+      <input
+        bind:this={champ}
+        type="search"
+        value={requete}
+        oninput={(e) => onRequeteChange(e.currentTarget.value)}
+        placeholder="titre, résumé, personnage…"
+        autocomplete="off"
+      />
+      {#if requete}
+        <button
+          type="button"
+          class="effacer"
+          onclick={() => {
+            onRequeteChange('');
+            champ?.focus();
+          }}
+          aria-label="Effacer la recherche"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <path
+              d="M18.3 5.71 12 12.01l-6.3-6.3-1.41 1.41 6.3 6.3-6.3 6.3 1.41 1.41 6.3-6.3 6.3 6.3 1.41-1.41-6.3-6.3 6.3-6.3z"
+              fill="currentColor"
+            />
+          </svg>
+        </button>
+      {/if}
+    </div>
   </div>
 
   <div class="ecran-corps">
@@ -177,15 +197,31 @@
     cursor: pointer;
   }
 
-  .ecran-entete input {
+  /* Enveloppe le champ pour ancrer le bouton d'effacement (retour d'usage :
+     la croix native de type="search" est incohérente d'un navigateur à
+     l'autre — absente sur certains mobiles alors que Chrome l'affiche). */
+  .champ-recherche {
+    position: relative;
     flex: 1;
     min-width: 0;
-    padding: 0.4em var(--esp-3);
+  }
+
+  .ecran-entete input {
+    width: 100%;
+    /* Marge à droite pour laisser la place au bouton d'effacement. */
+    padding: 0.4em 2.1em 0.4em var(--esp-3);
     border: 1px solid var(--trait);
     border-radius: var(--rayon-pilule);
     background: var(--surface-haute);
     color: var(--encre);
     font: inherit;
+  }
+
+  /* La croix native fait doublon avec le bouton ci-dessous, sur les
+     navigateurs qui en affichent une (Chrome). */
+  .ecran-entete input[type='search']::-webkit-search-cancel-button,
+  .ecran-entete input[type='search']::-webkit-search-decoration {
+    appearance: none;
   }
 
   /* Pas de halo de focus ici (retour d'usage) : l'écran se concentre déjà
@@ -198,6 +234,19 @@
 
   .ecran-entete input::placeholder {
     color: var(--encre-pale);
+  }
+
+  .effacer {
+    position: absolute;
+    right: 0.35em;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    padding: var(--esp-1);
+    border: none;
+    background: transparent;
+    color: var(--encre-pale);
+    cursor: pointer;
   }
 
   .ecran-corps {
@@ -235,8 +284,12 @@
     cursor: pointer;
   }
 
-  .recentes button:hover {
-    background: var(--surface);
+  /* `(hover: hover)` plutôt qu'un `:hover` nu (retour d'usage) : sur un
+     écran tactile la pseudo-classe reste collée après un tap. */
+  @media (hover: hover) {
+    .recentes button:hover {
+      background: var(--surface);
+    }
   }
 
   .recentes svg {

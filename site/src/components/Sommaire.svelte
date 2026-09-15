@@ -91,8 +91,12 @@
     cursor: pointer;
   }
 
-  .episodes li button:hover {
-    background: var(--surface);
+  /* `(hover: hover)` plutôt qu'un `:hover` nu (retour d'usage) : sur un
+     écran tactile la pseudo-classe reste collée après un tap. */
+  @media (hover: hover) {
+    .episodes li button:hover {
+      background: var(--surface);
+    }
   }
 
   .episodes li button.actif {

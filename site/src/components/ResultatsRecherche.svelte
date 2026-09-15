@@ -97,9 +97,18 @@
     gap: 2px var(--esp-2);
   }
 
-  .liste li button:hover .titre,
   .liste li button:focus-visible .titre {
     color: var(--accent-fort);
+  }
+
+  /* `(hover: hover)` plutôt qu'un `:hover` nu (retour d'usage) : sur un
+     écran tactile, la pseudo-classe reste collée après un tap tant qu'on ne
+     touche pas ailleurs — un titre restait coloré après avoir choisi une
+     recherche récente. Les appareils à souris/trackpad seuls la reçoivent. */
+  @media (hover: hover) {
+    .liste li button:hover .titre {
+      color: var(--accent-fort);
+    }
   }
 
   .liste li button:focus-visible {
