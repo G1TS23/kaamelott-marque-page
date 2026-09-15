@@ -129,8 +129,11 @@
         >
           <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
             <path
-              d="M18.3 5.71 12 12.01l-6.3-6.3-1.41 1.41 6.3 6.3-6.3 6.3 1.41 1.41 6.3-6.3 6.3 6.3 1.41-1.41-6.3-6.3 6.3-6.3z"
-              fill="currentColor"
+              d="M6 6l12 12M18 6L6 18"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              fill="none"
             />
           </svg>
         </button>
@@ -254,7 +257,10 @@
     border: none;
     border-radius: 50%;
     background: transparent;
-    color: var(--encre-pale);
+    /* Même couleur que le texte tapé (retour d'usage) — pas la teinte pâle
+       des étiquettes, la croix doit se voir aussi nettement que ce qu'elle
+       efface. */
+    color: var(--encre);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
