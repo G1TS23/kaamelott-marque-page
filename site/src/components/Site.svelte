@@ -460,9 +460,17 @@
     top: calc(100% + var(--esp-2));
     right: 0;
     width: min(32rem, calc(100vw - 2 * var(--esp-4)));
-    /* Pas de défilement (retour d'usage) : `ResultatsRecherche.svelte` se
-       limite déjà aux 15 meilleurs résultats, qui tiennent toujours d'un
-       coup — plus besoin de `max-height`/`overflow-y`. */
+    /* Se redimensionne avec la fenêtre (retour d'usage) : borné par la
+       place réellement disponible sous l'en-tête (3rem) plutôt qu'une
+       valeur fixe — recalculé par le navigateur à chaque redimensionnement,
+       pas besoin de mesurer en JS. Légèrement conservateur (le champ est
+       plus petit que les 3rem de l'en-tête, centré dedans) : jamais de
+       débordement, au pire un peu de marge inutilisée en bas. */
+    max-height: calc(100vh - 3rem - var(--esp-2) - var(--esp-4));
+    overflow-y: auto;
+    /* Scrollable sans scrollbar visible (retour d'usage) : la molette/le
+       trackpad continuent de fonctionner, juste sans le rail à l'écran. */
+    scrollbar-width: none;
     background: var(--surface-haute);
     border: 1px solid var(--trait);
     border-radius: var(--rayon-carte);
@@ -473,6 +481,13 @@
        vu que `.entete-collante` fixe déjà toute sa stacking context
        au-dessus de `.groupe-collant` (5), gardé pour la lisibilité. */
     z-index: 7;
+  }
+
+  /* `scrollbar-width` (ci-dessus) couvre Firefox ; Chrome/Safari/Edge ont
+     besoin de ce pseudo-élément — les deux ensemble masquent le rail
+     partout sans désactiver le défilement lui-même. */
+  .panneau-resultats::-webkit-scrollbar {
+    display: none;
   }
 
   .recherche input {

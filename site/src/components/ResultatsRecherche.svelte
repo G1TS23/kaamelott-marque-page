@@ -30,19 +30,13 @@
     personnage: 'personnage',
     résumé: 'résumé',
   };
-
-  // Les 15 meilleurs seulement (retour d'usage) : `resultats` est déjà trié
-  // par pertinence par `chercherEpisodes`, une liste plus longue n'apporterait
-  // que du défilement — le panneau reste visible d'un coup, sans scrollbar.
-  const LIMITE = 15;
-  const affiches = $derived(resultats.slice(0, LIMITE));
 </script>
 
 {#if resultats.length === 0}
   <p class="vide">Aucun épisode ne correspond.</p>
 {:else}
   <ul class="liste" aria-label="Résultats de recherche">
-    {#each affiches as r (r.episode.id)}
+    {#each resultats as r (r.episode.id)}
       <li>
         <button type="button" onclick={() => onEpisodeClick(r.episode.livre, r.episode)}>
           <span class="ligne-titre">
