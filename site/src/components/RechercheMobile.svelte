@@ -82,6 +82,18 @@
   $effect(() => {
     champ?.focus();
   });
+
+  // Verrouille le défilement de la page derrière l'écran (retour d'usage :
+  // deux scrollbars visibles à la fois, celle des résultats et celle de la
+  // page en dessous). `position: fixed; inset: 0` sur `.ecran` ne suffit
+  // pas à lui seul à empêcher ça sur mobile — restauré à la fermeture.
+  $effect(() => {
+    const original = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = original;
+    };
+  });
 </script>
 
 <svelte:window onkeydown={surTouche} />
