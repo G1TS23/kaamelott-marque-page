@@ -506,7 +506,7 @@
     width: 100%;
     /* Marge à droite pour laisser la place au bouton d'effacement
        ci-dessous. */
-    padding: 0.4em 2.1em 0.4em var(--esp-3);
+    padding: 0.4em 2.75rem 0.4em var(--esp-3);
     border: 1px solid var(--trait);
     border-radius: var(--rayon-pilule);
     /* Se détache du fond de l'en-tête (retour d'usage) — l'ancien fond de
@@ -524,17 +524,34 @@
     appearance: none;
   }
 
+  /* Zone de tap franchement plus grande que l'icône elle-même (retour
+     d'usage : au doigt, un tap un peu à côté tombait sur le champ, qui
+     sélectionnait son contenu au lieu d'être effacé) et détachée du bord
+     du champ plutôt que collée dessus. */
   .recherche .effacer {
     position: absolute;
-    right: 0.35em;
+    right: 0.5rem;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
-    padding: var(--esp-1);
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
     border: none;
+    border-radius: 50%;
     background: transparent;
     color: var(--encre-pale);
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* `:active` plutôt que `:hover` (retour d'usage sur le survol collant au
+     toucher, voir plus haut) : ne dure que le temps du contact, confirme le
+     tap sans jamais rester affiché après. */
+  .recherche .effacer:active {
+    background: var(--surface);
   }
 
   .recherche input:focus-visible {
