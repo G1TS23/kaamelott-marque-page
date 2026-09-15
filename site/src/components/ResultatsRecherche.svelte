@@ -155,6 +155,14 @@
     .correspond {
       margin-left: 0;
     }
+
+    /* Interligne resserré (retour d'usage) : chaque résultat tient sur deux
+       lignes en mobile, le padding vertical par résultat (--esp-1, 4px en
+       haut et en bas) se sentait redondant avec l'espacement déjà posé
+       entre les deux lignes internes (2px, voir `.corps` ci-dessus). */
+    .liste li button {
+      padding: 2px 0;
+    }
   }
 
   .vide {
