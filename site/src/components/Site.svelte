@@ -147,6 +147,22 @@
     chercherEpisodes(indexTitres, indexPersonnages, indexResumes, requete),
   );
   const rechercheActive = $derived(requete.trim().length > 0);
+  let rechercheEl: HTMLDivElement;
+
+  // Ferme le panneau desktop sur un clic en dehors (retour d'usage) — pas
+  // en mode mobile : `RechercheMobile` est un dialog plein écran séparé
+  // (`.recherche` reste hors DOM visible, `display: none`, tout clic à
+  // l'intérieur du dialog s'y compterait à tort comme « extérieur »).
+  $effect(() => {
+    if (!rechercheActive || rechercheMobileOuverte) return;
+    function surClicExterieur(e: MouseEvent) {
+      if (rechercheEl && !rechercheEl.contains(e.target as Node)) {
+        requete = '';
+      }
+    }
+    document.addEventListener('click', surClicExterieur);
+    return () => document.removeEventListener('click', surClicExterieur);
+  });
 
   function videoIdDuLivre(livre: NumeroLivre): string {
     // Chaque épisode porte le video_id de son livre (redondant mais déjà
@@ -256,7 +272,7 @@
 <header class="entete-collante" style="--gouttiere: {gouttiere}px">
   <div class="entete-interieur">
     <h1 class="marque">Le Marque-Page de la Relecture</h1>
-    <div class="recherche">
+    <div class="recherche" bind:this={rechercheEl}>
       <label for="recherche-titre" class="sr-only">
         Rechercher un épisode par titre, résumé ou personnage
       </label>
@@ -444,8 +460,9 @@
     top: calc(100% + var(--esp-2));
     right: 0;
     width: min(32rem, calc(100vw - 2 * var(--esp-4)));
-    max-height: 70vh;
-    overflow-y: auto;
+    /* Pas de défilement (retour d'usage) : `ResultatsRecherche.svelte` se
+       limite déjà aux 15 meilleurs résultats, qui tiennent toujours d'un
+       coup — plus besoin de `max-height`/`overflow-y`. */
     background: var(--surface-haute);
     border: 1px solid var(--trait);
     border-radius: var(--rayon-carte);

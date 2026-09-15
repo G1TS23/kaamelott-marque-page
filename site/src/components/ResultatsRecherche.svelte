@@ -30,20 +30,28 @@
     personnage: 'personnage',
     résumé: 'résumé',
   };
+
+  // Les 15 meilleurs seulement (retour d'usage) : `resultats` est déjà trié
+  // par pertinence par `chercherEpisodes`, une liste plus longue n'apporterait
+  // que du défilement — le panneau reste visible d'un coup, sans scrollbar.
+  const LIMITE = 15;
+  const affiches = $derived(resultats.slice(0, LIMITE));
 </script>
 
 {#if resultats.length === 0}
   <p class="vide">Aucun épisode ne correspond.</p>
 {:else}
   <ul class="liste" aria-label="Résultats de recherche">
-    {#each resultats as r (r.episode.id)}
+    {#each affiches as r (r.episode.id)}
       <li>
         <button type="button" onclick={() => onEpisodeClick(r.episode.livre, r.episode)}>
-          <span class="numero">{r.episode.episode}</span>
-          <span class="titre">{r.episode.title}</span>
-          {#if r.episode.livre !== livreActif}
-            <span class="badge">Livre {r.episode.livre}</span>
-          {/if}
+          <span class="ligne-titre">
+            <span class="numero">{r.episode.episode}</span>
+            <span class="titre">{r.episode.title}</span>
+            {#if r.episode.livre !== livreActif}
+              <span class="badge">Livre {r.episode.livre}</span>
+            {/if}
+          </span>
           <span class="correspond">{r.correspond.map((t) => LIBELLES[t]).join(' · ')}</span>
         </button>
       </li>
@@ -78,6 +86,28 @@
     color: inherit;
     text-align: left;
     cursor: pointer;
+  }
+
+  .ligne-titre {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 2px var(--esp-2);
+  }
+
+  /* Sous 640px (retour d'usage) : le détail de ce qui a matché passe sous
+     le titre plutôt que de se disputer la ligne avec lui — même seuil que
+     le reste du site (Site.svelte, Onglets.svelte). */
+  @media (max-width: 640px) {
+    .liste li button {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+    }
+
+    .correspond {
+      margin-left: 0;
+    }
   }
 
   .liste li button:hover .titre,
