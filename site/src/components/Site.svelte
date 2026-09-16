@@ -37,14 +37,22 @@
    */
   import {
     aplatir,
+    type DonneesRecherche,
     type EpisodeListe,
     type LivreEnListe,
     type NumeroLivre,
   } from '../lib/episodes.ts';
-  import { chercherParTitre, creerIndexTitres } from '../lib/recherche.ts';
+  import {
+    chercherEpisodes,
+    creerIndexPersonnages,
+    creerIndexResumes,
+    creerIndexTitres,
+    joindreDonneesRecherche,
+  } from '../lib/recherche.ts';
   import Lecteur from './Lecteur.svelte';
   import Onglets from './Onglets.svelte';
   import RechercheMobile from './RechercheMobile.svelte';
+  import ResultatsRecherche from './ResultatsRecherche.svelte';
   import Sommaire from './Sommaire.svelte';
 
   let { livres }: { livres: LivreEnListe[] } = $props();
@@ -99,15 +107,70 @@
     return () => window.removeEventListener('resize', mesurer);
   });
 
-  // Index des ~400 titres, construit une fois : `requete` est réactif, pas
-  // l'index.
-  const indexTitres = creerIndexTitres(aplatir(livres));
+  // Index du titre, construit une fois : `requete` est réactif, pas l'index.
+  const episodesAvecLivre = aplatir(livres);
+  const indexTitres = creerIndexTitres(episodesAvecLivre);
 
-  // `null` = pas de recherche active → on montre le sommaire.
-  // `[]` = recherche sans résultat.
-  const resultats = $derived(
-    requete.trim() ? chercherParTitre(indexTitres, requete) : null,
+  // Résumé et personnages (issue #16) : chargés à part du HTML initial
+  // (~300 Ko de résumés, docs/SPECS.md section 5) via `/recherche.json`,
+  // récupérés une fois au montage de l'îlot. `null` tant que le fetch n'a
+  // pas résolu — la recherche par titre reste utilisable seule en
+  // attendant, personnage et résumé s'ajoutent dès que prêts (réactivité :
+  // `donneesRecherche` passe de `null` à peuplé, tout ce qui en dépend se
+  // recalcule tout seul).
+  let donneesRecherche = $state<DonneesRecherche[] | null>(null);
+
+  $effect(() => {
+    fetch('/recherche.json')
+      .then((r) => r.json())
+      .then((donnees: DonneesRecherche[]) => {
+        donneesRecherche = donnees;
+      })
+      .catch(() => {
+        // Pas grave : la recherche par titre reste utilisable seule.
+      });
+  });
+
+  const episodesRecherche = $derived(
+    donneesRecherche ? joindreDonneesRecherche(episodesAvecLivre, donneesRecherche) : null,
   );
+  const indexPersonnages = $derived(
+    episodesRecherche ? creerIndexPersonnages(episodesRecherche) : null,
+  );
+  const indexResumes = $derived(episodesRecherche ? creerIndexResumes(episodesRecherche) : null);
+
+  // `[]` tant qu'il n'y a pas de requête (ou trop courte) comme sans
+  // résultat — c'est `requete.trim()` ci-dessous qui distingue les deux
+  // pour l'affichage (pas de recherche active → sommaire ; recherche sans
+  // résultat → message dédié dans `ResultatsRecherche.svelte`).
+  const resultats = $derived(
+    chercherEpisodes(indexTitres, indexPersonnages, indexResumes, requete),
+  );
+  const rechercheActive = $derived(requete.trim().length > 0);
+  let rechercheEl: HTMLDivElement;
+
+  // Ferme le panneau desktop sur un clic en dehors ou sur Échap (retour
+  // d'usage — Échap manquait alors que `RechercheMobile` le gère déjà) —
+  // pas en mode mobile : `RechercheMobile` est un dialog plein écran séparé
+  // (`.recherche` reste hors DOM visible, `display: none`, tout clic à
+  // l'intérieur du dialog s'y compterait à tort comme « extérieur »).
+  $effect(() => {
+    if (!rechercheActive || rechercheMobileOuverte) return;
+    function surClicExterieur(e: MouseEvent) {
+      if (rechercheEl && !rechercheEl.contains(e.target as Node)) {
+        requete = '';
+      }
+    }
+    function surTouche(e: KeyboardEvent) {
+      if (e.key === 'Escape') requete = '';
+    }
+    document.addEventListener('click', surClicExterieur);
+    document.addEventListener('keydown', surTouche);
+    return () => {
+      document.removeEventListener('click', surClicExterieur);
+      document.removeEventListener('keydown', surTouche);
+    };
+  });
 
   function videoIdDuLivre(livre: NumeroLivre): string {
     // Chaque épisode porte le video_id de son livre (redondant mais déjà
@@ -203,20 +266,66 @@
     // grand, pas juste changer ce qui joue hors champ.
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  // Referme le panneau de résultats desktop après un clic (retour d'usage :
+  // un panneau flottant qui reste ouvert sur un épisode qu'on vient de
+  // quitter donne l'impression d'un bug, contrairement à l'ancien
+  // remplacement en place du sommaire, qui pouvait rester affiché).
+  function onResultatClick(livre: NumeroLivre, episode: EpisodeListe) {
+    onEpisodeClick(livre, episode);
+    requete = '';
+  }
+
+  // Referme le clavier virtuel sur Entrée (retour d'usage, RechercheMobile) :
+  // sans <form> à soumettre, la touche Entrée n'a aucune action définie —
+  // certains claviers mobiles l'affichent alors comme un retour à la ligne.
+  // Les résultats sont déjà à jour à chaque frappe : Entrée n'a qu'à dégager
+  // le clavier.
+  function surEntreeRecherche(e: KeyboardEvent) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      (e.currentTarget as HTMLInputElement).blur();
+    }
+  }
 </script>
 
 <header class="entete-collante" style="--gouttiere: {gouttiere}px">
   <div class="entete-interieur">
     <h1 class="marque">Le Marque-Page de la Relecture</h1>
-    <div class="recherche">
-      <label for="recherche-titre" class="sr-only">Rechercher un épisode par titre</label>
+    <div class="recherche" bind:this={rechercheEl}>
+      <label for="recherche-titre" class="sr-only">
+        Rechercher un épisode par titre, résumé ou personnage
+      </label>
       <input
         id="recherche-titre"
         type="search"
         bind:value={requete}
-        placeholder="filtrer par titre…"
+        onkeydown={surEntreeRecherche}
+        placeholder="titre, résumé, personnage…"
         autocomplete="off"
+        enterkeyhint="search"
       />
+      {#if rechercheActive}
+        <button
+          type="button"
+          class="effacer"
+          onclick={() => (requete = '')}
+          aria-label="Effacer la recherche"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <path
+              d="M6 6l12 12M18 6L6 18"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              fill="none"
+            />
+          </svg>
+        </button>
+        <div class="panneau-resultats">
+          <ResultatsRecherche {resultats} onEpisodeClick={onResultatClick} />
+        </div>
+      {/if}
     </div>
     <button
       type="button"
@@ -236,11 +345,8 @@
 
 {#if rechercheMobileOuverte}
   <RechercheMobile
-    {livres}
-    {livreActif}
     {requete}
     {resultats}
-    {episodeActif}
     onRequeteChange={(v) => (requete = v)}
     {onEpisodeClick}
     onFermer={() => (rechercheMobileOuverte = false)}
@@ -271,7 +377,7 @@
   <Onglets {livres} {livreActif} {episodeActif} {onLivreChange} />
 </div>
 
-<Sommaire {livres} {livreActif} {requete} {resultats} {episodeActif} {onEpisodeClick} />
+<Sommaire {livres} {livreActif} {episodeActif} {onEpisodeClick} />
 
 <style>
   /* Toujours collée dès le chargement, comme YouTube (issue #54, retour
@@ -363,6 +469,9 @@
   }
 
   .recherche {
+    /* Ancre le panneau de résultats (issue #16, `.panneau-resultats`
+       ci-dessous) : `position: absolute` s'y positionne, pas à la fenêtre. */
+    position: relative;
     grid-column: 2;
     justify-self: center;
     /* Rétrécit avec la fenêtre plutôt que de rester fixe à 28rem (retour
@@ -374,9 +483,55 @@
     width: min(28rem, 65%);
   }
 
+  /* Panneau de résultats (issue #16), ancré au champ plutôt qu'un
+   * remplacement en place du sommaire (retour d'usage sur la maquette :
+   * https://claude.ai/code/artifact/2f432b47-3b4e-4b45-8600-41cafe85a4e4).
+   * Largeur minimale supérieure au champ (qui peut descendre sous 28rem,
+   * voir ci-dessus) et alignée sur son bord droit — demande explicite,
+   * pour ne jamais paraître plus étroit que ce qui l'a ouvert. `min()`
+   * plutôt qu'un couple min-width/max-width (qui se contrediraient) :
+   * cible 32rem, cède seulement si la fenêtre est vraiment plus étroite —
+   * en pratique jamais avant 640px, où `RechercheMobile` prend le relais. */
+  .panneau-resultats {
+    position: absolute;
+    top: calc(100% + var(--esp-2));
+    right: 0;
+    width: min(32rem, calc(100vw - 2 * var(--esp-4)));
+    /* Se redimensionne avec la fenêtre (retour d'usage) : borné par la
+       place réellement disponible sous l'en-tête (3rem) plutôt qu'une
+       valeur fixe — recalculé par le navigateur à chaque redimensionnement,
+       pas besoin de mesurer en JS. Légèrement conservateur (le champ est
+       plus petit que les 3rem de l'en-tête, centré dedans) : jamais de
+       débordement, au pire un peu de marge inutilisée en bas. */
+    max-height: calc(100vh - 3rem - var(--esp-2) - var(--esp-4));
+    overflow-y: auto;
+    /* Scrollable sans scrollbar visible (retour d'usage) : la molette/le
+       trackpad continuent de fonctionner, juste sans le rail à l'écran. */
+    scrollbar-width: none;
+    background: var(--surface-haute);
+    border: 1px solid var(--trait);
+    border-radius: var(--rayon-carte);
+    box-shadow: var(--ombre);
+    padding: var(--esp-2) var(--esp-3);
+    /* Au-dessus de l'en-tête (6) qui la contient, sous le dialog de
+       recherche mobile (10, `RechercheMobile.svelte`) — sans effet réel ici
+       vu que `.entete-collante` fixe déjà toute sa stacking context
+       au-dessus de `.groupe-collant` (5), gardé pour la lisibilité. */
+    z-index: 7;
+  }
+
+  /* `scrollbar-width` (ci-dessus) couvre Firefox ; Chrome/Safari/Edge ont
+     besoin de ce pseudo-élément — les deux ensemble masquent le rail
+     partout sans désactiver le défilement lui-même. */
+  .panneau-resultats::-webkit-scrollbar {
+    display: none;
+  }
+
   .recherche input {
     width: 100%;
-    padding: 0.4em var(--esp-3);
+    /* Marge à droite pour laisser la place au bouton d'effacement
+       ci-dessous. */
+    padding: 0.4em 2.75rem 0.4em var(--esp-3);
     border: 1px solid var(--trait);
     border-radius: var(--rayon-pilule);
     /* Se détache du fond de l'en-tête (retour d'usage) — l'ancien fond de
@@ -384,6 +539,47 @@
     background: var(--surface-haute);
     color: var(--encre);
     font: inherit;
+  }
+
+  /* La croix native de type="search" est incohérente d'un navigateur à
+     l'autre (retour d'usage : absente sur certains mobiles alors que
+     Chrome l'affiche) — un bouton à nous, partout pareil, la remplace. */
+  .recherche input[type='search']::-webkit-search-cancel-button,
+  .recherche input[type='search']::-webkit-search-decoration {
+    appearance: none;
+  }
+
+  /* Zone de tap franchement plus grande que l'icône elle-même (retour
+     d'usage : au doigt, un tap un peu à côté tombait sur le champ, qui
+     sélectionnait son contenu au lieu d'être effacé) et détachée du bord
+     du champ plutôt que collée dessus. */
+  .recherche .effacer {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    /* Même couleur que le texte tapé (retour d'usage) — pas la teinte pâle
+       des étiquettes, la croix doit se voir aussi nettement que ce qu'elle
+       efface. */
+    color: var(--encre);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* `:active` plutôt que `:hover` (retour d'usage sur le survol collant au
+     toucher, voir plus haut) : ne dure que le temps du contact, confirme le
+     tap sans jamais rester affiché après. */
+  .recherche .effacer:active {
+    background: var(--surface);
   }
 
   .recherche input:focus-visible {

@@ -93,8 +93,12 @@
     cursor: pointer;
   }
 
-  .onglets button:hover {
-    border-color: var(--encre-pale);
+  /* `(hover: hover)` plutôt qu'un `:hover` nu (retour d'usage) : sur un
+     écran tactile la pseudo-classe reste collée après un tap. */
+  @media (hover: hover) {
+    .onglets button:hover {
+      border-color: var(--encre-pale);
+    }
   }
 
   .onglets button.actif {

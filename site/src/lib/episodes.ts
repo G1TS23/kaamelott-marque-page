@@ -55,12 +55,28 @@ export const LIVRES: NumeroLivre[] = [1, 2, 3, 4];
  * Les fiches complètes pèsent ~300 Ko avec les résumés : elles ne sont
  * sérialisées dans le HTML que quand un îlot en a réellement besoin
  * (la recherche, #15/#16). Ce type rend ce choix explicite plutôt
- * qu'implicite dans le code de la page.
+ * qu'implicite dans le code de la page. `id` est inclus (coût négligeable,
+ * une courte chaîne) : c'est la clé qui permet de recoller les données de
+ * recherche chargées à part (`DonneesRecherche`, `/recherche.json`) sans
+ * dépendre d'une coïncidence numérique entre `season` et le numéro de livre.
  */
 export type EpisodeListe = Pick<
   Episode,
-  'episode' | 'title' | 'start_seconds' | 'video_id'
+  'id' | 'episode' | 'title' | 'start_seconds' | 'video_id'
 >;
+
+/**
+ * Résumé et personnages, chargés à part de `EpisodeListe` (issue #16) :
+ * nécessaires à la recherche par résumé/personnage, mais trop lourds
+ * (~300 Ko de résumés) pour entrer dans le HTML initial. Servi par
+ * `site/src/pages/recherche.json.ts`, récupéré une fois côté client au
+ * montage de l'îlot de recherche.
+ */
+export interface DonneesRecherche {
+  id: string;
+  summary: string;
+  characters: string[];
+}
 
 /** Un livre et ses épisodes, tels que reçus par l'îlot de navigation. */
 export interface LivreEnListe {

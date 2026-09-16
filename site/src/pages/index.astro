@@ -13,10 +13,12 @@ import type { LivreEnListe } from '../lib/episodes.ts';
 
 // Seuls les champs utiles à la liste sont passés à l'îlot : les résumés
 // (~300 Ko au total) n'y entrent que quand la recherche en aura besoin
-// (#15/#16), pour ne pas les sérialiser inutilement dans le HTML.
+// (#15/#16) — chargés à part via /recherche.json, pas ici. `id` sert de clé
+// pour recoller les deux plus tard (site/src/lib/recherche.ts).
 const livres: LivreEnListe[] = LIVRES.map((livre) => ({
   livre,
-  episodes: chargerLivre(livre).map(({ episode, title, start_seconds, video_id }) => ({
+  episodes: chargerLivre(livre).map(({ id, episode, title, start_seconds, video_id }) => ({
+    id,
     episode,
     title,
     start_seconds,

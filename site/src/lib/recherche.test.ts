@@ -1,9 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { chercherParTitre, creerIndexTitres } from './recherche';
-import type { EpisodeAvecLivre } from './episodes';
+import {
+  chercherEpisodes,
+  chercherParPersonnage,
+  chercherParResume,
+  chercherParTitre,
+  creerIndexPersonnages,
+  creerIndexResumes,
+  creerIndexTitres,
+  joindreDonneesRecherche,
+  type EpisodeRecherche,
+} from './recherche';
+import type { DonneesRecherche, EpisodeAvecLivre } from './episodes';
 
 function ep(livre: 1 | 2 | 3 | 4, episode: number, title: string): EpisodeAvecLivre {
-  return { livre, episode, title, start_seconds: episode * 200, video_id: `vid${livre}` };
+  return {
+    id: `s${livre}e${episode}`,
+    livre,
+    episode,
+    title,
+    start_seconds: episode * 200,
+    video_id: `vid${livre}`,
+  };
 }
 
 const CATALOGUE: EpisodeAvecLivre[] = [
@@ -64,5 +81,135 @@ describe('chercherParTitre', () => {
     // tapé. Doit ne renvoyer que ce qui commence vraiment par "hea".
     const titres = chercherParTitre(index, 'hea').map((e) => e.title);
     expect(titres).toEqual(['Heat']);
+  });
+});
+
+const DONNEES: DonneesRecherche[] = [
+  {
+    id: 's1e1',
+    summary:
+      'Arthur, Léodagan et Perceval sont isolés en forêt pendant une bataille et se cachent derrière des arbres.',
+    characters: ['Arthur', 'Léodagan', 'Perceval'],
+  },
+  {
+    id: 's1e2',
+    summary:
+      "Séli a cuisiné une tarte aux myrtilles qui s'avère immangeable, mais les convives doivent la goûter.",
+    characters: ['Arthur', 'Guenièvre', 'Léodagan', 'Séli'],
+  },
+  {
+    id: 's1e3',
+    summary: 'Breccan, un artisan, livre une table ronde commandée par Arthur.',
+    characters: ['Arthur', 'Breccan', 'Père Blaise'],
+  },
+  {
+    id: 's2e1',
+    summary: 'Arthur reçoit un casque venu de loin, le spangenhelm, cadeau encombrant.',
+    characters: ['Arthur'],
+  },
+  {
+    id: 's2e40',
+    // Partage "tarte" avec s1e2 mais pas "myrtilles" — sert à vérifier que
+    // le résultat qui matche les deux mots de la requête passe devant celui
+    // qui n'en matche qu'un seul.
+    summary: 'Une tarte différente provoque un esclandre à la table du roi.',
+    characters: ['Léodagan'],
+  },
+  {
+    id: 's3e12',
+    summary: 'Le baptême du jeune roi rassemble toute la cour.',
+    characters: ['Arthur'],
+  },
+  { id: 's1e66', summary: "Un épisode sans rapport avec ce qui précède.", characters: [] },
+  { id: 's1e76', summary: 'Encore un épisode sans rapport.', characters: [] },
+];
+
+const EPISODES_RECHERCHE: EpisodeRecherche[] = joindreDonneesRecherche(CATALOGUE, DONNEES);
+const indexPersonnages = creerIndexPersonnages(EPISODES_RECHERCHE);
+const indexResumes = creerIndexResumes(EPISODES_RECHERCHE);
+
+describe('joindreDonneesRecherche', () => {
+  it('recolle chaque épisode à ses données par id', () => {
+    const r = joindreDonneesRecherche(CATALOGUE, DONNEES);
+    expect(r).toHaveLength(CATALOGUE.length);
+    expect(r.find((e) => e.id === 's1e2')?.characters).toContain('Séli');
+  });
+
+  it('ignore un épisode sans donnée de recherche correspondante', () => {
+    const r = joindreDonneesRecherche(CATALOGUE, DONNEES.slice(0, 1));
+    expect(r).toHaveLength(1);
+  });
+});
+
+describe('chercherParPersonnage', () => {
+  it('ne renvoie rien pour une requête vide ou trop courte', () => {
+    expect(chercherParPersonnage(indexPersonnages, '')).toEqual([]);
+    expect(chercherParPersonnage(indexPersonnages, 'a')).toEqual([]);
+  });
+
+  it('trouve tous les épisodes où un personnage apparaît', () => {
+    const titres = chercherParPersonnage(indexPersonnages, 'Léodagan').map((e) => e.title);
+    expect(titres).toEqual(
+      expect.arrayContaining(['Heat', 'Les Tartes aux myrtilles', 'La Tarte de Trelan']),
+    );
+  });
+
+  it('tolère une faute de frappe sur un nom', () => {
+    const titres = chercherParPersonnage(indexPersonnages, 'Leodagan').map((e) => e.title);
+    expect(titres).toContain('Heat');
+  });
+});
+
+describe('chercherParResume', () => {
+  it('classe en tête le résumé qui partage le plus de mots avec la requête', () => {
+    const r = chercherParResume(indexResumes, 'tarte aux myrtilles');
+    expect(r[0]?.item.title).toBe('Les Tartes aux myrtilles');
+  });
+
+  it('ne renvoie rien sur une description qui ne partage aucun mot avec aucun résumé', () => {
+    // Même limite que celle documentée dans l'issue #60 (« celui où Perceval
+    // empile des piques ») : le lexical ne trouve rien sans vocabulaire partagé.
+    expect(chercherParResume(indexResumes, 'chevalier licorne dragon')).toEqual([]);
+  });
+});
+
+describe('chercherEpisodes', () => {
+  it('ne renvoie rien pour une requête vide ou trop courte', () => {
+    expect(chercherEpisodes(index, indexPersonnages, indexResumes, '')).toEqual([]);
+    expect(chercherEpisodes(index, indexPersonnages, indexResumes, 'a')).toEqual([]);
+  });
+
+  it('fonctionne titre seul quand personnage/résumé ne sont pas encore prêts', () => {
+    const r = chercherEpisodes(index, null, null, 'Les Tartes aux myrtilles');
+    expect(r[0]?.episode.title).toBe('Les Tartes aux myrtilles');
+    expect(r[0]?.correspond).toEqual(['titre']);
+  });
+
+  it('dédoublonne un épisode qui matche sur plusieurs axes à la fois', () => {
+    // "myrtilles" matche le titre ET le résumé du même épisode : un seul
+    // résultat, étiqueté des deux, pas deux lignes.
+    const r = chercherEpisodes(index, indexPersonnages, indexResumes, 'myrtilles');
+    const occurences = r.filter((x) => x.episode.title === 'Les Tartes aux myrtilles');
+    expect(occurences).toHaveLength(1);
+    expect(occurences[0].correspond).toEqual(expect.arrayContaining(['titre', 'résumé']));
+  });
+
+  it('un nom de personnage ramène tous ses épisodes, dédupliqués', () => {
+    const r = chercherEpisodes(index, indexPersonnages, indexResumes, 'Léodagan');
+    const titres = r.map((x) => x.episode.title);
+    expect(titres).toEqual(
+      expect.arrayContaining(['Heat', 'Les Tartes aux myrtilles', 'La Tarte de Trelan']),
+    );
+    expect(new Set(titres).size).toBe(titres.length);
+    for (const x of r) {
+      if (x.episode.title === 'Les Tartes aux myrtilles') {
+        expect(x.correspond).toContain('personnage');
+      }
+    }
+  });
+
+  it('classe le meilleur résultat en tête', () => {
+    const r = chercherEpisodes(index, indexPersonnages, indexResumes, 'Les Tartes aux myrtilles');
+    expect(r[0].episode.title).toBe('Les Tartes aux myrtilles');
   });
 });

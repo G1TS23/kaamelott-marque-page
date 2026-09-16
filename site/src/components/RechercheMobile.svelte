@@ -9,32 +9,23 @@
    * Requête vide → recherches récentes (`localStorage`, tolérant : une
    * recherche qui ne persiste pas d'une visite à l'autre — navigation
    * privée, quota — ne doit pas empêcher de chercher). Requête non vide →
-   * `Sommaire.svelte`, qui sait déjà afficher des résultats ou un message
-   * « aucun résultat » ; pas de logique dupliquée ici.
+   * `ResultatsRecherche.svelte` (issue #16), en pleine largeur — pas de
+   * logique de rendu dupliquée ici, le même composant sert le panneau
+   * flottant desktop dans `Site.svelte`.
    */
-  import type {
-    EpisodeAvecLivre,
-    EpisodeListe,
-    LivreEnListe,
-    NumeroLivre,
-  } from '../lib/episodes.ts';
-  import Sommaire from './Sommaire.svelte';
+  import type { EpisodeListe, NumeroLivre } from '../lib/episodes.ts';
+  import type { ResultatRecherche } from '../lib/recherche.ts';
+  import ResultatsRecherche from './ResultatsRecherche.svelte';
 
   let {
-    livres,
-    livreActif,
     requete,
     resultats,
-    episodeActif,
     onRequeteChange,
     onEpisodeClick,
     onFermer,
   }: {
-    livres: LivreEnListe[];
-    livreActif: NumeroLivre;
     requete: string;
-    resultats: EpisodeAvecLivre[] | null;
-    episodeActif: { livre: NumeroLivre; episode: number } | null;
+    resultats: ResultatRecherche[];
     onRequeteChange: (v: string) => void;
     onEpisodeClick: (livre: NumeroLivre, episode: EpisodeListe) => void;
     onFermer: () => void;
@@ -88,8 +79,33 @@
     if (e.key === 'Escape') fermer();
   }
 
+  // Referme le clavier virtuel sur Entrée (retour d'usage : sans ça, sur
+  // mobile, la touche Entrée du clavier n'avait aucune action définie — pas
+  // de <form> à soumettre — et certains claviers l'affichent alors comme un
+  // retour à la ligne plutôt qu'une action de recherche). Les résultats sont
+  // déjà à jour à chaque frappe (`oninput`) : Entrée n'a qu'à dégager le
+  // clavier pour les montrer.
+  function surEntree(e: KeyboardEvent) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      champ?.blur();
+    }
+  }
+
   $effect(() => {
     champ?.focus();
+  });
+
+  // Verrouille le défilement de la page derrière l'écran (retour d'usage :
+  // deux scrollbars visibles à la fois, celle des résultats et celle de la
+  // page en dessous). `position: fixed; inset: 0` sur `.ecran` ne suffit
+  // pas à lui seul à empêcher ça sur mobile — restauré à la fermeture.
+  $effect(() => {
+    const original = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = original;
+    };
   });
 </script>
 
@@ -105,14 +121,39 @@
         />
       </svg>
     </button>
-    <input
-      bind:this={champ}
-      type="search"
-      value={requete}
-      oninput={(e) => onRequeteChange(e.currentTarget.value)}
-      placeholder="filtrer par titre…"
-      autocomplete="off"
-    />
+    <div class="champ-recherche">
+      <input
+        bind:this={champ}
+        type="search"
+        value={requete}
+        oninput={(e) => onRequeteChange(e.currentTarget.value)}
+        onkeydown={surEntree}
+        placeholder="titre, résumé, personnage…"
+        autocomplete="off"
+        enterkeyhint="search"
+      />
+      {#if requete}
+        <button
+          type="button"
+          class="effacer"
+          onclick={() => {
+            onRequeteChange('');
+            champ?.focus();
+          }}
+          aria-label="Effacer la recherche"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <path
+              d="M6 6l12 12M18 6L6 18"
+              stroke="currentColor"
+              stroke-width="3"
+              stroke-linecap="round"
+              fill="none"
+            />
+          </svg>
+        </button>
+      {/if}
+    </div>
   </div>
 
   <div class="ecran-corps">
@@ -136,14 +177,7 @@
         </ul>
       {/if}
     {:else}
-      <Sommaire
-        {livres}
-        {livreActif}
-        {requete}
-        {resultats}
-        {episodeActif}
-        onEpisodeClick={clicEpisode}
-      />
+      <ResultatsRecherche {resultats} onEpisodeClick={clicEpisode} />
     {/if}
   </div>
 </div>
@@ -181,15 +215,31 @@
     cursor: pointer;
   }
 
-  .ecran-entete input {
+  /* Enveloppe le champ pour ancrer le bouton d'effacement (retour d'usage :
+     la croix native de type="search" est incohérente d'un navigateur à
+     l'autre — absente sur certains mobiles alors que Chrome l'affiche). */
+  .champ-recherche {
+    position: relative;
     flex: 1;
     min-width: 0;
-    padding: 0.4em var(--esp-3);
+  }
+
+  .ecran-entete input {
+    width: 100%;
+    /* Marge à droite pour laisser la place au bouton d'effacement. */
+    padding: 0.4em 2.75rem 0.4em var(--esp-3);
     border: 1px solid var(--trait);
     border-radius: var(--rayon-pilule);
     background: var(--surface-haute);
     color: var(--encre);
     font: inherit;
+  }
+
+  /* La croix native fait doublon avec le bouton ci-dessous, sur les
+     navigateurs qui en affichent une (Chrome). */
+  .ecran-entete input[type='search']::-webkit-search-cancel-button,
+  .ecran-entete input[type='search']::-webkit-search-decoration {
+    appearance: none;
   }
 
   /* Pas de halo de focus ici (retour d'usage) : l'écran se concentre déjà
@@ -202,6 +252,39 @@
 
   .ecran-entete input::placeholder {
     color: var(--encre-pale);
+  }
+
+  /* Zone de tap franchement plus grande que l'icône elle-même (retour
+     d'usage : au doigt, un tap un peu à côté tombait sur le champ, qui
+     sélectionnait son contenu au lieu d'être effacé) et détachée du bord
+     du champ plutôt que collée dessus. */
+  .effacer {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    /* Même couleur que le texte tapé (retour d'usage) — pas la teinte pâle
+       des étiquettes, la croix doit se voir aussi nettement que ce qu'elle
+       efface. */
+    color: var(--encre);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* `:active` plutôt que `:hover` (retour d'usage sur le survol collant au
+     toucher, voir plus haut) : ne dure que le temps du contact, confirme le
+     tap sans jamais rester affiché après. */
+  .effacer:active {
+    background: var(--surface);
   }
 
   .ecran-corps {
@@ -239,8 +322,12 @@
     cursor: pointer;
   }
 
-  .recentes button:hover {
-    background: var(--surface);
+  /* `(hover: hover)` plutôt qu'un `:hover` nu (retour d'usage) : sur un
+     écran tactile la pseudo-classe reste collée après un tap. */
+  @media (hover: hover) {
+    .recentes button:hover {
+      background: var(--surface);
+    }
   }
 
   .recentes svg {
