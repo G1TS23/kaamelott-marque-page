@@ -51,6 +51,7 @@
   } from '../lib/recherche.ts';
   import Lecteur from './Lecteur.svelte';
   import Onglets from './Onglets.svelte';
+  import PiedDePage from './PiedDePage.svelte';
   import RechercheMobile from './RechercheMobile.svelte';
   import ResultatsRecherche from './ResultatsRecherche.svelte';
   import Sommaire from './Sommaire.svelte';
@@ -378,6 +379,8 @@
 </div>
 
 <Sommaire {livres} {livreActif} {episodeActif} {onEpisodeClick} />
+
+<PiedDePage livre={livreActif} videoId={videoIdDuLivre(livreActif)} />
 
 <style>
   /* Toujours collée dès le chargement, comme YouTube (issue #54, retour
