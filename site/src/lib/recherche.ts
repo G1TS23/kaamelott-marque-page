@@ -8,7 +8,7 @@
  * ici, pas dans le `.svelte` : SonarCloud n'analyse pas les composants.
  */
 
-import Fuse, { type IFuseOptions } from 'fuse.js';
+import Fuse, { type FuseResult, type IFuseOptions } from 'fuse.js';
 import type { DonneesRecherche, EpisodeAvecLivre } from './episodes';
 import { chercherBM25, creerIndexBM25, type IndexBM25 } from './bm25';
 
@@ -37,16 +37,29 @@ export function creerIndexTitres(episodes: EpisodeAvecLivre[]): Fuse<EpisodeAvec
 }
 
 /**
- * Résultats triés par pertinence. Requête vide, blanche ou d'un seul
- * caractère → tableau vide (à qui appelle de décider quoi afficher :
- * `Site.svelte` montre le sommaire pour une requête vide, le message
- * « aucun résultat » sinon). Partagée par `chercherParTitre` et
- * `chercherParPersonnage` — même mécanique Fuse, seul le champ indexé change.
+ * Résultats Fuse bruts (score inclus), triés par pertinence. Requête vide,
+ * blanche ou d'un seul caractère → tableau vide. Une seule garde de
+ * requête pour tous les appelants : `chercherFuse` ci-dessous (qui n'en
+ * garde que `.item`, pour `chercherParTitre`/`chercherParPersonnage`) et
+ * `chercherEpisodes` (qui a besoin du score pour fusionner) — sans ça,
+ * `chercherEpisodes` dupliquait la même garde de son côté en appelant
+ * `index.search()` directement.
  */
-function chercherFuse<T>(index: Fuse<T>, requete: string): T[] {
+function rechercherFuseAvecScore<T>(index: Fuse<T>, requete: string): FuseResult<T>[] {
   const q = requete.trim();
   if (q.length < 2) return [];
-  return index.search(q).map((r) => r.item);
+  return index.search(q);
+}
+
+/**
+ * Résultats triés par pertinence, sans le score. Partagée par
+ * `chercherParTitre` et `chercherParPersonnage` — même mécanique Fuse,
+ * seul le champ indexé change (à qui appelle — `Site.svelte` — de décider
+ * quoi afficher : le sommaire pour une requête vide, le message « aucun
+ * résultat » sinon).
+ */
+function chercherFuse<T>(index: Fuse<T>, requete: string): T[] {
+  return rechercherFuseAvecScore(index, requete).map((r) => r.item);
 }
 
 export function chercherParTitre(
@@ -161,12 +174,12 @@ export function chercherEpisodes(
     }
   }
 
-  for (const r of indexTitres.search(q)) {
+  for (const r of rechercherFuseAvecScore(indexTitres, q)) {
     ajouter(r.item, 'titre', (1 - (r.score ?? 0)) * POIDS_TITRE);
   }
 
   if (indexPersonnages) {
-    for (const r of indexPersonnages.search(q)) {
+    for (const r of rechercherFuseAvecScore(indexPersonnages, q)) {
       ajouter(r.item, 'personnage', (1 - (r.score ?? 0)) * POIDS_PERSONNAGE);
     }
   }

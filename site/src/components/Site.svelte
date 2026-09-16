@@ -149,8 +149,9 @@
   const rechercheActive = $derived(requete.trim().length > 0);
   let rechercheEl: HTMLDivElement;
 
-  // Ferme le panneau desktop sur un clic en dehors (retour d'usage) — pas
-  // en mode mobile : `RechercheMobile` est un dialog plein écran séparé
+  // Ferme le panneau desktop sur un clic en dehors ou sur Échap (retour
+  // d'usage — Échap manquait alors que `RechercheMobile` le gère déjà) —
+  // pas en mode mobile : `RechercheMobile` est un dialog plein écran séparé
   // (`.recherche` reste hors DOM visible, `display: none`, tout clic à
   // l'intérieur du dialog s'y compterait à tort comme « extérieur »).
   $effect(() => {
@@ -160,8 +161,15 @@
         requete = '';
       }
     }
+    function surTouche(e: KeyboardEvent) {
+      if (e.key === 'Escape') requete = '';
+    }
     document.addEventListener('click', surClicExterieur);
-    return () => document.removeEventListener('click', surClicExterieur);
+    document.addEventListener('keydown', surTouche);
+    return () => {
+      document.removeEventListener('click', surClicExterieur);
+      document.removeEventListener('keydown', surTouche);
+    };
   });
 
   function videoIdDuLivre(livre: NumeroLivre): string {

@@ -113,18 +113,33 @@ function idf(index: IndexBM25<unknown>, terme: string): number {
 }
 
 /**
- * Un mot de requête absent du vocabulaire du corpus est remplacé par le
- * terme le plus proche à distance de Levenshtein ≤ 1 (mots ≥ 4 lettres) —
- * tolère une faute de frappe côté requête sans faire de la recherche floue
- * générale (le corpus lui-même, du Wikipédia propre, n'en a pas besoin).
+ * Un mot de requête absent du vocabulaire du corpus est remplacé par un
+ * terme à distance de Levenshtein ≤ 1 (mots ≥ 4 lettres) — tolère une
+ * faute de frappe côté requête sans faire de la recherche floue générale
+ * (le corpus lui-même, du Wikipédia propre, n'en a pas besoin).
+ *
+ * `mot` étant absent du vocabulaire, tout candidat retenu ici est à
+ * distance exactement 1 (une distance 0 impliquerait `mot` lui-même dans
+ * le vocabulaire, déjà exclu ci-dessus) : aucun n'est donc « plus proche »
+ * qu'un autre. En cas de plusieurs candidats, le plus fréquent dans le
+ * corpus l'emporte plutôt que le premier rencontré dans l'ordre
+ * d'insertion du vocabulaire — arbitraire et dépendant de l'ordre de
+ * traitement des épisodes, retour d'usage sur la revue de la PR #62.
  */
 function corriger<T>(index: IndexBM25<T>, mot: string): string {
   if (mot.length < 4 || index.frequenceDocumentaire.has(mot)) return mot;
+  let meilleur: string | null = null;
+  let meilleureFrequence = 0;
   for (const candidat of index.vocabulaire) {
     if (candidat.length < 4 || Math.abs(candidat.length - mot.length) > 1) continue;
-    if (distanceLevenshtein(mot, candidat) <= 1) return candidat;
+    if (distanceLevenshtein(mot, candidat) > 1) continue;
+    const frequence = index.frequenceDocumentaire.get(candidat) ?? 0;
+    if (frequence > meilleureFrequence) {
+      meilleur = candidat;
+      meilleureFrequence = frequence;
+    }
   }
-  return mot;
+  return meilleur ?? mot;
 }
 
 export interface ResultatBM25<T> {

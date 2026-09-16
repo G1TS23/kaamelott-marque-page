@@ -68,4 +68,21 @@ describe('chercherBM25', () => {
       expect(r[i - 1].score).toBeGreaterThanOrEqual(r[i].score);
     }
   });
+
+  it('en cas de faute équidistante entre deux mots du corpus, corrige vers le plus fréquent', () => {
+    // "aable" n'existe dans aucun texte, à distance 1 à la fois de "table"
+    // (3 documents) et de "cable" (1 document) — doit se corriger vers le
+    // plus fréquent plutôt que le premier rencontré dans le vocabulaire
+    // (retour d'usage sur la revue de la PR #62 : l'ordre d'insertion était
+    // arbitraire, pas un choix de pertinence).
+    const corpus = [
+      doc('t1', 'Une table ronde réunit les chevaliers.'),
+      doc('t2', 'La table est dressée pour le banquet.'),
+      doc('t3', 'Autour de la table, on débat longuement.'),
+      doc('c1', 'Un cable relie les deux tours du château.'),
+    ];
+    const idx = creerIndexBM25(corpus, (d) => d.texte);
+    const r = chercherBM25(idx, 'aable');
+    expect(r.map((x) => x.item.id).sort()).toEqual(['t1', 't2', 't3']);
+  });
 });
