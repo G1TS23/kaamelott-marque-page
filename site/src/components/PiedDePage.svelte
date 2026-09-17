@@ -79,6 +79,8 @@
       />
     </svg>
   </a>
+  <span class="separateur" aria-hidden="true">·</span>
+  <a href="/mentions-legales">Mentions légales</a>
 </footer>
 
 <style>
