@@ -406,6 +406,44 @@
   {/if}
 {/snippet}
 
+{#snippet boutonsTransport()}
+  <button
+    type="button"
+    onclick={() => episodePrecedent && onEpisodeClick(livreEnCours, episodePrecedent)}
+    disabled={!episodePrecedent}
+    aria-label="Épisode précédent"
+  >
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" fill="currentColor" />
+    </svg>
+  </button>
+  <button
+    type="button"
+    onclick={() => lecteur?.basculerLecture()}
+    aria-label={enLecture ? 'Mettre en pause' : 'Lire'}
+  >
+    {#if enLecture}
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M6 5h4v14H6zm8 0h4v14h-4z" fill="currentColor" />
+      </svg>
+    {:else}
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M8 5v14l11-7z" fill="currentColor" />
+      </svg>
+    {/if}
+  </button>
+  <button
+    type="button"
+    onclick={() => episodeSuivant && onEpisodeClick(livreEnCours, episodeSuivant)}
+    disabled={!episodeSuivant}
+    aria-label="Épisode suivant"
+  >
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" fill="currentColor" />
+    </svg>
+  </button>
+{/snippet}
+
 <div bind:this={sentinelle} class="sentinelle" aria-hidden="true"></div>
 <div class="groupe-collant" class:actif={reduit}>
   <div class="groupe-ligne">
@@ -421,7 +459,12 @@
       }}
     />
     {#if reduit}
-      <div class="groupe-repere">{@render repereEpisode()}</div>
+      <div class="groupe-repere">
+        {@render repereEpisode()}
+        {#if bornesEpisodeCourant}
+          <div class="boutons-reduit">{@render boutonsTransport()}</div>
+        {/if}
+      </div>
     {/if}
   </div>
   {#if !reduit && episodeActifDetails}
@@ -433,41 +476,7 @@
   {#if bornesEpisodeCourant}
     <div class="transport">
       {#if !reduit}
-        <button
-          type="button"
-          onclick={() => episodePrecedent && onEpisodeClick(livreEnCours, episodePrecedent)}
-          disabled={!episodePrecedent}
-          aria-label="Épisode précédent"
-        >
-          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-            <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" fill="currentColor" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          onclick={() => lecteur?.basculerLecture()}
-          aria-label={enLecture ? 'Mettre en pause' : 'Lire'}
-        >
-          {#if enLecture}
-            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-              <path d="M6 5h4v14H6zm8 0h4v14h-4z" fill="currentColor" />
-            </svg>
-          {:else}
-            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-              <path d="M8 5v14l11-7z" fill="currentColor" />
-            </svg>
-          {/if}
-        </button>
-        <button
-          type="button"
-          onclick={() => episodeSuivant && onEpisodeClick(livreEnCours, episodeSuivant)}
-          disabled={!episodeSuivant}
-          aria-label="Épisode suivant"
-        >
-          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-            <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" fill="currentColor" />
-          </svg>
-        </button>
+        {@render boutonsTransport()}
       {/if}
       <MiniTimeline
         bornes={bornesEpisodeCourant}
@@ -803,17 +812,23 @@
     color: var(--encre);
   }
 
-  /* Boutons précédent/lecture-pause/suivant (retour d'usage) : n'existent
-     qu'en plein format (`!reduit`, voir le template) — le lecteur réduit
-     ne fait que 10rem de large avec son repère déjà à côté, pas la place
-     pour trois boutons de plus. `.transport` porte quand même la marge
-     dans les deux cas : en réduit, il ne contient que la mini-timeline,
-     visuellement identique à avant que ces boutons n'existent. */
+  /* En plein format, les boutons (`boutonsTransport`, snippet partagé)
+     vivent ici, à côté de la mini-timeline. En réduit, ils vivent plutôt
+     sous le repère (`.boutons-reduit` ci-dessous, retour d'usage) — pas
+     assez de place à côté d'un mini-lecteur de 10rem pour trois boutons
+     de plus, mais la colonne du repère, elle, a la largeur qu'il faut. */
   .transport {
     display: flex;
     align-items: center;
     gap: var(--esp-2);
     margin-top: var(--esp-3);
+  }
+
+  .boutons-reduit {
+    display: flex;
+    align-items: center;
+    gap: var(--esp-1);
+    margin-top: 0.15em;
   }
 
   /* Sans ça, la mini-timeline (elle-même `display: flex`) devient un
@@ -830,7 +845,8 @@
     margin-top: var(--esp-2);
   }
 
-  .transport button {
+  .transport button,
+  .boutons-reduit button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -855,9 +871,18 @@
     .transport button:not(:disabled):hover {
       background: var(--surface);
     }
+
+    /* `--surface-haute` plutôt que `--surface` (retour d'usage) : le
+       fond du lecteur réduit collant est déjà `--surface`
+       (`.groupe-collant.actif`) — un survol dans la même couleur ne se
+       voyait pas du tout. */
+    .boutons-reduit button:not(:disabled):hover {
+      background: var(--surface-haute);
+    }
   }
 
-  .transport button:disabled {
+  .transport button:disabled,
+  .boutons-reduit button:disabled {
     color: var(--encre-pale);
     cursor: default;
   }
