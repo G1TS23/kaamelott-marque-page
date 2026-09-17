@@ -1,9 +1,10 @@
 ---
 /**
  * Mentions légales — obligation minimale même pour un site personnel non
- * professionnel (LCEN art. 6-III-2) : identité de l'hébergeur publique,
- * éditeur anonyme vis-à-vis du public (choix fait, communiqué à
- * l'hébergeur comme l'exige la loi).
+ * professionnel (LCEN art. 6-III-1-a) : identité de l'éditeur (nom +
+ * contact) et de l'hébergeur publiques. Domicile et téléphone ne sont pas
+ * publiés (choix assumé, plus léger que la lettre stricte de la loi, mais
+ * pratique courante pour un site personnel).
  *
  * Page statique, hors de l'îlot Site.svelte (specs section 6 : le site
  * applicatif tient sur une seule page, mais une page d'infos légales
@@ -16,15 +17,15 @@ import PiedDePage from '../components/PiedDePage.svelte';
 
 <Base titre="Mentions légales — Le Marque-Page de la Relecture">
   <main>
+    <p class="retour"><a href="/">&larr; Retour au site</a></p>
+
     <h1>Mentions légales</h1>
 
     <h2>Éditeur</h2>
     <p>
-      Ce site est édité par une personne physique agissant à titre non
-      professionnel. Conformément à l'article 6-III-2 de la loi n° 2004-575
-      du 21 juin 2004 pour la confiance dans l'économie numérique, elle a
-      fait le choix de ne pas rendre son identité publique ; celle-ci a été
-      communiquée à l'hébergeur du site, comme la loi l'exige.
+      Ce site est édité par Olivier Falahi, agissant à titre non
+      professionnel. Contact :
+      <a href="mailto:olivier.falahi@gmail.com">olivier.falahi@gmail.com</a>.
     </p>
 
     <h2>Hébergement</h2>
@@ -71,6 +72,17 @@ import PiedDePage from '../components/PiedDePage.svelte';
     max-width: var(--largeur-contenu);
     margin: 0 auto;
     padding: var(--esp-6) var(--esp-4) calc(2.75rem + var(--esp-6));
+  }
+
+  .retour {
+    margin-bottom: var(--esp-4);
+  }
+
+  /* Soulignés en permanence, pas seulement au survol — même retour
+     d'accessibilité que le pied de page (WCAG 1.4.1, la couleur seule ne
+     suffit pas à distinguer un lien). */
+  main a {
+    text-decoration: underline;
   }
 
   h2 {
