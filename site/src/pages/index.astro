@@ -41,6 +41,9 @@ const livres: LivreEnListe[] = LIVRES.map((livre) => ({
        `position: fixed` — issue #54), qui a remplacé le grand titre qui
        vivait ici : sans cette marge, l'en-tête recouvrirait le début du
        contenu. */
-    padding: calc(3rem + var(--esp-4)) var(--esp-4) var(--esp-6);
+    /* Le bas compense la hauteur du pied de page fixe (Site.svelte,
+       `PiedDePage.svelte` — issue #20), qui sinon recouvrirait la fin du
+       sommaire. */
+    padding: calc(3rem + var(--esp-4)) var(--esp-4) calc(2.75rem + var(--esp-4));
   }
 </style>

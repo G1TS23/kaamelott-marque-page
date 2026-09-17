@@ -380,7 +380,7 @@
 
 <Sommaire {livres} {livreActif} {episodeActif} {onEpisodeClick} />
 
-<PiedDePage livre={livreActif} videoId={videoIdDuLivre(livreActif)} />
+<PiedDePage {gouttiere} />
 
 <style>
   /* Toujours collée dès le chargement, comme YouTube (issue #54, retour
