@@ -402,7 +402,10 @@
     {/if}
   </div>
   {#if !reduit && episodeActifDetails}
-    <div class="repere-plein">{@render repereEpisode()}</div>
+    <p class="repere-plein">
+      Livre {livreEnCours} - Épisode {String(episodeActifDetails.episode).padStart(2, '0')} :
+      {episodeActifDetails.title}
+    </p>
   {/if}
   {#if bornesEpisodeCourant}
     <MiniTimeline
@@ -701,19 +704,21 @@
     font-family: var(--police-mono);
   }
 
-  /* Même repère qu'en réduit (`repereEpisode`, snippet partagé), mais en
-     plein format (retour d'usage) : la vidéo seule n'identifie pas
-     l'épisode affiché, contrairement à la mini-lecture réduite qui a déjà
-     ce repère à côté d'elle — pas les deux en même temps, l'un remplace
-     l'autre selon `reduit`. Pleine largeur, pas de contrainte d'ellipse
-     comme en réduit : la place ne manque pas sous une vidéo en pleine
-     taille (--largeur-contenu). */
+  /* Repère de l'épisode en cours, mais en plein format (retour d'usage) :
+     la vidéo seule n'identifie pas l'épisode affiché, contrairement à la
+     mini-lecture réduite qui a déjà `repereEpisode` à côté d'elle — pas
+     les deux en même temps, l'un remplace l'autre selon `reduit`. Une
+     seule ligne pleine largeur plutôt que le livre en petit au-dessus du
+     titre (retour d'usage : lisible mais bizarre, le numéro d'épisode
+     collé à celui du livre sans rien entre les deux) — texte simple, pas
+     de contrainte d'ellipse comme en réduit : la place ne manque pas sous
+     une vidéo en pleine taille (--largeur-contenu). */
   .repere-plein {
-    display: flex;
-    align-items: baseline;
-    gap: var(--esp-2);
-    margin-top: var(--esp-3);
-    font-family: var(--police-mono);
+    margin: var(--esp-3) 0 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--encre-douce);
   }
 
   .repere-livre,
