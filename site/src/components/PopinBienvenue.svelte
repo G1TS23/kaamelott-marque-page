@@ -70,7 +70,7 @@
       <h2 id="bienvenue-titre">Bienvenue</h2>
       <p>
         Ce site aide à retrouver une scène dans les lectures-interprétations de
-        Kaamelott publiées par Shisheyu sur YouTube — il ne les remplace pas,
+        Kaamelott publiées par Shisheyu sur YouTube, il ne les remplace pas,
         les vidéos restent sur sa chaîne.
       </p>
       <p>
