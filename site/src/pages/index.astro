@@ -11,7 +11,12 @@ import type { LivreEnListe } from '../lib/episodes.ts';
  * ils partagent l'état de navigation, deux îlots séparés ne le pourraient
  * pas sans mécanisme de partage à part entière (issue #14). `PopinBienvenue`
  * est un second îlot à part, sans aucun état à partager avec le premier
- * (issue #19).
+ * (issue #19). `client:only` plutôt que `client:load` (retour d'usage) :
+ * la décision de l'afficher dépend de `localStorage`, inconnu du serveur —
+ * un rendu SSR l'aurait montrée par défaut le temps que l'hydratation la
+ * corrige, provoquant un clignotement visible à chaque rechargement pour
+ * qui l'a déjà fermée. Sans SSR, elle n'existe tout simplement pas tant
+ * que le client n'a pas tranché.
  */
 
 // Seuls les champs utiles à la liste sont passés à l'îlot : les résumés
@@ -34,7 +39,7 @@ const livres: LivreEnListe[] = LIVRES.map((livre) => ({
   <main>
     <Site client:load livres={livres} />
   </main>
-  <PopinBienvenue client:load />
+  <PopinBienvenue client:only="svelte" />
 </Base>
 
 <style>
