@@ -205,11 +205,16 @@
    * Bouton lecture/pause des contrôles de transport (`Site.svelte`) — se
    * contente de relayer l'intention vers l'API IFrame, `onStateChange` se
    * charge de rapporter le nouvel état réel (`onLectureChange`), pas
-   * besoin de le déduire ici.
+   * besoin de le déduire ici. Le test couvre aussi `BUFFERING`, pas
+   * seulement `PLAYING` : c'est le même critère que `enLecture` plus haut
+   * (l'icône affichée au moment du clic), sans quoi cliquer « pause »
+   * pendant une rebufferisation relançait la lecture au lieu de la
+   * mettre en pause pour de vrai.
    */
   export function basculerLecture() {
     if (!pret || !player) return;
-    if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+    const etatCourant = player.getPlayerState();
+    if (etatCourant === YT.PlayerState.PLAYING || etatCourant === YT.PlayerState.BUFFERING) {
       player.pauseVideo();
     } else {
       player.playVideo();
