@@ -96,6 +96,10 @@
   // qu'on écoutait). Voir `Lecteur.svelte` pour le détail des états qui
   // comptent comme « engagée ».
   let lectureEngagee = $state(false);
+  // État réel du bouton lecture/pause (contrôles de transport) — distinct
+  // de `lectureEngagee` : une pause laisse `lectureEngagee` vrai (le
+  // groupe reste collé) mais doit basculer ce bouton sur l'icône « lire ».
+  let enLecture = $state(false);
   // Les deux conditions à la fois pilotent la réduction du lecteur, le
   // collage du groupe et l'apparition du repère d'épisode.
   const reduit = $derived(collant && lectureEngagee);
@@ -237,11 +241,29 @@
   const episodesLivreEnCours = $derived(
     livres.find((l) => l.livre === livreEnCours)?.episodes ?? [],
   );
-  const bornesEpisodeCourant = $derived.by(() => {
-    if (!episodeActifDetails) return null;
-    const index = episodesLivreEnCours.indexOf(episodeActifDetails);
-    return index >= 0 ? bornesEpisode(episodesLivreEnCours, index, dureeVideo) : null;
-  });
+  const indexEpisodeEnCours = $derived(
+    episodeActifDetails ? episodesLivreEnCours.indexOf(episodeActifDetails) : -1,
+  );
+  const bornesEpisodeCourant = $derived(
+    indexEpisodeEnCours >= 0
+      ? bornesEpisode(episodesLivreEnCours, indexEpisodeEnCours, dureeVideo)
+      : null,
+  );
+  // Précédent/suivant (contrôles de transport) : restent dans le livre
+  // affiché, jamais de bascule automatique vers le livre suivant/précédent
+  // — même limite délibérée que la mini-timeline, qui ne franchit pas non
+  // plus les bornes de l'épisode/livre en cours. `null` en butée plutôt
+  // qu'un rebouclage, pour ne jamais changer de livre sans un clic
+  // explicite sur un onglet (voir la note en tête de fichier sur les
+  // responsabilités disjointes, issue #18).
+  const episodePrecedent = $derived(
+    indexEpisodeEnCours > 0 ? episodesLivreEnCours[indexEpisodeEnCours - 1] : null,
+  );
+  const episodeSuivant = $derived(
+    indexEpisodeEnCours >= 0 && indexEpisodeEnCours < episodesLivreEnCours.length - 1
+      ? episodesLivreEnCours[indexEpisodeEnCours + 1]
+      : null,
+  );
 
   $effect(() => {
     // `position: sticky` ne déclenche aucun événement natif quand le
@@ -392,6 +414,7 @@
       {videoIdInitial}
       {reduit}
       onChangementEngagement={(v) => (lectureEngagee = v)}
+      onLectureChange={(v) => (enLecture = v)}
       onProgression={(s, d) => {
         tempsCourant = s;
         dureeVideo = d;
@@ -408,14 +431,53 @@
     </p>
   {/if}
   {#if bornesEpisodeCourant}
-    <MiniTimeline
-      bornes={bornesEpisodeCourant}
-      position={tempsCourant}
-      onSeek={(secondes) => {
-        tempsCourant = secondes;
-        lecteur?.allerA(videoIdActif, secondes);
-      }}
-    />
+    <div class="transport">
+      {#if !reduit}
+        <button
+          type="button"
+          onclick={() => episodePrecedent && onEpisodeClick(livreEnCours, episodePrecedent)}
+          disabled={!episodePrecedent}
+          aria-label="Épisode précédent"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" fill="currentColor" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          onclick={() => lecteur?.basculerLecture()}
+          aria-label={enLecture ? 'Mettre en pause' : 'Lire'}
+        >
+          {#if enLecture}
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path d="M6 5h4v14H6zm8 0h4v14h-4z" fill="currentColor" />
+            </svg>
+          {:else}
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path d="M8 5v14l11-7z" fill="currentColor" />
+            </svg>
+          {/if}
+        </button>
+        <button
+          type="button"
+          onclick={() => episodeSuivant && onEpisodeClick(livreEnCours, episodeSuivant)}
+          disabled={!episodeSuivant}
+          aria-label="Épisode suivant"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" fill="currentColor" />
+          </svg>
+        </button>
+      {/if}
+      <MiniTimeline
+        bornes={bornesEpisodeCourant}
+        position={tempsCourant}
+        onSeek={(secondes) => {
+          tempsCourant = secondes;
+          lecteur?.allerA(videoIdActif, secondes);
+        }}
+      />
+    </div>
   {/if}
   <Onglets {livres} {livreActif} {episodeActif} {onLivreChange} />
 </div>
@@ -741,12 +803,53 @@
     color: var(--encre);
   }
 
-  .groupe-collant :global(.mini-timeline) {
+  /* Boutons précédent/lecture-pause/suivant (retour d'usage) : n'existent
+     qu'en plein format (`!reduit`, voir le template) — le lecteur réduit
+     ne fait que 10rem de large avec son repère déjà à côté, pas la place
+     pour trois boutons de plus. `.transport` porte quand même la marge
+     dans les deux cas : en réduit, il ne contient que la mini-timeline,
+     visuellement identique à avant que ces boutons n'existent. */
+  .transport {
+    display: flex;
+    align-items: center;
+    gap: var(--esp-2);
     margin-top: var(--esp-3);
   }
 
-  .groupe-collant.actif :global(.mini-timeline) {
+  .groupe-collant.actif .transport {
     margin-top: var(--esp-2);
+  }
+
+  .transport button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--encre);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* `(hover: hover)` plutôt qu'un `:hover` nu (retour d'usage récurrent
+     sur ce projet) : sur un écran tactile la pseudo-classe reste collée
+     après un tap. `:not(:disabled)` : un bouton en butée (précédent sur
+     le premier épisode, suivant sur le dernier) ne doit pas réagir au
+     survol comme s'il restait actionnable. */
+  @media (hover: hover) {
+    .transport button:not(:disabled):hover {
+      background: var(--surface);
+    }
+  }
+
+  .transport button:disabled {
+    color: var(--encre-pale);
+    cursor: default;
   }
 
   .groupe-collant :global(.onglets) {

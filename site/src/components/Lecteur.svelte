@@ -42,6 +42,14 @@
    * s'affichent avant l'image, flux séparé plus léger) : pas un bug de ce
    * code (`loadVideoById`/`seekTo` sont bien appelés), une latence
    * réseau/CDN normale mais invisible sans ce retour.
+   *
+   * `onLectureChange` (contrôles de transport) : contrairement à
+   * `chargement`, l'état lecture/pause doit remonter — le bouton qui
+   * l'affiche vit dans `Site.svelte`, à côté de la mini-timeline, pas dans
+   * ce composant. `BUFFERING` y compte comme « en lecture » (au même titre
+   * que dans `onChangementEngagement`) : l'intention de l'utilisateur est
+   * de lire, le bouton ne doit pas clignoter sur l'icône pause pendant un
+   * rebufferisation.
    */
   import { commandePourEpisode, type EtatLecteur } from '../lib/lecteur';
 
@@ -49,11 +57,13 @@
     videoIdInitial,
     reduit,
     onChangementEngagement,
+    onLectureChange,
     onProgression,
   }: {
     videoIdInitial: string;
     reduit: boolean;
     onChangementEngagement: (engagee: boolean) => void;
+    onLectureChange: (enLecture: boolean) => void;
     onProgression: (secondes: number, duree: number) => void;
   } = $props();
 
@@ -105,6 +115,9 @@
             e.data === YT.PlayerState.BUFFERING;
           onChangementEngagement(enSession);
           chargement = e.data === YT.PlayerState.BUFFERING;
+          onLectureChange(
+            e.data === YT.PlayerState.PLAYING || e.data === YT.PlayerState.BUFFERING,
+          );
         },
       },
     });
@@ -162,6 +175,21 @@
       player.loadVideoById({ videoId: commande.videoId, startSeconds: commande.secondes });
     }
     etat = { videoId, charge: true };
+  }
+
+  /**
+   * Bouton lecture/pause des contrôles de transport (`Site.svelte`) — se
+   * contente de relayer l'intention vers l'API IFrame, `onStateChange` se
+   * charge de rapporter le nouvel état réel (`onLectureChange`), pas
+   * besoin de le déduire ici.
+   */
+  export function basculerLecture() {
+    if (!pret || !player) return;
+    if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+      player.pauseVideo();
+    } else {
+      player.playVideo();
+    }
   }
 </script>
 
