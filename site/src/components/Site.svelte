@@ -379,7 +379,7 @@
   <span class="repere-livre">Livre {livreEnCours}</span>
   {#if episodeActifDetails}
     <span class="repere-episode">
-      {episodeActifDetails.episode} - {episodeActifDetails.title}
+      {String(episodeActifDetails.episode).padStart(2, '0')} - {episodeActifDetails.title}
     </span>
   {/if}
 {/snippet}
