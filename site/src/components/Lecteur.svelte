@@ -65,6 +65,12 @@
    * zéro que par un `ENDED` explicite — `UNSTARTED`/`CUED` intercalés
    * sont désormais ignorés plutôt que traités comme une perte
    * d'engagement.
+   *
+   * `onPret` (lien profond, issue #21) : `Site.svelte` doit attendre que
+   * l'API IFrame ait vraiment répondu avant d'appeler `allerA` pour
+   * ouvrir un lien partagé — l'appeler plus tôt échouerait silencieusement
+   * (`allerA` ne fait rien tant que `pret` est faux). Un simple callback
+   * plutôt qu'un délai deviné.
    */
   import { commandePourEpisode, type EtatLecteur } from '../lib/lecteur';
 
@@ -74,12 +80,17 @@
     onChangementEngagement,
     onLectureChange,
     onProgression,
+    onPret,
   }: {
     videoIdInitial: string;
     reduit: boolean;
     onChangementEngagement: (engagee: boolean) => void;
     onLectureChange: (enLecture: boolean) => void;
     onProgression: (secondes: number, duree: number) => void;
+    // Lien profond (issue #21) : `allerA` ne fait rien tant que `pret` est
+    // faux (l'API IFrame n'a pas encore répondu) — `Site.svelte` a besoin
+    // de savoir quand l'appeler pour de vrai plutôt que de deviner un délai.
+    onPret: () => void;
   } = $props();
 
   let conteneur: HTMLDivElement;
@@ -118,6 +129,7 @@
           pret = true;
           etat = { videoId: videoIdInitial, charge: false };
           demarrerSuiviProgression();
+          onPret();
         },
         // Une vignette jamais lancée (`CUED`/`UNSTARTED`) ne compte pas
         // comme « engagée » (retour d'usage sur #54) : sans quoi parcourir
