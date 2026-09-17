@@ -375,6 +375,15 @@
   />
 {/if}
 
+{#snippet repereEpisode()}
+  <span class="repere-livre">Livre {livreEnCours}</span>
+  {#if episodeActifDetails}
+    <span class="repere-episode">
+      {episodeActifDetails.episode} - {episodeActifDetails.title}
+    </span>
+  {/if}
+{/snippet}
+
 <div bind:this={sentinelle} class="sentinelle" aria-hidden="true"></div>
 <div class="groupe-collant" class:actif={reduit}>
   <div class="groupe-ligne">
@@ -389,16 +398,12 @@
       }}
     />
     {#if reduit}
-      <div class="groupe-repere">
-        <span class="groupe-repere-livre">Livre {livreEnCours}</span>
-        {#if episodeActifDetails}
-          <span class="groupe-repere-episode">
-            {episodeActifDetails.episode} - {episodeActifDetails.title}
-          </span>
-        {/if}
-      </div>
+      <div class="groupe-repere">{@render repereEpisode()}</div>
     {/if}
   </div>
+  {#if !reduit && episodeActifDetails}
+    <div class="repere-plein">{@render repereEpisode()}</div>
+  {/if}
   {#if bornesEpisodeCourant}
     <MiniTimeline
       bornes={bornesEpisodeCourant}
@@ -696,22 +701,37 @@
     font-family: var(--police-mono);
   }
 
-  .groupe-repere-livre,
-  .groupe-repere-episode {
+  /* Même repère qu'en réduit (`repereEpisode`, snippet partagé), mais en
+     plein format (retour d'usage) : la vidéo seule n'identifie pas
+     l'épisode affiché, contrairement à la mini-lecture réduite qui a déjà
+     ce repère à côté d'elle — pas les deux en même temps, l'un remplace
+     l'autre selon `reduit`. Pleine largeur, pas de contrainte d'ellipse
+     comme en réduit : la place ne manque pas sous une vidéo en pleine
+     taille (--largeur-contenu). */
+  .repere-plein {
+    display: flex;
+    align-items: baseline;
+    gap: var(--esp-2);
+    margin-top: var(--esp-3);
+    font-family: var(--police-mono);
+  }
+
+  .repere-livre,
+  .repere-episode {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .groupe-repere-livre {
+  .repere-livre {
     font-size: 0.68rem;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--encre-pale);
   }
 
-  .groupe-repere-episode {
+  .repere-episode {
     font-size: 0.78rem;
     color: var(--encre);
   }
