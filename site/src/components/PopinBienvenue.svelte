@@ -11,12 +11,20 @@
    * Le lien vers la chaîne de Shisheyu reste de toute façon accessible en
    * permanence en pied de page (`PiedDePage.svelte`) : fermer cette popin
    * sans cliquer le lien n'en prive donc personne.
+   *
+   * Fermeture uniquement par le bouton (retour d'usage) : ni Échap, ni un
+   * clic en dehors de la popin ne la ferme — seul « J'ai compris » le fait.
+   * Conséquence à assumer pour rester accessible : le reste de la page
+   * n'étant pas retiré du flux de tabulation, un piège de focus (`pieger`)
+   * empêche <kbd>Tab</kbd>/<kbd>Shift+Tab</kbd> d'atteindre ce contenu resté
+   * sous la popin, masqué visuellement mais toujours dans le DOM.
    */
   import { URL_CHAINE_YOUTUBE_SHISHEYU } from '../lib/liens.ts';
 
   const CLE_STOCKAGE = 'marque-page:bienvenue-vue';
 
   let visible = $state(!aDejaVu());
+  let lienYoutube: HTMLAnchorElement;
   let boutonFermer: HTMLButtonElement;
 
   function aDejaVu(): boolean {
@@ -37,12 +45,19 @@
     }
   }
 
-  function surClicFond(e: MouseEvent) {
-    if (e.target === e.currentTarget) fermer();
-  }
-
-  function surTouche(e: KeyboardEvent) {
-    if (e.key === 'Escape') fermer();
+  // Seuls deux éléments sont focusables dans la popin (le lien puis le
+  // bouton) : boucle Tab/Shift+Tab entre les deux plutôt que de laisser le
+  // focus s'échapper vers le contenu masqué derrière (voir la note du
+  // script ci-dessus sur le choix de ne pas fermer sur Échap/clic externe).
+  function pieger(e: KeyboardEvent) {
+    if (e.key !== 'Tab' || !visible) return;
+    if (e.shiftKey && document.activeElement === lienYoutube) {
+      e.preventDefault();
+      boutonFermer?.focus();
+    } else if (!e.shiftKey && document.activeElement === boutonFermer) {
+      e.preventDefault();
+      lienYoutube?.focus();
+    }
   }
 
   $effect(() => {
@@ -62,10 +77,10 @@
   });
 </script>
 
-<svelte:window onkeydown={surTouche} />
+<svelte:window onkeydown={pieger} />
 
 {#if visible}
-  <div class="fond" onclick={surClicFond}>
+  <div class="fond">
     <div class="popin" role="dialog" aria-modal="true" aria-labelledby="bienvenue-titre">
       <h2 id="bienvenue-titre">Bienvenue</h2>
       <p>
@@ -75,7 +90,7 @@
       </p>
       <p>
         Merci à lui pour ces heures de lecture :
-        <a href={URL_CHAINE_YOUTUBE_SHISHEYU} target="_blank" rel="noopener noreferrer"><span aria-hidden="true">sa chaîne YouTube</span><span class="sr-only">Chaîne YouTube de Shisheyu (nouvel onglet)</span></a>.
+        <a bind:this={lienYoutube} href={URL_CHAINE_YOUTUBE_SHISHEYU} target="_blank" rel="noopener noreferrer"><span aria-hidden="true">sa chaîne YouTube</span><span class="sr-only">Chaîne YouTube de Shisheyu (nouvel onglet)</span></a>.
       </p>
       <p>
         Kaamelott et ses dialogues appartiennent à Alexandre Astier et aux
