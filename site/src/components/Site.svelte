@@ -49,7 +49,9 @@
     creerIndexTitres,
     joindreDonneesRecherche,
   } from '../lib/recherche.ts';
+  import { bornesEpisode } from '../lib/timeline.ts';
   import Lecteur from './Lecteur.svelte';
+  import MiniTimeline from './MiniTimeline.svelte';
   import Onglets from './Onglets.svelte';
   import PiedDePage from './PiedDePage.svelte';
   import RechercheMobile from './RechercheMobile.svelte';
@@ -76,6 +78,12 @@
   // (Lecteur.svelte), qui sonde `getCurrentTime()`.
   let videoIdActif = $state(videoIdDuLivre(livres[0].livre));
   let tempsCourant = $state(0);
+  // Durée totale de la vidéo (issue #56) : borne haute de la mini-timeline
+  // pour le dernier épisode d'un livre. 0 tant que `getDuration()` n'a pas
+  // encore résolu de valeur utile (juste après le montage du lecteur) —
+  // sans effet gênant, `bornesEpisode`/`ratioDepuisSecondes` restent
+  // cohérents avec une borne haute à 0 le temps que la vraie durée arrive.
+  let dureeVideo = $state(0);
   let lecteur: Lecteur;
   let sentinelle: HTMLDivElement;
   // Vrai une fois le groupe lecteur + onglets scrollé sous l'en-tête —
@@ -222,6 +230,19 @@
   );
   const episodeActifDetails = $derived(lectureEngagee ? episodeEnCoursDetails : null);
 
+  // Bornes de l'épisode en cours pour la mini-timeline (issue #56) : même
+  // liste que `episodeEnCoursDetails` ci-dessus, ses éléments y sont donc
+  // retrouvables par référence (`indexOf`) sans reparcourir la logique de
+  // recherche par position.
+  const episodesLivreEnCours = $derived(
+    livres.find((l) => l.livre === livreEnCours)?.episodes ?? [],
+  );
+  const bornesEpisodeCourant = $derived.by(() => {
+    if (!episodeActifDetails) return null;
+    const index = episodesLivreEnCours.indexOf(episodeActifDetails);
+    return index >= 0 ? bornesEpisode(episodesLivreEnCours, index, dureeVideo) : null;
+  });
+
   $effect(() => {
     // `position: sticky` ne déclenche aucun événement natif quand le
     // groupe se colle réellement — technique standard : une sentinelle
@@ -362,7 +383,10 @@
       {videoIdInitial}
       {reduit}
       onChangementEngagement={(v) => (lectureEngagee = v)}
-      onProgression={(s) => (tempsCourant = s)}
+      onProgression={(s, d) => {
+        tempsCourant = s;
+        dureeVideo = d;
+      }}
     />
     {#if reduit}
       <div class="groupe-repere">
@@ -375,6 +399,16 @@
       </div>
     {/if}
   </div>
+  {#if bornesEpisodeCourant}
+    <MiniTimeline
+      bornes={bornesEpisodeCourant}
+      position={tempsCourant}
+      onSeek={(secondes) => {
+        tempsCourant = secondes;
+        lecteur?.allerA(videoIdActif, secondes);
+      }}
+    />
+  {/if}
   <Onglets {livres} {livreActif} {episodeActif} {onLivreChange} />
 </div>
 
@@ -680,6 +714,14 @@
   .groupe-repere-episode {
     font-size: 0.78rem;
     color: var(--encre);
+  }
+
+  .groupe-collant :global(.mini-timeline) {
+    margin-top: var(--esp-3);
+  }
+
+  .groupe-collant.actif :global(.mini-timeline) {
+    margin-top: var(--esp-2);
   }
 
   .groupe-collant :global(.onglets) {

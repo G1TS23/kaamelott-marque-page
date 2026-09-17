@@ -29,8 +29,19 @@
    * cliqué — sans quoi la vidéo qui avance toute seule jusqu'à l'épisode
    * suivant, ou un clic dans la barre de progrès YouTube, laisseraient
    * l'ancien épisode surligné. `onStateChange` ne dit que « en lecture »,
-   * pas « à quelle seconde » : `onProgression` relaie `getCurrentTime()`,
-   * seule l'API IFrame le sait.
+   * pas « à quelle seconde » : `onProgression` relaie `getCurrentTime()`
+   * *et* `getDuration()` (borne haute de la mini-timeline pour le dernier
+   * épisode d'un livre, `Site.svelte` — seule l'API IFrame connaît l'une
+   * comme l'autre).
+   *
+   * `chargement` (issue #56) reste interne à ce composant, contrairement
+   * au reste de l'état ci-dessus : c'est un pur retour visuel sur son
+   * propre lecteur, personne d'autre n'en a besoin. Vrai sur `BUFFERING`
+   * — observé en pratique jusqu'à 5-6s sur un saut vers un point jamais
+   * bufferisé d'une vidéo de plusieurs heures (écran noir, sous-titres qui
+   * s'affichent avant l'image, flux séparé plus léger) : pas un bug de ce
+   * code (`loadVideoById`/`seekTo` sont bien appelés), une latence
+   * réseau/CDN normale mais invisible sans ce retour.
    */
   import { commandePourEpisode, type EtatLecteur } from '../lib/lecteur';
 
@@ -43,7 +54,7 @@
     videoIdInitial: string;
     reduit: boolean;
     onChangementEngagement: (engagee: boolean) => void;
-    onProgression: (secondes: number) => void;
+    onProgression: (secondes: number, duree: number) => void;
   } = $props();
 
   let conteneur: HTMLDivElement;
@@ -53,6 +64,7 @@
   // vidéo en attente, comme `cueVideoById` — rien n'est encore bufferisé
   // (src/lib/lecteur.ts pour la raison de cette distinction).
   let etat = $state<EtatLecteur | null>(null);
+  let chargement = $state(false);
   // Sondage de `getCurrentTime()` (issue #56) : l'API IFrame ne notifie que
   // les changements d'état (`onStateChange`), jamais l'avancement continu
   // de la lecture — un intervalle est la seule façon de suivre la position.
@@ -64,7 +76,7 @@
   function demarrerSuiviProgression() {
     if (intervalleProgression !== undefined) return; // un seul sondage à la fois
     intervalleProgression = setInterval(() => {
-      if (player) onProgression(player.getCurrentTime());
+      if (player) onProgression(player.getCurrentTime(), player.getDuration());
     }, 1000);
   }
 
@@ -92,6 +104,7 @@
             e.data === YT.PlayerState.PAUSED ||
             e.data === YT.PlayerState.BUFFERING;
           onChangementEngagement(enSession);
+          chargement = e.data === YT.PlayerState.BUFFERING;
         },
       },
     });
@@ -154,6 +167,9 @@
 
 <div class="cadre" class:reduit>
   <div bind:this={conteneur}></div>
+  {#if chargement}
+    <div class="chargement" aria-live="polite">Chargement…</div>
+  {/if}
 </div>
 
 <style>
@@ -197,5 +213,28 @@
     .cadre {
       transition: none;
     }
+  }
+
+  /* Retour visuel pendant l'état `BUFFERING` (voir le commentaire du
+     script) : sans lui, un saut vers un point jamais bufferisé ressemble à
+     un blocage (écran noir, sous-titres qui s'affichent avant l'image). */
+  .chargement {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--encre) 55%, transparent);
+    color: var(--surface-haute);
+    font-family: var(--police-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+
+  .cadre.reduit .chargement {
+    font-size: 0.55rem;
+    letter-spacing: 0.02em;
   }
 </style>
