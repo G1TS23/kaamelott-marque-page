@@ -51,16 +51,20 @@
    * de lire, le bouton ne doit pas clignoter sur l'icône pause pendant un
    * rebufferisation.
    *
-   * `enAttenteDEngagement` (retour d'usage) : `loadVideoById` (changement
-   * de livre) fait toujours passer l'API par un état transitoire non
-   * engagé (`UNSTARTED`/`CUED`) avant `BUFFERING`/`PLAYING` — reporter
-   * chaque état tel quel faisait clignoter tout ce qui dépend de
-   * `lectureEngagee` (repère, mini-timeline, contrôles de transport) :
-   * apparu, disparu, réapparu en l'espace d'une seconde. Posé par `allerA`
-   * juste avant `loadVideoById`, il ignore les rebonds « non engagé »
-   * tant qu'aucun état réellement engagé n'est encore arrivé — une fois
-   * arrivé, les états suivants (y compris une vraie pause) sont à nouveau
-   * rapportés normalement.
+   * `engage` (retour d'usage) — l'API ne se contente pas d'un aller
+   * simple vers `PLAYING` : `UNSTARTED`/`CUED` peuvent réapparaître en
+   * cours de session (pas seulement au tout début), y compris plusieurs
+   * secondes après un `PLAYING` bien réel — observé en pratique pendant
+   * un chargement lent. Le comportement voulu (déjà énoncé plus bas :
+   * « une pause ne doit pas décoller le lecteur… seule la fin de la
+   * vidéo remet à zéro ») n'était en fait pas respecté : `UNSTARTED`/
+   * `CUED` retombaient à « non engagé » comme si la vidéo n'avait jamais
+   * démarré, ce qui faisait clignoter tout ce qui dépend de
+   * `lectureEngagee` (repère, mini-timeline, contrôles de transport).
+   * `engage` mémorise le dernier état réellement engagé et n'est remis à
+   * zéro que par un `ENDED` explicite — `UNSTARTED`/`CUED` intercalés
+   * sont désormais ignorés plutôt que traités comme une perte
+   * d'engagement.
    */
   import { commandePourEpisode, type EtatLecteur } from '../lib/lecteur';
 
@@ -86,8 +90,9 @@
   // (src/lib/lecteur.ts pour la raison de cette distinction).
   let etat = $state<EtatLecteur | null>(null);
   let chargement = $state(false);
-  // Voir la note du script sur `enAttenteDEngagement`.
-  let enAttenteDEngagement = false;
+  // Voir la note du script sur `engage` : dernier état réellement engagé
+  // connu, distinct de l'état brut de l'événement `onStateChange` reçu.
+  let engage = false;
   // Sondage de `getCurrentTime()` (issue #56) : l'API IFrame ne notifie que
   // les changements d'état (`onStateChange`), jamais l'avancement continu
   // de la lecture — un intervalle est la seule façon de suivre la position.
@@ -117,24 +122,26 @@
         // Une vignette jamais lancée (`CUED`/`UNSTARTED`) ne compte pas
         // comme « engagée » (retour d'usage sur #54) : sans quoi parcourir
         // le sommaire sans rien écouter collerait quand même un lecteur en
-        // pleine taille. Une fois lancée, en revanche, une pause ne doit
-        // pas décoller le lecteur (autre retour d'usage) : `PAUSED` et
-        // `BUFFERING` comptent autant que `PLAYING`. Seule la fin de la
-        // vidéo (`ENDED`) remet à zéro, comme un retour à l'état initial.
+        // pleine taille. Une fois lancée, en revanche, rien ne doit
+        // décoller le lecteur avant la vraie fin de la vidéo (autre retour
+        // d'usage) : `PAUSED` et `BUFFERING` comptent autant que
+        // `PLAYING`, et `UNSTARTED`/`CUED` réapparaissant en cours de
+        // session sont ignorés plutôt que traités comme un retour à l'état
+        // initial (voir la note du script sur `engage`). Seule `ENDED`
+        // remet vraiment à zéro.
         onStateChange: (e) => {
-          const enSession =
-            e.data === YT.PlayerState.PLAYING ||
-            e.data === YT.PlayerState.PAUSED ||
-            e.data === YT.PlayerState.BUFFERING;
-          if (enAttenteDEngagement) {
-            if (!enSession) return; // rebond transitoire, voir la note du script
-            enAttenteDEngagement = false;
+          const enLecture =
+            e.data === YT.PlayerState.PLAYING || e.data === YT.PlayerState.BUFFERING;
+          if (enLecture || e.data === YT.PlayerState.PAUSED) {
+            engage = true;
+          } else if (e.data === YT.PlayerState.ENDED) {
+            engage = false;
+          } else {
+            return; // UNSTARTED/CUED intercalés : ignorés, voir la note du script
           }
-          onChangementEngagement(enSession);
           chargement = e.data === YT.PlayerState.BUFFERING;
-          onLectureChange(
-            e.data === YT.PlayerState.PLAYING || e.data === YT.PlayerState.BUFFERING,
-          );
+          onChangementEngagement(engage);
+          onLectureChange(enLecture);
         },
       },
     });
@@ -189,7 +196,6 @@
     } else {
       // `loadVideoById` charge *et* lance la lecture (doc API IFrame) —
       // vérifié bout en bout sur la preview de déploiement.
-      enAttenteDEngagement = true;
       player.loadVideoById({ videoId: commande.videoId, startSeconds: commande.secondes });
     }
     etat = { videoId, charge: true };
