@@ -104,6 +104,7 @@
     onkeydown={surTouche}
   >
     <div class="remplissage" style="width: {ratio * 100}%"></div>
+    <div class="poignee" style="left: {ratio * 100}%"></div>
   </div>
   <span class="temps">{formaterTempsEcoule(ecoule)} / {formaterTempsEcoule(duree)}</span>
 </div>
@@ -147,6 +148,24 @@
     transform: translateY(-50%);
     border-radius: var(--rayon-pilule);
     background: var(--accent);
+    pointer-events: none;
+  }
+
+  /* Poignée ronde (retour d'usage) : une simple barre ne suggère pas
+     qu'on peut la manipuler, contrairement à un point qu'on associe
+     d'instinct à un curseur qu'on fait glisser (même rôle que le curseur
+     de la timeline YouTube native). `pointer-events: none` : le geste est
+     déjà géré par `.barre` sur toute sa largeur, pas seulement sur ce
+     point précis. */
+  .poignee {
+    position: absolute;
+    top: 50%;
+    width: 0.7rem;
+    height: 0.7rem;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: var(--ombre);
     pointer-events: none;
   }
 
