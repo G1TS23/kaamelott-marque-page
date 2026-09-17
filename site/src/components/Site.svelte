@@ -307,7 +307,17 @@
     lecteur?.allerA(episode.video_id, episode.start_seconds);
     // Retour en douceur en haut (issue #54, retour d'usage) : cliquer un
     // épisode pendant que le groupe est réduit doit ramener le lecteur en
-    // grand, pas juste changer ce qui joue hors champ.
+    // grand, pas juste changer ce qui joue hors champ. `collant` est aussi
+    // remis à faux explicitement ici (retour d'usage, Safari) : sur ce
+    // navigateur, ce `scrollTo({ behavior: 'smooth' })` ne relance pas
+    // toujours l'animation de façon fiable dans ce contexte (clic pendant
+    // que le groupe est déjà réduit) — sans ce filet, `collant` restait
+    // vrai (l'`IntersectionObserver` ne voyait jamais la sentinelle
+    // revenir), et le lecteur démarrait directement réduit au lieu de
+    // revenir en plein format. `collant` n'est qu'un indicateur de
+    // position, pas une source de vérité qu'un vrai scroll ultérieur ne
+    // pourrait pas corriger dans l'autre sens.
+    collant = false;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
