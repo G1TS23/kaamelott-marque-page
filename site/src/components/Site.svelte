@@ -35,6 +35,7 @@
    *   seulement le dernier épisode cliqué — voir `videoIdActif` et
    *   `tempsCourant` plus bas.
    */
+  import { tick } from 'svelte';
   import {
     aplatir,
     type DonneesRecherche,
@@ -292,7 +293,7 @@
     requete = '';
   }
 
-  function onEpisodeClick(livre: NumeroLivre, episode: EpisodeListe) {
+  async function onEpisodeClick(livre: NumeroLivre, episode: EpisodeListe) {
     // Un résultat de recherche peut venir d'un autre livre que celui affiché
     // (issue #18) : l'onglet suit, pour que le sommaire retrouve le bon
     // livre une fois la recherche effacée. `bind:this` est résolu avant
@@ -305,19 +306,24 @@
     videoIdActif = episode.video_id;
     tempsCourant = episode.start_seconds;
     lecteur?.allerA(episode.video_id, episode.start_seconds);
-    // Retour en douceur en haut (issue #54, retour d'usage) : cliquer un
-    // épisode pendant que le groupe est réduit doit ramener le lecteur en
-    // grand, pas juste changer ce qui joue hors champ. `collant` est aussi
-    // remis à faux explicitement ici (retour d'usage, Safari) : sur ce
-    // navigateur, ce `scrollTo({ behavior: 'smooth' })` ne relance pas
-    // toujours l'animation de façon fiable dans ce contexte (clic pendant
-    // que le groupe est déjà réduit) — sans ce filet, `collant` restait
-    // vrai (l'`IntersectionObserver` ne voyait jamais la sentinelle
-    // revenir), et le lecteur démarrait directement réduit au lieu de
-    // revenir en plein format. `collant` n'est qu'un indicateur de
+    // `collant` remis à faux explicitement (retour d'usage, Safari) :
+    // cliquer un épisode pendant que le groupe est déjà réduit ne doit
+    // jamais le laisser réduit, quel que soit le sort du scroll qui suit
+    // sur le navigateur utilisé — `collant` n'est qu'un indicateur de
     // position, pas une source de vérité qu'un vrai scroll ultérieur ne
     // pourrait pas corriger dans l'autre sens.
     collant = false;
+    // `tick()` avant le scroll (retour d'usage, Safari) : sans lui, le
+    // scroll démarre avant que Svelte n'ait retiré la classe `position:
+    // sticky` du DOM (mise à jour réactive, pas synchrone avec
+    // l'affectation ci-dessus) — ce changement de layout pendant
+    // l'animation semble annuler le `scrollTo` en cours sur Safari (pas
+    // sur Chrome, plus tolérant). Attendre que le DOM soit à jour avant de
+    // lancer le scroll évite que quoi que ce soit ne bouge sous lui.
+    await tick();
+    // Retour en douceur en haut (issue #54, retour d'usage) : cliquer un
+    // épisode pendant que le groupe est réduit doit ramener le lecteur en
+    // grand, pas juste changer ce qui joue hors champ.
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
