@@ -1,0 +1,94 @@
+---
+/**
+ * Mentions légales — obligation minimale même pour un site personnel non
+ * professionnel (LCEN art. 6-III-1-a) : identité de l'éditeur (nom +
+ * contact) et de l'hébergeur publiques. Domicile et téléphone ne sont pas
+ * publiés (choix assumé, plus léger que la lettre stricte de la loi, mais
+ * pratique courante pour un site personnel).
+ *
+ * Page statique, hors de l'îlot Site.svelte (specs section 6 : le site
+ * applicatif tient sur une seule page, mais une page d'infos légales
+ * séparée n'y déroge pas). `PiedDePage` est réutilisé tel quel, sans
+ * `client:*` — aucune de ses props n'a besoin d'interactivité ici.
+ */
+import Base from '../layouts/Base.astro';
+import PiedDePage from '../components/PiedDePage.svelte';
+---
+
+<Base titre="Mentions légales — Le Marque-Page de la Relecture">
+  <main>
+    <p class="retour"><a href="/">&larr; Retour au site</a></p>
+
+    <h1>Mentions légales</h1>
+
+    <h2>Éditeur</h2>
+    <p>
+      Ce site est édité par Olivier Falahi, agissant à titre non
+      professionnel. Contact : <a href="mailto:olivier@falahi.org">olivier@falahi.org</a>.
+    </p>
+
+    <h2>Hébergement</h2>
+    <p>
+      Netlify, Inc.<br />
+      101 2nd Street, San Francisco, CA 94105-2239, États-Unis<br />
+      <a href="https://www.netlify.com" target="_blank" rel="noopener noreferrer">
+        netlify.com
+      </a>
+    </p>
+
+    <h2>Propriété intellectuelle</h2>
+    <p>
+      Kaamelott et ses dialogues appartiennent à Alexandre Astier et aux
+      ayants droit d'origine de l'œuvre. Ce site n'est affilié ni à
+      Alexandre Astier et ses ayants droit, ni à Shisheyu — c'est un outil
+      non officiel qui aide à naviguer dans les lectures-interprétations
+      publiées par Shisheyu sur YouTube, sans en reproduire le contenu.
+    </p>
+
+    <h2>Données personnelles</h2>
+    <p>
+      Ce site ne collecte et ne transmet aucune donnée personnelle de son
+      propre fait : pas de compte, pas de suivi statistique, pas de cookie
+      posé par le site lui-même. Les recherches récentes affichées dans
+      l'écran de recherche mobile restent uniquement dans le navigateur
+      (stockage local), jamais envoyées où que ce soit.
+    </p>
+    <p>
+      Le lecteur vidéo intégré charge des vidéos depuis YouTube (Google
+      LLC), qui peut déposer ses propres cookies et traiter des données
+      selon ses propres règles — voir la <a
+        href="https://policies.google.com/privacy"
+        target="_blank"
+        rel="noopener noreferrer">politique de confidentialité de Google</a>.
+    </p>
+  </main>
+
+  <PiedDePage />
+</Base>
+
+<style>
+  main {
+    max-width: var(--largeur-contenu);
+    margin: 0 auto;
+    padding: var(--esp-6) var(--esp-4) calc(2.75rem + var(--esp-6));
+  }
+
+  .retour {
+    margin-bottom: var(--esp-4);
+  }
+
+  /* Soulignés en permanence, pas seulement au survol — même retour
+     d'accessibilité que le pied de page (WCAG 1.4.1, la couleur seule ne
+     suffit pas à distinguer un lien). */
+  main a {
+    text-decoration: underline;
+  }
+
+  h2 {
+    margin-top: var(--esp-6);
+  }
+
+  p {
+    color: var(--encre-douce);
+  }
+</style>
