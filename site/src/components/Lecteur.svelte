@@ -50,6 +50,17 @@
    * que dans `onChangementEngagement`) : l'intention de l'utilisateur est
    * de lire, le bouton ne doit pas clignoter sur l'icône pause pendant un
    * rebufferisation.
+   *
+   * `enAttenteDEngagement` (retour d'usage) : `loadVideoById` (changement
+   * de livre) fait toujours passer l'API par un état transitoire non
+   * engagé (`UNSTARTED`/`CUED`) avant `BUFFERING`/`PLAYING` — reporter
+   * chaque état tel quel faisait clignoter tout ce qui dépend de
+   * `lectureEngagee` (repère, mini-timeline, contrôles de transport) :
+   * apparu, disparu, réapparu en l'espace d'une seconde. Posé par `allerA`
+   * juste avant `loadVideoById`, il ignore les rebonds « non engagé »
+   * tant qu'aucun état réellement engagé n'est encore arrivé — une fois
+   * arrivé, les états suivants (y compris une vraie pause) sont à nouveau
+   * rapportés normalement.
    */
   import { commandePourEpisode, type EtatLecteur } from '../lib/lecteur';
 
@@ -75,6 +86,8 @@
   // (src/lib/lecteur.ts pour la raison de cette distinction).
   let etat = $state<EtatLecteur | null>(null);
   let chargement = $state(false);
+  // Voir la note du script sur `enAttenteDEngagement`.
+  let enAttenteDEngagement = false;
   // Sondage de `getCurrentTime()` (issue #56) : l'API IFrame ne notifie que
   // les changements d'état (`onStateChange`), jamais l'avancement continu
   // de la lecture — un intervalle est la seule façon de suivre la position.
@@ -113,6 +126,10 @@
             e.data === YT.PlayerState.PLAYING ||
             e.data === YT.PlayerState.PAUSED ||
             e.data === YT.PlayerState.BUFFERING;
+          if (enAttenteDEngagement) {
+            if (!enSession) return; // rebond transitoire, voir la note du script
+            enAttenteDEngagement = false;
+          }
           onChangementEngagement(enSession);
           chargement = e.data === YT.PlayerState.BUFFERING;
           onLectureChange(
@@ -172,6 +189,7 @@
     } else {
       // `loadVideoById` charge *et* lance la lecture (doc API IFrame) —
       // vérifié bout en bout sur la preview de déploiement.
+      enAttenteDEngagement = true;
       player.loadVideoById({ videoId: commande.videoId, startSeconds: commande.secondes });
     }
     etat = { videoId, charge: true };

@@ -816,6 +816,16 @@
     margin-top: var(--esp-3);
   }
 
+  /* Sans ça, la mini-timeline (elle-même `display: flex`) devient un
+     élément flex de `.transport` comme les boutons à côté d'elle — un
+     élément flex ne s'étire pas par défaut, elle se réduirait à la
+     largeur de son contenu au lieu de remplir l'espace restant (retour
+     d'usage : cassée depuis l'ajout des boutons de transport). */
+  .transport :global(.mini-timeline) {
+    flex: 1;
+    min-width: 0;
+  }
+
   .groupe-collant.actif .transport {
     margin-top: var(--esp-2);
   }
