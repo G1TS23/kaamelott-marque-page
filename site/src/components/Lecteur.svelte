@@ -29,8 +29,42 @@
    * cliqué — sans quoi la vidéo qui avance toute seule jusqu'à l'épisode
    * suivant, ou un clic dans la barre de progrès YouTube, laisseraient
    * l'ancien épisode surligné. `onStateChange` ne dit que « en lecture »,
-   * pas « à quelle seconde » : `onProgression` relaie `getCurrentTime()`,
-   * seule l'API IFrame le sait.
+   * pas « à quelle seconde » : `onProgression` relaie `getCurrentTime()`
+   * *et* `getDuration()` (borne haute de la mini-timeline pour le dernier
+   * épisode d'un livre, `Site.svelte` — seule l'API IFrame connaît l'une
+   * comme l'autre).
+   *
+   * `chargement` (issue #56) reste interne à ce composant, contrairement
+   * au reste de l'état ci-dessus : c'est un pur retour visuel sur son
+   * propre lecteur, personne d'autre n'en a besoin. Vrai sur `BUFFERING`
+   * — observé en pratique jusqu'à 5-6s sur un saut vers un point jamais
+   * bufferisé d'une vidéo de plusieurs heures (écran noir, sous-titres qui
+   * s'affichent avant l'image, flux séparé plus léger) : pas un bug de ce
+   * code (`loadVideoById`/`seekTo` sont bien appelés), une latence
+   * réseau/CDN normale mais invisible sans ce retour.
+   *
+   * `onLectureChange` (contrôles de transport) : contrairement à
+   * `chargement`, l'état lecture/pause doit remonter — le bouton qui
+   * l'affiche vit dans `Site.svelte`, à côté de la mini-timeline, pas dans
+   * ce composant. `BUFFERING` y compte comme « en lecture » (au même titre
+   * que dans `onChangementEngagement`) : l'intention de l'utilisateur est
+   * de lire, le bouton ne doit pas clignoter sur l'icône pause pendant un
+   * rebufferisation.
+   *
+   * `engage` (retour d'usage) — l'API ne se contente pas d'un aller
+   * simple vers `PLAYING` : `UNSTARTED`/`CUED` peuvent réapparaître en
+   * cours de session (pas seulement au tout début), y compris plusieurs
+   * secondes après un `PLAYING` bien réel — observé en pratique pendant
+   * un chargement lent. Le comportement voulu (déjà énoncé plus bas :
+   * « une pause ne doit pas décoller le lecteur… seule la fin de la
+   * vidéo remet à zéro ») n'était en fait pas respecté : `UNSTARTED`/
+   * `CUED` retombaient à « non engagé » comme si la vidéo n'avait jamais
+   * démarré, ce qui faisait clignoter tout ce qui dépend de
+   * `lectureEngagee` (repère, mini-timeline, contrôles de transport).
+   * `engage` mémorise le dernier état réellement engagé et n'est remis à
+   * zéro que par un `ENDED` explicite — `UNSTARTED`/`CUED` intercalés
+   * sont désormais ignorés plutôt que traités comme une perte
+   * d'engagement.
    */
   import { commandePourEpisode, type EtatLecteur } from '../lib/lecteur';
 
@@ -38,12 +72,14 @@
     videoIdInitial,
     reduit,
     onChangementEngagement,
+    onLectureChange,
     onProgression,
   }: {
     videoIdInitial: string;
     reduit: boolean;
     onChangementEngagement: (engagee: boolean) => void;
-    onProgression: (secondes: number) => void;
+    onLectureChange: (enLecture: boolean) => void;
+    onProgression: (secondes: number, duree: number) => void;
   } = $props();
 
   let conteneur: HTMLDivElement;
@@ -53,6 +89,10 @@
   // vidéo en attente, comme `cueVideoById` — rien n'est encore bufferisé
   // (src/lib/lecteur.ts pour la raison de cette distinction).
   let etat = $state<EtatLecteur | null>(null);
+  let chargement = $state(false);
+  // Voir la note du script sur `engage` : dernier état réellement engagé
+  // connu, distinct de l'état brut de l'événement `onStateChange` reçu.
+  let engage = false;
   // Sondage de `getCurrentTime()` (issue #56) : l'API IFrame ne notifie que
   // les changements d'état (`onStateChange`), jamais l'avancement continu
   // de la lecture — un intervalle est la seule façon de suivre la position.
@@ -64,7 +104,7 @@
   function demarrerSuiviProgression() {
     if (intervalleProgression !== undefined) return; // un seul sondage à la fois
     intervalleProgression = setInterval(() => {
-      if (player) onProgression(player.getCurrentTime());
+      if (player) onProgression(player.getCurrentTime(), player.getDuration());
     }, 1000);
   }
 
@@ -82,16 +122,26 @@
         // Une vignette jamais lancée (`CUED`/`UNSTARTED`) ne compte pas
         // comme « engagée » (retour d'usage sur #54) : sans quoi parcourir
         // le sommaire sans rien écouter collerait quand même un lecteur en
-        // pleine taille. Une fois lancée, en revanche, une pause ne doit
-        // pas décoller le lecteur (autre retour d'usage) : `PAUSED` et
-        // `BUFFERING` comptent autant que `PLAYING`. Seule la fin de la
-        // vidéo (`ENDED`) remet à zéro, comme un retour à l'état initial.
+        // pleine taille. Une fois lancée, en revanche, rien ne doit
+        // décoller le lecteur avant la vraie fin de la vidéo (autre retour
+        // d'usage) : `PAUSED` et `BUFFERING` comptent autant que
+        // `PLAYING`, et `UNSTARTED`/`CUED` réapparaissant en cours de
+        // session sont ignorés plutôt que traités comme un retour à l'état
+        // initial (voir la note du script sur `engage`). Seule `ENDED`
+        // remet vraiment à zéro.
         onStateChange: (e) => {
-          const enSession =
-            e.data === YT.PlayerState.PLAYING ||
-            e.data === YT.PlayerState.PAUSED ||
-            e.data === YT.PlayerState.BUFFERING;
-          onChangementEngagement(enSession);
+          const enLecture =
+            e.data === YT.PlayerState.PLAYING || e.data === YT.PlayerState.BUFFERING;
+          if (enLecture || e.data === YT.PlayerState.PAUSED) {
+            engage = true;
+          } else if (e.data === YT.PlayerState.ENDED) {
+            engage = false;
+          } else {
+            return; // UNSTARTED/CUED intercalés : ignorés, voir la note du script
+          }
+          chargement = e.data === YT.PlayerState.BUFFERING;
+          onChangementEngagement(engage);
+          onLectureChange(enLecture);
         },
       },
     });
@@ -150,10 +200,33 @@
     }
     etat = { videoId, charge: true };
   }
+
+  /**
+   * Bouton lecture/pause des contrôles de transport (`Site.svelte`) — se
+   * contente de relayer l'intention vers l'API IFrame, `onStateChange` se
+   * charge de rapporter le nouvel état réel (`onLectureChange`), pas
+   * besoin de le déduire ici. Le test couvre aussi `BUFFERING`, pas
+   * seulement `PLAYING` : c'est le même critère que `enLecture` plus haut
+   * (l'icône affichée au moment du clic), sans quoi cliquer « pause »
+   * pendant une rebufferisation relançait la lecture au lieu de la
+   * mettre en pause pour de vrai.
+   */
+  export function basculerLecture() {
+    if (!pret || !player) return;
+    const etatCourant = player.getPlayerState();
+    if (etatCourant === YT.PlayerState.PLAYING || etatCourant === YT.PlayerState.BUFFERING) {
+      player.pauseVideo();
+    } else {
+      player.playVideo();
+    }
+  }
 </script>
 
 <div class="cadre" class:reduit>
   <div bind:this={conteneur}></div>
+  {#if chargement}
+    <div class="chargement" aria-live="polite">Chargement…</div>
+  {/if}
 </div>
 
 <style>
@@ -197,5 +270,28 @@
     .cadre {
       transition: none;
     }
+  }
+
+  /* Retour visuel pendant l'état `BUFFERING` (voir le commentaire du
+     script) : sans lui, un saut vers un point jamais bufferisé ressemble à
+     un blocage (écran noir, sous-titres qui s'affichent avant l'image). */
+  .chargement {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--encre) 55%, transparent);
+    color: var(--surface-haute);
+    font-family: var(--police-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+
+  .cadre.reduit .chargement {
+    font-size: 0.55rem;
+    letter-spacing: 0.02em;
   }
 </style>

@@ -35,6 +35,7 @@
    *   seulement le dernier épisode cliqué — voir `videoIdActif` et
    *   `tempsCourant` plus bas.
    */
+  import { tick } from 'svelte';
   import {
     aplatir,
     type DonneesRecherche,
@@ -49,7 +50,9 @@
     creerIndexTitres,
     joindreDonneesRecherche,
   } from '../lib/recherche.ts';
+  import { bornesEpisode } from '../lib/timeline.ts';
   import Lecteur from './Lecteur.svelte';
+  import MiniTimeline from './MiniTimeline.svelte';
   import Onglets from './Onglets.svelte';
   import PiedDePage from './PiedDePage.svelte';
   import RechercheMobile from './RechercheMobile.svelte';
@@ -76,6 +79,12 @@
   // (Lecteur.svelte), qui sonde `getCurrentTime()`.
   let videoIdActif = $state(videoIdDuLivre(livres[0].livre));
   let tempsCourant = $state(0);
+  // Durée totale de la vidéo (issue #56) : borne haute de la mini-timeline
+  // pour le dernier épisode d'un livre. 0 tant que `getDuration()` n'a pas
+  // encore résolu de valeur utile (juste après le montage du lecteur) —
+  // sans effet gênant, `bornesEpisode`/`ratioDepuisSecondes` restent
+  // cohérents avec une borne haute à 0 le temps que la vraie durée arrive.
+  let dureeVideo = $state(0);
   let lecteur: Lecteur;
   let sentinelle: HTMLDivElement;
   // Vrai une fois le groupe lecteur + onglets scrollé sous l'en-tête —
@@ -88,6 +97,10 @@
   // qu'on écoutait). Voir `Lecteur.svelte` pour le détail des états qui
   // comptent comme « engagée ».
   let lectureEngagee = $state(false);
+  // État réel du bouton lecture/pause (contrôles de transport) — distinct
+  // de `lectureEngagee` : une pause laisse `lectureEngagee` vrai (le
+  // groupe reste collé) mais doit basculer ce bouton sur l'icône « lire ».
+  let enLecture = $state(false);
   // Les deux conditions à la fois pilotent la réduction du lecteur, le
   // collage du groupe et l'apparition du repère d'épisode.
   const reduit = $derived(collant && lectureEngagee);
@@ -222,6 +235,37 @@
   );
   const episodeActifDetails = $derived(lectureEngagee ? episodeEnCoursDetails : null);
 
+  // Bornes de l'épisode en cours pour la mini-timeline (issue #56) : même
+  // liste que `episodeEnCoursDetails` ci-dessus, ses éléments y sont donc
+  // retrouvables par référence (`indexOf`) sans reparcourir la logique de
+  // recherche par position.
+  const episodesLivreEnCours = $derived(
+    livres.find((l) => l.livre === livreEnCours)?.episodes ?? [],
+  );
+  const indexEpisodeEnCours = $derived(
+    episodeActifDetails ? episodesLivreEnCours.indexOf(episodeActifDetails) : -1,
+  );
+  const bornesEpisodeCourant = $derived(
+    indexEpisodeEnCours >= 0
+      ? bornesEpisode(episodesLivreEnCours, indexEpisodeEnCours, dureeVideo)
+      : null,
+  );
+  // Précédent/suivant (contrôles de transport) : restent dans le livre
+  // affiché, jamais de bascule automatique vers le livre suivant/précédent
+  // — même limite délibérée que la mini-timeline, qui ne franchit pas non
+  // plus les bornes de l'épisode/livre en cours. `null` en butée plutôt
+  // qu'un rebouclage, pour ne jamais changer de livre sans un clic
+  // explicite sur un onglet (voir la note en tête de fichier sur les
+  // responsabilités disjointes, issue #18).
+  const episodePrecedent = $derived(
+    indexEpisodeEnCours > 0 ? episodesLivreEnCours[indexEpisodeEnCours - 1] : null,
+  );
+  const episodeSuivant = $derived(
+    indexEpisodeEnCours >= 0 && indexEpisodeEnCours < episodesLivreEnCours.length - 1
+      ? episodesLivreEnCours[indexEpisodeEnCours + 1]
+      : null,
+  );
+
   $effect(() => {
     // `position: sticky` ne déclenche aucun événement natif quand le
     // groupe se colle réellement — technique standard : une sentinelle
@@ -249,7 +293,7 @@
     requete = '';
   }
 
-  function onEpisodeClick(livre: NumeroLivre, episode: EpisodeListe) {
+  async function onEpisodeClick(livre: NumeroLivre, episode: EpisodeListe) {
     // Un résultat de recherche peut venir d'un autre livre que celui affiché
     // (issue #18) : l'onglet suit, pour que le sommaire retrouve le bon
     // livre une fois la recherche effacée. `bind:this` est résolu avant
@@ -262,6 +306,21 @@
     videoIdActif = episode.video_id;
     tempsCourant = episode.start_seconds;
     lecteur?.allerA(episode.video_id, episode.start_seconds);
+    // `collant` remis à faux explicitement (retour d'usage, Safari) :
+    // cliquer un épisode pendant que le groupe est déjà réduit ne doit
+    // jamais le laisser réduit, quel que soit le sort du scroll qui suit
+    // sur le navigateur utilisé — `collant` n'est qu'un indicateur de
+    // position, pas une source de vérité qu'un vrai scroll ultérieur ne
+    // pourrait pas corriger dans l'autre sens.
+    collant = false;
+    // `tick()` avant le scroll (retour d'usage, Safari) : sans lui, le
+    // scroll démarre avant que Svelte n'ait retiré la classe `position:
+    // sticky` du DOM (mise à jour réactive, pas synchrone avec
+    // l'affectation ci-dessus) — ce changement de layout pendant
+    // l'animation semble annuler le `scrollTo` en cours sur Safari (pas
+    // sur Chrome, plus tolérant). Attendre que le DOM soit à jour avant de
+    // lancer le scroll évite que quoi que ce soit ne bouge sous lui.
+    await tick();
     // Retour en douceur en haut (issue #54, retour d'usage) : cliquer un
     // épisode pendant que le groupe est réduit doit ramener le lecteur en
     // grand, pas juste changer ce qui joue hors champ.
@@ -354,6 +413,53 @@
   />
 {/if}
 
+{#snippet repereEpisode()}
+  <span class="repere-livre">Livre {livreEnCours}</span>
+  {#if episodeActifDetails}
+    <span class="repere-episode">
+      {String(episodeActifDetails.episode).padStart(2, '0')} - {episodeActifDetails.title}
+    </span>
+  {/if}
+{/snippet}
+
+{#snippet boutonsTransport()}
+  <button
+    type="button"
+    onclick={() => episodePrecedent && onEpisodeClick(livreEnCours, episodePrecedent)}
+    disabled={!episodePrecedent}
+    aria-label="Épisode précédent"
+  >
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" fill="currentColor" />
+    </svg>
+  </button>
+  <button
+    type="button"
+    onclick={() => lecteur?.basculerLecture()}
+    aria-label={enLecture ? 'Mettre en pause' : 'Lire'}
+  >
+    {#if enLecture}
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M6 5h4v14H6zm8 0h4v14h-4z" fill="currentColor" />
+      </svg>
+    {:else}
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M8 5v14l11-7z" fill="currentColor" />
+      </svg>
+    {/if}
+  </button>
+  <button
+    type="button"
+    onclick={() => episodeSuivant && onEpisodeClick(livreEnCours, episodeSuivant)}
+    disabled={!episodeSuivant}
+    aria-label="Épisode suivant"
+  >
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" fill="currentColor" />
+    </svg>
+  </button>
+{/snippet}
+
 <div bind:this={sentinelle} class="sentinelle" aria-hidden="true"></div>
 <div class="groupe-collant" class:actif={reduit}>
   <div class="groupe-ligne">
@@ -362,19 +468,42 @@
       {videoIdInitial}
       {reduit}
       onChangementEngagement={(v) => (lectureEngagee = v)}
-      onProgression={(s) => (tempsCourant = s)}
+      onLectureChange={(v) => (enLecture = v)}
+      onProgression={(s, d) => {
+        tempsCourant = s;
+        dureeVideo = d;
+      }}
     />
     {#if reduit}
       <div class="groupe-repere">
-        <span class="groupe-repere-livre">Livre {livreEnCours}</span>
-        {#if episodeActifDetails}
-          <span class="groupe-repere-episode">
-            {episodeActifDetails.episode} - {episodeActifDetails.title}
-          </span>
+        {@render repereEpisode()}
+        {#if bornesEpisodeCourant}
+          <div class="boutons-reduit">{@render boutonsTransport()}</div>
         {/if}
       </div>
     {/if}
   </div>
+  {#if !reduit && episodeActifDetails}
+    <p class="repere-plein">
+      Livre {livreEnCours} - Épisode {String(episodeActifDetails.episode).padStart(2, '0')} :
+      {episodeActifDetails.title}
+    </p>
+  {/if}
+  {#if bornesEpisodeCourant}
+    <div class="transport">
+      {#if !reduit}
+        {@render boutonsTransport()}
+      {/if}
+      <MiniTimeline
+        bornes={bornesEpisodeCourant}
+        position={tempsCourant}
+        onSeek={(secondes) => {
+          tempsCourant = secondes;
+          lecteur?.allerA(videoIdActif, secondes);
+        }}
+      />
+    </div>
+  {/if}
   <Onglets {livres} {livreActif} {episodeActif} {onLivreChange} />
 </div>
 
@@ -662,24 +791,116 @@
     font-family: var(--police-mono);
   }
 
-  .groupe-repere-livre,
-  .groupe-repere-episode {
+  /* Repère de l'épisode en cours, mais en plein format (retour d'usage) :
+     la vidéo seule n'identifie pas l'épisode affiché, contrairement à la
+     mini-lecture réduite qui a déjà `repereEpisode` à côté d'elle — pas
+     les deux en même temps, l'un remplace l'autre selon `reduit`. Une
+     seule ligne pleine largeur plutôt que le livre en petit au-dessus du
+     titre (retour d'usage : lisible mais bizarre, le numéro d'épisode
+     collé à celui du livre sans rien entre les deux) — texte simple, pas
+     de contrainte d'ellipse comme en réduit : la place ne manque pas sous
+     une vidéo en pleine taille (--largeur-contenu). */
+  .repere-plein {
+    margin: var(--esp-3) 0 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--encre-douce);
+  }
+
+  .repere-livre,
+  .repere-episode {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .groupe-repere-livre {
+  .repere-livre {
     font-size: 0.68rem;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--encre-pale);
   }
 
-  .groupe-repere-episode {
+  .repere-episode {
     font-size: 0.78rem;
     color: var(--encre);
+  }
+
+  /* En plein format, les boutons (`boutonsTransport`, snippet partagé)
+     vivent ici, à côté de la mini-timeline. En réduit, ils vivent plutôt
+     sous le repère (`.boutons-reduit` ci-dessous, retour d'usage) — pas
+     assez de place à côté d'un mini-lecteur de 10rem pour trois boutons
+     de plus, mais la colonne du repère, elle, a la largeur qu'il faut. */
+  .transport {
+    display: flex;
+    align-items: center;
+    gap: var(--esp-2);
+    margin-top: var(--esp-3);
+  }
+
+  .boutons-reduit {
+    display: flex;
+    align-items: center;
+    gap: var(--esp-1);
+    margin-top: 0.15em;
+  }
+
+  /* Sans ça, la mini-timeline (elle-même `display: flex`) devient un
+     élément flex de `.transport` comme les boutons à côté d'elle — un
+     élément flex ne s'étire pas par défaut, elle se réduirait à la
+     largeur de son contenu au lieu de remplir l'espace restant (retour
+     d'usage : cassée depuis l'ajout des boutons de transport). */
+  .transport :global(.mini-timeline) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .groupe-collant.actif .transport {
+    margin-top: var(--esp-2);
+  }
+
+  .transport button,
+  .boutons-reduit button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--encre);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* `(hover: hover)` plutôt qu'un `:hover` nu (retour d'usage récurrent
+     sur ce projet) : sur un écran tactile la pseudo-classe reste collée
+     après un tap. `:not(:disabled)` : un bouton en butée (précédent sur
+     le premier épisode, suivant sur le dernier) ne doit pas réagir au
+     survol comme s'il restait actionnable. */
+  @media (hover: hover) {
+    .transport button:not(:disabled):hover {
+      background: var(--surface);
+    }
+
+    /* `--surface-haute` plutôt que `--surface` (retour d'usage) : le
+       fond du lecteur réduit collant est déjà `--surface`
+       (`.groupe-collant.actif`) — un survol dans la même couleur ne se
+       voyait pas du tout. */
+    .boutons-reduit button:not(:disabled):hover {
+      background: var(--surface-haute);
+    }
+  }
+
+  .transport button:disabled,
+  .boutons-reduit button:disabled {
+    color: var(--encre-pale);
+    cursor: default;
   }
 
   .groupe-collant :global(.onglets) {
