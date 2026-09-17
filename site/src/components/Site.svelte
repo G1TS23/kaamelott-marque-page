@@ -320,12 +320,25 @@
   //   `tempsCourant` pour la même raison que `onEpisodeClick` : ces deux
   //   valeurs seraient rattrapées par `onProgression` de toute façon, mais
   //   dans la seconde qui suit.
+  //
+  // `lienProfondApplique` (retour d'usage, régression corrigée) : un
+  // simple drapeau, pas un `$state` — sans lui, cet effet a bouclé à
+  // l'infini en production (`effect_update_depth_exceeded`). `pret` ne
+  // devrait changer qu'une fois, mais `onReady` de l'API IFrame a
+  // visiblement rappelé son callback une seconde fois dans ce cas précis
+  // (voir le garde ajouté dans Lecteur.svelte), et rien n'empêchait cet
+  // effet de relancer `allerA` à chaque fois. Le drapeau garantit que le
+  // lien profond ne s'applique qu'une seule fois, quelle que soit la
+  // cause d'un rebond de `pret`.
+  let lienProfondApplique = false;
+
   $effect(() => {
     if (cibleInitiale) livreActif = cibleInitiale.livre;
   });
 
   $effect(() => {
-    if (!pret || !cibleInitiale) return;
+    if (!pret || !cibleInitiale || lienProfondApplique) return;
+    lienProfondApplique = true;
     videoIdActif = cibleInitiale.episode.video_id;
     tempsCourant = cibleInitiale.episode.start_seconds;
     lecteur?.allerA(cibleInitiale.episode.video_id, cibleInitiale.episode.start_seconds);

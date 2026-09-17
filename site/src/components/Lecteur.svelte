@@ -126,6 +126,12 @@
       playerVars: { rel: 0 },
       events: {
         onReady: () => {
+          // Garde par précaution (retour d'usage) : l'API ne devrait
+          // appeler `onReady` qu'une fois, mais un second appel
+          // réinitialiserait `etat` à `charge: false` alors qu'une vidéo
+          // est peut-être déjà réellement chargée — `allerA` la
+          // rechargerait alors pour rien à chaque appel.
+          if (pret) return;
           pret = true;
           etat = { videoId: videoIdInitial, charge: false };
           demarrerSuiviProgression();
