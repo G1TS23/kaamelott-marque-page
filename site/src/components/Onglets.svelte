@@ -41,8 +41,7 @@
       {#if episodeActif?.livre === livre.livre}
         <span class="sr-only">En cours de lecture.</span>
       {/if}
-      <span class="libelle-long">Livre {livre.livre}</span>
-      <span class="libelle-court">Livre {livre.livre}</span>
+      <span>Livre {livre.livre}</span>
     </button>
   {/each}
 </nav>
@@ -59,8 +58,8 @@
     gap: var(--esp-2);
     /* Plus de retour à la ligne (retour d'usage, mobile) : quatre onglets
        sur deux lignes cassait le rythme du groupe collant juste en dessous
-       du lecteur. `.libelle-court` + le padding réduit sous 640px (voir plus
-       bas) suffisent à les faire tenir sur une seule ligne, y compris sur un
+       du lecteur. `gap`/padding réduits sous 640px (voir plus bas)
+       suffisent à les faire tenir sur une seule ligne, y compris sur un
        petit mobile (320px de large). */
     flex-wrap: nowrap;
   }
@@ -171,31 +170,23 @@
     }
   }
 
-  /* Libellé court sous 640px (retour d'usage) : « Livre N » sur 4 onglets
-     ne tenait plus sur une seule ligne dès qu'un mobile étroit réduisait la
-     largeur disponible — « L. N » libère assez de place, combiné au
-     padding réduit ci-dessous. `display: none` (pas juste visuel) sur celui
-     des deux qui ne s'affiche pas : un lecteur d'écran ne doit annoncer que
-     l'un des deux libellés, jamais les deux. */
-  .libelle-court {
-    display: none;
-  }
-
   @media (max-width: 640px) {
+    /* `gap: 0` (retour d'usage) : « Livre N » sur 4 onglets ne tient plus
+       sur une seule ligne (`flex-wrap: nowrap`) dès qu'un mobile étroit
+       réduit la largeur disponible — mesuré : déborde de 13px à 320px avec
+       le seul `--esp-1` (4px) d'écart entre onglets. */
     .onglets {
-      gap: var(--esp-1);
+      gap: 0;
     }
 
+    /* 0.75rem (12px) plutôt qu'un cran de l'échelle `--esp-*` (`--esp-2`
+       8px collerait trop la pastille du bord arrondi du bouton — sa
+       formule de position devient négative en dessous de 14px de padding
+       moins l'espace de la pastille elle-même — `--esp-3` 14px déborde
+       encore) : valeur choisie en testant directement contre 320px (le
+       plus petit mobile visé), tient avec une marge jusqu'à 310px. */
     .onglets button {
-      --onglet-pad-h: var(--esp-3);
-    }
-
-    .libelle-long {
-      display: none;
-    }
-
-    .libelle-court {
-      display: inline;
+      --onglet-pad-h: 0.75rem;
     }
   }
 
