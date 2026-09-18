@@ -101,6 +101,11 @@
             <path d="M7 10l5 5 5-5z" fill="currentColor" />
           </svg>
         </button>
+      {:else}
+        <!-- Réserve la largeur du chevron (retour d'usage) : sans elle, la
+             durée de l'intro (seule ligne sans chevron, #71) se retrouve
+             plus à droite que celle des autres épisodes. -->
+        <span class="chevron-espace" aria-hidden="true"></span>
       {/if}
     </div>
     {#if ligneDepliee === episode.id}
@@ -204,12 +209,19 @@
      de `.jouer` (variable selon que le titre tient sur une ou deux
      lignes), sans quoi ce bouton prenait une forme rectangulaire et la
      rotation de l'icône avait l'air décentrée. */
+  /* `.chevron-espace` (ligne de l'intro, sans chevron réel — #71) partage
+     juste le gabarit, pas le reste du style d'un bouton : un simple
+     espaceur décoratif, jamais focusable. */
+  .chevron,
+  .chevron-espace {
+    flex: none;
+    width: 2rem;
+  }
+
   .chevron {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: none;
-    width: 2rem;
     height: 2rem;
     padding: 0;
     border: none;
