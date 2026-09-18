@@ -66,16 +66,28 @@ export type EpisodeListe = Pick<
 >;
 
 /**
- * Résumé et personnages, chargés à part de `EpisodeListe` (issue #16) :
- * nécessaires à la recherche par résumé/personnage, mais trop lourds
- * (~300 Ko de résumés) pour entrer dans le HTML initial. Servi par
+ * Résumé, personnages et générique, chargés à part de `EpisodeListe`
+ * (issue #16) : nécessaires à la recherche par résumé/personnage, mais trop
+ * lourds (~300 Ko de résumés) pour entrer dans le HTML initial. Servi par
  * `site/src/pages/recherche.json.ts`, récupéré une fois côté client au
- * montage de l'îlot de recherche.
+ * montage de l'îlot.
+ *
+ * `channel`/`director`/`writer`/`guests` (issue #55) n'entrent dans aucun
+ * calcul de pertinence (seuls `summary`/`characters` alimentent la
+ * recherche, docs/SPECS.md section 5) — regroupés ici quand même plutôt que
+ * via une source à part : ce sont les mêmes champs Wikipédia « gratuits »
+ * que résumé/personnages (capturés à l'import, jamais recherchés), et une
+ * deuxième requête juste pour ce générique dupliquerait le mécanisme de
+ * fetch-une-fois-au-montage déjà en place ici pour un gain minime.
  */
 export interface DonneesRecherche {
   id: string;
   summary: string;
   characters: string[];
+  channel: string;
+  director: string;
+  writer: string;
+  guests: string[];
 }
 
 /** Un livre et ses épisodes, tels que reçus par l'îlot de navigation. */

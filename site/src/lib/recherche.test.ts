@@ -84,28 +84,37 @@ describe('chercherParTitre', () => {
   });
 });
 
+// Champs génériques (issue #55), sans rapport avec ce que ces tests
+// vérifient (recherche titre/résumé/personnage) — mêmes valeurs partout,
+// seuls `summary`/`characters` varient utilement d'un épisode à l'autre.
+const GENERIQUE = { channel: 'M6', director: 'Alexandre Astier', writer: 'Alexandre Astier', guests: [] };
+
 const DONNEES: DonneesRecherche[] = [
   {
     id: 's1e1',
     summary:
       'Arthur, Léodagan et Perceval sont isolés en forêt pendant une bataille et se cachent derrière des arbres.',
     characters: ['Arthur', 'Léodagan', 'Perceval'],
+    ...GENERIQUE,
   },
   {
     id: 's1e2',
     summary:
       "Séli a cuisiné une tarte aux myrtilles qui s'avère immangeable, mais les convives doivent la goûter.",
     characters: ['Arthur', 'Guenièvre', 'Léodagan', 'Séli'],
+    ...GENERIQUE,
   },
   {
     id: 's1e3',
     summary: 'Breccan, un artisan, livre une table ronde commandée par Arthur.',
     characters: ['Arthur', 'Breccan', 'Père Blaise'],
+    ...GENERIQUE,
   },
   {
     id: 's2e1',
     summary: 'Arthur reçoit un casque venu de loin, le spangenhelm, cadeau encombrant.',
     characters: ['Arthur'],
+    ...GENERIQUE,
   },
   {
     id: 's2e40',
@@ -114,14 +123,26 @@ const DONNEES: DonneesRecherche[] = [
     // qui n'en matche qu'un seul.
     summary: 'Une tarte différente provoque un esclandre à la table du roi.',
     characters: ['Léodagan'],
+    ...GENERIQUE,
   },
   {
     id: 's3e12',
     summary: 'Le baptême du jeune roi rassemble toute la cour.',
     characters: ['Arthur'],
+    ...GENERIQUE,
   },
-  { id: 's1e66', summary: "Un épisode sans rapport avec ce qui précède.", characters: [] },
-  { id: 's1e76', summary: 'Encore un épisode sans rapport.', characters: [] },
+  {
+    id: 's1e66',
+    summary: 'Un épisode sans rapport avec ce qui précède.',
+    characters: [],
+    ...GENERIQUE,
+  },
+  {
+    id: 's1e76',
+    summary: 'Encore un épisode sans rapport.',
+    characters: [],
+    ...GENERIQUE,
+  },
 ];
 
 const EPISODES_RECHERCHE: EpisodeRecherche[] = joindreDonneesRecherche(CATALOGUE, DONNEES);

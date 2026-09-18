@@ -618,7 +618,7 @@
   <Onglets {livres} {livreActif} episodeActif={episodeEnLecture} {onLivreChange} />
 </div>
 
-<Sommaire {livres} {livreActif} {episodeActif} {onEpisodeClick} />
+<Sommaire {livres} {livreActif} {episodeActif} {onEpisodeClick} {donneesRecherche} />
 
 <PiedDePage {gouttiere} />
 
