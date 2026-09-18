@@ -163,11 +163,24 @@
     border: 0;
   }
 
+  /* Sous ~430px (issue #74, mesuré) : le bandeau déborde encore même
+     réduit (18px à 414px, 65px à 320px) — la quasi-totalité des mobiles
+     réels, pas un cas limite. `overflow-x: auto` masquait le symptôme
+     (rien ne signale qu'il y a plus de liens à découvrir en scrollant un
+     pied de page) sans le résoudre. `flex-wrap: wrap` à la place : passe
+     sur deux lignes plutôt que de déborder ou de scroller, `height: auto`
+     avec un padding vertical au lieu de la hauteur fixe (variable selon
+     le nombre de lignes réellement nécessaire à la largeur de l'écran). */
   @media (max-width: 640px) {
     .pied-de-page {
-      gap: var(--esp-3);
-      padding: 0 var(--esp-3);
+      flex-wrap: wrap;
+      row-gap: var(--esp-1);
+      column-gap: var(--esp-3);
+      height: auto;
+      padding: var(--esp-2) var(--esp-3);
       font-size: 0.78rem;
+      white-space: normal;
+      overflow-x: visible;
     }
   }
 </style>
