@@ -43,6 +43,14 @@
    * code (`loadVideoById`/`seekTo` sont bien appelés), une latence
    * réseau/CDN normale mais invisible sans ce retour.
    *
+   * Mis à `true` de façon optimiste à chaque tentative de lecture
+   * (`allerA`, autoplay du lien profond), pas seulement en réaction à
+   * `BUFFERING` (retour d'usage : l'événement met parfois plusieurs
+   * secondes à arriver après l'appel, laissant l'écran noir sans overlay
+   * pendant l'essentiel de l'attente). Sans risque de rester bloqué à
+   * `true` à tort : `onStateChange` (plus bas) réaligne `chargement` sur
+   * l'état réel dès le premier événement reçu, quel qu'il soit.
+   *
    * `onLectureChange` (contrôles de transport) : contrairement à
    * `chargement`, l'état lecture/pause doit remonter — le bouton qui
    * l'affiche vit dans `Site.svelte`, à côté de la mini-timeline, pas dans
@@ -65,6 +73,30 @@
    * zéro que par un `ENDED` explicite — `UNSTARTED`/`CUED` intercalés
    * sont désormais ignorés plutôt que traités comme une perte
    * d'engagement.
+   *
+   * `secondesInitiales`/`lireAuDemarrage` (lien profond, issue #21) :
+   * positionne le lecteur dès sa construction (`playerVars.start`) plutôt
+   * que d'appeler `allerA` une fois prêt — `allerA` passe par
+   * `loadVideoById`, qui rechargerait une vidéo déjà cued pour rien.
+   * `lireAuDemarrage` tente ensuite `playVideo()` une fois prêt (même
+   * esprit que `loadVideoById` : ouvrir un lien partagé doit lancer la
+   * lecture, pas seulement positionner une vignette) — un lancement
+   * déclenché par notre propre code (pas un vrai clic) se heurte à la
+   * politique d'autoplay du navigateur : sur Chrome, la vidéo passait par
+   * `BUFFERING` puis retombait à `CUED`/`UNSTARTED` sans jamais atteindre
+   * `PLAYING` (l'API bloque la lecture réelle) — pas reproduit sur
+   * Safari, plus tolérant dans ce contexte précis.
+   *
+   * Le vrai bug (retour d'usage : la vidéo restait bloquée sur la
+   * vignette avec l'overlay de chargement affiché) n'était pas cette
+   * politique elle-même — un blocage propre est très bien géré (la vidéo
+   * retombe simplement sur sa position cued, comme si `lireAuDemarrage`
+   * n'avait jamais été demandé) — mais `chargement` (voir plus bas) qui
+   * ne se réinitialisait qu'au prochain `onStateChange` *traité*, et
+   * `CUED`/`UNSTARTED` étaient justement ignorés (voir la note sur
+   * `engage`) : le retour de `BUFFERING` à `CUED` après un blocage
+   * laissait l'overlay affiché pour de bon, plus aucun événement suivant
+   * pour le corriger.
    */
   import { commandePourEpisode, type EtatLecteur } from '../lib/lecteur';
 
@@ -74,12 +106,16 @@
     onChangementEngagement,
     onLectureChange,
     onProgression,
+    secondesInitiales = 0,
+    lireAuDemarrage = false,
   }: {
     videoIdInitial: string;
     reduit: boolean;
     onChangementEngagement: (engagee: boolean) => void;
     onLectureChange: (enLecture: boolean) => void;
     onProgression: (secondes: number, duree: number) => void;
+    secondesInitiales?: number;
+    lireAuDemarrage?: boolean;
   } = $props();
 
   let conteneur: HTMLDivElement;
@@ -112,12 +148,29 @@
     if (player) return; // une seule instance pour la vie du composant
     player = new YT.Player(conteneur, {
       videoId: videoIdInitial,
-      playerVars: { rel: 0 },
+      playerVars: { rel: 0, start: Math.floor(secondesInitiales) },
       events: {
         onReady: () => {
+          // Garde par précaution (retour d'usage) : l'API ne devrait
+          // appeler `onReady` qu'une fois, mais un second appel
+          // réinitialiserait `etat` à `charge: false` alors qu'une vidéo
+          // est peut-être déjà réellement chargée — `allerA` la
+          // rechargerait alors pour rien à chaque appel.
+          if (pret) return;
           pret = true;
           etat = { videoId: videoIdInitial, charge: false };
           demarrerSuiviProgression();
+          // `playerVars.start` (ci-dessus) n'accepte qu'un entier — un
+          // `seekTo` de précision corrige l'arrondi avant de lancer la
+          // lecture (retour d'usage : sans lui, le sommaire surlignait
+          // l'épisode précédent tant que `start_seconds` a une partie
+          // décimale, `episodeEnCoursDetails` comparant la vraie position
+          // arrondie à la borne exacte).
+          if (secondesInitiales) player?.seekTo(secondesInitiales, true);
+          if (lireAuDemarrage) {
+            chargement = true;
+            player?.playVideo();
+          }
         },
         // Une vignette jamais lancée (`CUED`/`UNSTARTED`) ne compte pas
         // comme « engagée » (retour d'usage sur #54) : sans quoi parcourir
@@ -130,6 +183,15 @@
         // initial (voir la note du script sur `engage`). Seule `ENDED`
         // remet vraiment à zéro.
         onStateChange: (e) => {
+          // `chargement` (bug corrigé, lien profond #21) : mis à jour
+          // avant le tri par branche ci-dessous, pas seulement pour les
+          // transitions qui comptent pour `engage`. Un autoplay bloqué par
+          // le navigateur repasse par `BUFFERING` puis retombe sur
+          // `CUED`/`UNSTARTED` (jamais `PAUSED`) — cette transition-là
+          // était ignorée plus bas (voir la note du script), laissant
+          // l'overlay de chargement affiché pour de bon, sans plus aucun
+          // événement pour le corriger.
+          chargement = e.data === YT.PlayerState.BUFFERING;
           const enLecture =
             e.data === YT.PlayerState.PLAYING || e.data === YT.PlayerState.BUFFERING;
           if (enLecture || e.data === YT.PlayerState.PAUSED) {
@@ -137,9 +199,8 @@
           } else if (e.data === YT.PlayerState.ENDED) {
             engage = false;
           } else {
-            return; // UNSTARTED/CUED intercalés : ignorés, voir la note du script
+            return; // UNSTARTED/CUED intercalés : ignorés pour l'engagement (voir la note du script)
           }
-          chargement = e.data === YT.PlayerState.BUFFERING;
           onChangementEngagement(engage);
           onLectureChange(enLecture);
         },
@@ -189,6 +250,7 @@
     if (!pret || !player) return;
 
     const commande = commandePourEpisode(etat, videoId, secondes);
+    chargement = true; // optimiste, voir la note du script sur `chargement`
     if (commande.action === 'seek') {
       // `seekTo` ne relance pas la lecture si le lecteur était en pause.
       player.seekTo(commande.secondes, true);
@@ -217,6 +279,7 @@
     if (etatCourant === YT.PlayerState.PLAYING || etatCourant === YT.PlayerState.BUFFERING) {
       player.pauseVideo();
     } else {
+      chargement = true; // optimiste, voir la note du script sur `chargement`
       player.playVideo();
     }
   }

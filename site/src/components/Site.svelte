@@ -50,6 +50,7 @@
     creerIndexTitres,
     joindreDonneesRecherche,
   } from '../lib/recherche.ts';
+  import { analyserLienProfond, parametresLienProfond } from '../lib/lienProfond.ts';
   import { bornesEpisode } from '../lib/timeline.ts';
   import Lecteur from './Lecteur.svelte';
   import MiniTimeline from './MiniTimeline.svelte';
@@ -60,6 +61,24 @@
   import Sommaire from './Sommaire.svelte';
 
   let { livres }: { livres: LivreEnListe[] } = $props();
+
+  // Lien profond (issue #21) : lu une seule fois, à l'exécution du script
+  // — jamais côté serveur (`typeof window`, le site est statique : aucune
+  // requête ne passe par un serveur qui pourrait lire ces paramètres, la
+  // page HTML est la même pour tout le monde). `livreActif`/`videoIdActif`
+  // ci-dessous restent volontairement sur le premier livre par défaut
+  // plutôt que sur `cibleInitiale` : les faire dépendre d'une valeur
+  // absente côté serveur ferait clignoter le sommaire au chargement (même
+  // défaut que la popin de bienvenue, issue #19, corrigé pour la même
+  // raison) — `cibleInitiale` est appliquée juste après coup, dans un
+  // effet plus bas, un aller-retour visuel bien plus discret qu'un
+  // mismatch serveur/client. `videoIdInitial` (le lecteur lui-même,
+  // plus bas) n'a pas ce problème : son conteneur est vide tant que le
+  // JS n'a pas tourné, rien à faire clignoter.
+  const cibleInitiale =
+    typeof window !== 'undefined'
+      ? analyserLienProfond(new URLSearchParams(window.location.search), livres)
+      : null;
 
   let livreActif = $state<NumeroLivre>(livres[0].livre);
   let requete = $state('');
@@ -193,10 +212,14 @@
     return livres.find((l) => l.livre === livre)!.episodes[0].video_id;
   }
 
-  // Constante : la vidéo du livre affiché au chargement. `Lecteur` traque sa
+  // Constante : la vidéo chargée au montage du lecteur. `Lecteur` traque sa
   // prop `videoIdInitial` comme dépendance de l'effet qui crée le player —
   // la lier à `livreActif` recréerait un player à chaque bascule d'onglet.
-  const videoIdInitial = videoIdDuLivre(livres[0].livre);
+  // Celle d'un lien profond (issue #21) si présent, sans le risque de
+  // clignotement de `livreActif`/`videoIdActif` (voir plus haut) : le
+  // conteneur du lecteur est vide tant que rien n'a tourné, rien à faire
+  // clignoter en changeant la vidéo qui s'y chargera.
+  const videoIdInitial = cibleInitiale?.episode.video_id ?? videoIdDuLivre(livres[0].livre);
 
   // Sens inverse de `videoIdDuLivre` : à quel livre appartient la vidéo
   // chargée. Chaque livre a sa propre vidéo (jamais partagée), une
@@ -284,6 +307,20 @@
     return () => observateur.disconnect();
   });
 
+  // Lien profond (issue #21) : bascule le sommaire sur le bon livre dès le
+  // montage — `videoIdInitial`, `secondesInitiales` et `lireAuDemarrage`
+  // (plus bas) se chargent de positionner et lancer le lecteur lui-même,
+  // sans appel d'API supplémentaire à attendre ici. `videoIdActif`/
+  // `tempsCourant` suivent pour rester cohérents avec ce que le lecteur
+  // affiche déjà (repère, mini-timeline) — un simple effet une fois au
+  // montage, `cibleInitiale` n'étant jamais réévalué ensuite.
+  $effect(() => {
+    if (!cibleInitiale) return;
+    livreActif = cibleInitiale.livre;
+    videoIdActif = cibleInitiale.episode.video_id;
+    tempsCourant = cibleInitiale.episode.start_seconds;
+  });
+
   // Un onglet ne fait que changer la liste affichée : ni la recherche
   // (qui montrerait encore des résultats d'un autre livre) ni le lecteur
   // (qui couperait une lecture en cours) ne doivent rester dans les
@@ -323,8 +360,15 @@
     await tick();
     // Retour en douceur en haut (issue #54, retour d'usage) : cliquer un
     // épisode pendant que le groupe est réduit doit ramener le lecteur en
-    // grand, pas juste changer ce qui joue hors champ.
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // grand, pas juste changer ce qui joue hors champ. `requestAnimationFrame`
+    // en plus de `tick()` (retour d'usage, régression Safari) : `tick()`
+    // garantit que Svelte a bien retiré `position: sticky` du DOM, pas que
+    // le navigateur a fini d'en recalculer la mise en page — laisser passer
+    // une frame de plus avant de lancer le scroll réduit encore le risque
+    // qu'un recalcul de layout en cours n'annule l'animation sur Safari.
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   }
 
   // Referme le panneau de résultats desktop après un clic (retour d'usage :
@@ -346,6 +390,33 @@
       e.preventDefault();
       (e.currentTarget as HTMLInputElement).blur();
     }
+  }
+
+  // Lien profond partageable (issue #21) : copie l'URL de l'épisode en
+  // cours, pas seulement du livre — `parametresLienProfond` retrouve son
+  // `id`, sa clé unique dans le modèle de données (section 4). En plein
+  // format uniquement (retour d'usage), même contrainte de place que les
+  // contrôles de transport en réduit.
+  let lienCopie = $state(false);
+  let minuteurLienCopie: ReturnType<typeof setTimeout> | undefined;
+
+  async function copierLien() {
+    if (!episodeActifDetails) return;
+    const url = new URL(window.location.href);
+    url.search = parametresLienProfond(livreEnCours, episodeActifDetails).toString();
+    try {
+      await navigator.clipboard.writeText(url.toString());
+    } catch {
+      // Presse-papiers indisponible (permissions, contexte non sécurisé) :
+      // pas grave, rien d'autre à proposer à la place.
+      return;
+    }
+    lienCopie = true;
+    if (minuteurLienCopie !== undefined) clearTimeout(minuteurLienCopie);
+    minuteurLienCopie = setTimeout(() => {
+      lienCopie = false;
+      minuteurLienCopie = undefined;
+    }, 2000);
   }
 </script>
 
@@ -466,6 +537,8 @@
     <Lecteur
       bind:this={lecteur}
       {videoIdInitial}
+      secondesInitiales={cibleInitiale?.episode.start_seconds}
+      lireAuDemarrage={!!cibleInitiale}
       {reduit}
       onChangementEngagement={(v) => (lectureEngagee = v)}
       onLectureChange={(v) => (enLecture = v)}
@@ -493,6 +566,20 @@
     <div class="transport">
       {#if !reduit}
         {@render boutonsTransport()}
+        <button type="button" onclick={copierLien} aria-label={lienCopie ? 'Lien copié' : "Copier le lien de l'épisode"}>
+          {#if lienCopie}
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
+            </svg>
+          {:else}
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path
+                d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1M8 13h8v-2H8zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5"
+                fill="currentColor"
+              />
+            </svg>
+          {/if}
+        </button>
       {/if}
       <MiniTimeline
         bornes={bornesEpisodeCourant}
