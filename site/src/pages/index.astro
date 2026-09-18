@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Site from '../components/Site.svelte';
 import PopinBienvenue from '../components/PopinBienvenue.svelte';
-import { LIVRES, chargerLivre } from '../lib/episodes.ts';
+import { LIVRES, avecIntro, chargerLivre } from '../lib/episodes.ts';
 import type { LivreEnListe } from '../lib/episodes.ts';
 
 /**
@@ -23,15 +23,22 @@ import type { LivreEnListe } from '../lib/episodes.ts';
 // (~300 Ko au total) n'y entrent que quand la recherche en aura besoin
 // (#15/#16) — chargés à part via /recherche.json, pas ici. `id` sert de clé
 // pour recoller les deux plus tard (site/src/lib/recherche.ts).
+//
+// `avecIntro` (issue #71) préfixe chaque livre d'un épisode 0 synthétique
+// (« Intro ») — `Site.svelte` s'en sert comme point de départ par défaut du
+// lecteur, avant tout engagement réel.
 const livres: LivreEnListe[] = LIVRES.map((livre) => ({
   livre,
-  episodes: chargerLivre(livre).map(({ id, episode, title, start_seconds, video_id }) => ({
-    id,
-    episode,
-    title,
-    start_seconds,
-    video_id,
-  })),
+  episodes: avecIntro(
+    livre,
+    chargerLivre(livre).map(({ id, episode, title, start_seconds, video_id }) => ({
+      id,
+      episode,
+      title,
+      start_seconds,
+      video_id,
+    })),
+  ),
 }));
 ---
 

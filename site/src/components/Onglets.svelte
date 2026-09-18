@@ -41,8 +41,7 @@
       {#if episodeActif?.livre === livre.livre}
         <span class="sr-only">En cours de lecture.</span>
       {/if}
-      <span class="libelle-long">Livre {livre.livre}</span>
-      <span class="libelle-court">L.&nbsp;{livre.livre}</span>
+      <span>Livre {livre.livre}</span>
     </button>
   {/each}
 </nav>
@@ -59,8 +58,8 @@
     gap: var(--esp-2);
     /* Plus de retour à la ligne (retour d'usage, mobile) : quatre onglets
        sur deux lignes cassait le rythme du groupe collant juste en dessous
-       du lecteur. `.libelle-court` + le padding réduit sous 640px (voir plus
-       bas) suffisent à les faire tenir sur une seule ligne, y compris sur un
+       du lecteur. `gap`/padding réduits sous 640px (voir plus bas)
+       suffisent à les faire tenir sur une seule ligne, y compris sur un
        petit mobile (320px de large). */
     flex-wrap: nowrap;
   }
@@ -171,31 +170,35 @@
     }
   }
 
-  /* Libellé court sous 640px (retour d'usage) : « Livre N » sur 4 onglets
-     ne tenait plus sur une seule ligne dès qu'un mobile étroit réduisait la
-     largeur disponible — « L. N » libère assez de place, combiné au
-     padding réduit ci-dessous. `display: none` (pas juste visuel) sur celui
-     des deux qui ne s'affiche pas : un lecteur d'écran ne doit annoncer que
-     l'un des deux libellés, jamais les deux. */
-  .libelle-court {
-    display: none;
-  }
-
   @media (max-width: 640px) {
+    /* Deux réglages distincts, pas interchangeables (erreur du commit
+       précédent : retirer le padding réduit en gardant seulement
+       `space-between` déborde de 73px à 320px — le padding desktop, seul,
+       ne tient déjà plus) :
+       - le padding réduit ci-dessous fait tenir le contenu *de base* des 4
+         onglets sur une seule ligne à 320px, sans lui `space-between` n'a
+         qu'un débordement à redistribuer, pas de l'espace libre ;
+       - `space-between` (plutôt qu'un `gap` fixe) distribue l'espace
+         restant dynamiquement une fois que ça tient : aussi serré que
+         nécessaire à 320px (0px entre onglets), mais s'écarte
+         naturellement dès qu'il y a de la place (~15px à 414px) plutôt que
+         de rester collé à toute largeur supérieure.
+       Testé (iframe à largeur fixe, hauteur des boutons y comprise pour
+       écarter un retour à la ligne du texte) : 0 débordement de 310px à
+       640px. */
     .onglets {
-      gap: var(--esp-1);
+      justify-content: space-between;
+      gap: 0;
     }
 
+    /* 0.75rem (12px) plutôt qu'un cran de l'échelle `--esp-*` (`--esp-2`
+       8px collerait trop la pastille du bord arrondi du bouton — sa
+       formule de position devient négative en dessous de 14px de padding
+       moins l'espace de la pastille elle-même — `--esp-3` 14px déborde
+       encore) : valeur choisie en testant directement contre 320px (le
+       plus petit mobile visé). */
     .onglets button {
-      --onglet-pad-h: var(--esp-3);
-    }
-
-    .libelle-long {
-      display: none;
-    }
-
-    .libelle-court {
-      display: inline;
+      --onglet-pad-h: 0.75rem;
     }
   }
 

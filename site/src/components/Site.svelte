@@ -38,6 +38,7 @@
   import { tick } from 'svelte';
   import {
     aplatir,
+    estIntro,
     type DonneesRecherche,
     type EpisodeListe,
     type LivreEnListe,
@@ -141,7 +142,9 @@
   });
 
   // Index du titre, construit une fois : `requete` est réactif, pas l'index.
-  const episodesAvecLivre = aplatir(livres);
+  // Intro exclue (issue #71) : titre générique répété une fois par livre,
+  // sans résumé ni personnage propre — n'apporte rien à la recherche.
+  const episodesAvecLivre = aplatir(livres).filter((e) => !estIntro(e));
   const indexTitres = creerIndexTitres(episodesAvecLivre);
 
   // Résumé et personnages (issue #16) : chargés à part du HTML initial
@@ -232,9 +235,10 @@
 
   // Dernier épisode du livre en cours dont le `start_seconds` est atteint —
   // les épisodes d'un livre sont triés par numéro (`chargerLivre`), donc
-  // aussi par `start_seconds` croissant, un simple parcours suffit. `null`
-  // uniquement si `tempsCourant` est avant le premier épisode (ne devrait
-  // pas arriver en pratique, chaque vidéo commençant par son épisode 1).
+  // aussi par `start_seconds` croissant, un simple parcours suffit. Ne
+  // résout plus jamais `null` pour un livre chargé depuis l'ajout de
+  // l'intro (issue #71, `avecIntro`) : `tempsCourant` a toujours au moins
+  // l'intro (`start_seconds: 0`) à résoudre avant le premier épisode réel.
   const episodeEnCoursDetails = $derived.by(() => {
     const episodes = livres.find((l) => l.livre === livreEnCours)?.episodes ?? [];
     let trouve: EpisodeListe | null = null;
@@ -245,18 +249,30 @@
     return trouve;
   });
 
-  // `null` tant qu'aucune vidéo n'a été réellement lancée (retour d'usage
-  // #54) : sans lecture engagée, ni la ligne du sommaire ni le repère du
-  // lecteur réduit ne doivent pointer un épisode — le lecteur n'affiche
-  // encore qu'une vignette, pas une lecture en cours (issue #56 : suit
-  // maintenant la position de lecture, pas le dernier épisode cliqué, voir
-  // `videoIdActif`/`tempsCourant` plus haut).
+  // Ne dépend plus de `lectureEngagee` depuis l'ajout de l'intro (issue
+  // #71, retour d'usage sur #54/#56) : avant, la ligne du sommaire et le
+  // repère sous le lecteur n'apparaissaient qu'après une vraie lecture
+  // engagée, avec un délai perceptible — `episodeEnCoursDetails` pouvait
+  // légitimement résoudre `null` avant tout engagement (position 0, avant
+  // le premier épisode réel). Ce trou n'existe plus : `episodeEnCoursDetails`
+  // résout toujours au moins l'intro pour un livre chargé, donc ces deux
+  // valeurs peuvent le suivre directement. `lectureEngagee` reste seul à
+  // décider de `reduit` (collage du lecteur, #54) : rien ici ne doit
+  // collapser le lecteur juste parce qu'il affiche l'intro en pause.
   const episodeActif = $derived(
-    lectureEngagee && episodeEnCoursDetails
-      ? { livre: livreEnCours, episode: episodeEnCoursDetails.episode }
-      : null,
+    episodeEnCoursDetails ? { livre: livreEnCours, episode: episodeEnCoursDetails.episode } : null,
   );
-  const episodeActifDetails = $derived(lectureEngagee ? episodeEnCoursDetails : null);
+  const episodeActifDetails = $derived(episodeEnCoursDetails);
+
+  // Distinct de `episodeActif` ci-dessus (issue #71) : la pastille « en
+  // direct » des onglets (`Onglets.svelte`, issue #18) signale qu'un livre
+  // *différent* de celui affiché a une lecture réellement en cours pendant
+  // qu'on en parcourt un autre — un vrai signal d'engagement, pas juste
+  // « ce livre est celui chargé dans le lecteur ». Sans cette distinction,
+  // elle resterait allumée en permanence sur le premier livre dès le
+  // chargement du site, l'intro étant toujours cuée dans le lecteur même
+  // sans qu'aucune lecture n'ait jamais démarré.
+  const episodeEnLecture = $derived(lectureEngagee ? episodeActif : null);
 
   // Bornes de l'épisode en cours pour la mini-timeline (issue #56) : même
   // liste que `episodeEnCoursDetails` ci-dessus, ses éléments y sont donc
@@ -488,7 +504,11 @@
   <span class="repere-livre">Livre {livreEnCours}</span>
   {#if episodeActifDetails}
     <span class="repere-episode">
-      {String(episodeActifDetails.episode).padStart(2, '0')} - {episodeActifDetails.title}
+      {#if estIntro(episodeActifDetails)}
+        {episodeActifDetails.title}
+      {:else}
+        {String(episodeActifDetails.episode).padStart(2, '0')} - {episodeActifDetails.title}
+      {/if}
     </span>
   {/if}
 {/snippet}
@@ -558,8 +578,12 @@
   </div>
   {#if !reduit && episodeActifDetails}
     <p class="repere-plein">
-      Livre {livreEnCours} - Épisode {String(episodeActifDetails.episode).padStart(2, '0')} :
-      {episodeActifDetails.title}
+      {#if estIntro(episodeActifDetails)}
+        Livre {livreEnCours} - {episodeActifDetails.title}
+      {:else}
+        Livre {livreEnCours} - Épisode {String(episodeActifDetails.episode).padStart(2, '0')} :
+        {episodeActifDetails.title}
+      {/if}
     </p>
   {/if}
   {#if bornesEpisodeCourant}
@@ -591,7 +615,7 @@
       />
     </div>
   {/if}
-  <Onglets {livres} {livreActif} {episodeActif} {onLivreChange} />
+  <Onglets {livres} {livreActif} episodeActif={episodeEnLecture} {onLivreChange} />
 </div>
 
 <Sommaire {livres} {livreActif} {episodeActif} {onEpisodeClick} />
