@@ -24,6 +24,15 @@
    * (résumé/personnages/générique) est la même donnée que la recherche
    * (#16), déjà chargée une fois au montage par `Site.svelte` — pas de
    * fetch séparé pour ce panneau.
+   *
+   * Le panneau `.details` est toujours dans le DOM pour chaque épisode
+   * (masqué par `hidden`), pas seulement quand déplié (revue a11y) : le
+   * `aria-controls` du chevron doit résoudre vers un élément réel, sans
+   * quoi la référence est silencieusement ignorée par les lecteurs
+   * d'écran. `aria-live="polite"` sur ce même panneau annonce le passage
+   * de « Chargement… » au contenu réel si `donneesRecherche` n'a pas
+   * encore résolu au moment du dépliage (rare — déjà chargé la plupart du
+   * temps) — même pattern que `.chargement` dans `Lecteur.svelte`.
    */
   import {
     estIntro,
@@ -93,8 +102,8 @@
           aria-expanded={ligneDepliee === episode.id}
           aria-controls={`details-${episode.id}`}
           aria-label={ligneDepliee === episode.id
-            ? 'Masquer les détails'
-            : "Afficher les détails de l'épisode"}
+            ? `Masquer les détails de ${episode.title}`
+            : `Afficher les détails de ${episode.title}`}
           onclick={() => basculerDetails(episode.id)}
         >
           <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
@@ -108,13 +117,15 @@
         <span class="chevron-espace" aria-hidden="true"></span>
       {/if}
     </div>
-    {#if ligneDepliee === episode.id}
+    {#if !estIntro(episode)}
       {@const details = donneesParId.get(episode.id)}
       <div
         id={`details-${episode.id}`}
         class="details"
         role="region"
         aria-label={`Détails de ${episode.title}`}
+        aria-live="polite"
+        hidden={ligneDepliee !== episode.id}
       >
         {#if details}
           <p class="resume">{details.summary}</p>
@@ -287,6 +298,16 @@
     transform: rotate(180deg);
   }
 
+  /* Cohérent avec le reste des contrôles custom du site (revue a11y) —
+     même pattern que `.recherche input:focus-visible` (Site.svelte),
+     `MiniTimeline`/`ResultatsRecherche` : sans lui, ce bouton s'appuyait
+     sur l'anneau par défaut du navigateur plutôt que le style du design
+     system. */
+  .chevron:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
   /* `--surface-haute` plutôt que `--surface` (retour d'usage, même
      raison que `.boutons-reduit button:hover` dans Site.svelte) : la ligne
      entière se survole désormais aussi en `--surface` (voir `.ligne:hover`
@@ -322,24 +343,29 @@
     margin: 0.3em 0;
   }
 
+  /* `--encre-douce`, pas `--encre-pale` (revue a11y) : `--encre-pale` sur
+     `--surface` ne donne que 3.1:1 en clair / 4.03:1 en sombre, sous le
+     seuil AA de 4.5:1 pour du texte de cette taille (WCAG 1.4.3) —
+     `--encre-douce` (6.55:1 / 7.67:1) passe large, pour un rôle de texte
+     secondaire tout aussi adapté. */
   .details .etiquette {
     font-family: var(--police-mono);
     font-size: 0.7rem;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--encre-pale);
+    color: var(--encre-douce);
     margin-right: 0.6em;
   }
 
   .details .non-exhaustif {
-    color: var(--encre-pale);
+    color: var(--encre-douce);
     font-size: 0.78rem;
     margin-left: 0.4em;
   }
 
   .details .chargement {
     margin: 0;
-    color: var(--encre-pale);
+    color: var(--encre-douce);
     font-family: var(--police-mono);
     font-size: 0.8rem;
   }
