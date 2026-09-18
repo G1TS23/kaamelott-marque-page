@@ -158,7 +158,7 @@
      frères, pas un bouton imbriqué dans un autre (invalide en HTML). */
   .ligne {
     display: flex;
-    align-items: stretch;
+    align-items: center;
   }
 
   .episodes li .jouer {
@@ -198,14 +198,22 @@
 
   /* Chevron dédié (issue #55) : zone de clic séparée du bouton de lecture,
      pour ne jamais interférer avec le geste principal (lecture immédiate,
-     docs/SPECS.md section 6). */
+     docs/SPECS.md section 6). Cercle parfait, même gabarit que les boutons
+     ronds du lecteur (`.transport button`, Site.svelte) — `.ligne` centre
+     désormais verticalement plutôt que d'étirer ses enfants à la hauteur
+     de `.jouer` (variable selon que le titre tient sur une ou deux
+     lignes), sans quoi ce bouton prenait une forme rectangulaire et la
+     rotation de l'icône avait l'air décentrée. */
   .chevron {
     display: flex;
     align-items: center;
     justify-content: center;
     flex: none;
-    width: 2.25rem;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
     border: none;
+    border-radius: 50%;
     background: transparent;
     color: var(--encre-pale);
     cursor: pointer;
