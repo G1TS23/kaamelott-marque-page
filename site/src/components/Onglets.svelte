@@ -171,22 +171,17 @@
   }
 
   @media (max-width: 640px) {
-    /* `gap: 0` (retour d'usage) : « Livre N » sur 4 onglets ne tient plus
-       sur une seule ligne (`flex-wrap: nowrap`) dès qu'un mobile étroit
-       réduit la largeur disponible — mesuré : déborde de 13px à 320px avec
-       le seul `--esp-1` (4px) d'écart entre onglets. */
+    /* `space-between` (retour d'usage) plutôt qu'un `gap` fixe réduit :
+       « Livre N » sur 4 onglets ne tient plus sur une seule ligne
+       (`flex-wrap: nowrap`) avec le `gap`/padding desktop en dessous
+       d'environ 350px de large — mais un `gap` fixe assez petit pour tenir
+       à 320px reste ensuite collé à toute largeur supérieure, y compris
+       quand la place ne manque pas. `space-between` distribue l'espace
+       disponible dynamiquement : aussi serré que nécessaire à 320px (0px
+       entre onglets, testé sans débordement), mais s'écarte naturellement
+       dès qu'il y a de la place (~15px à 414px) plutôt que de rester figé. */
     .onglets {
-      gap: 0;
-    }
-
-    /* 0.75rem (12px) plutôt qu'un cran de l'échelle `--esp-*` (`--esp-2`
-       8px collerait trop la pastille du bord arrondi du bouton — sa
-       formule de position devient négative en dessous de 14px de padding
-       moins l'espace de la pastille elle-même — `--esp-3` 14px déborde
-       encore) : valeur choisie en testant directement contre 320px (le
-       plus petit mobile visé), tient avec une marge jusqu'à 310px. */
-    .onglets button {
-      --onglet-pad-h: 0.75rem;
+      justify-content: space-between;
     }
   }
 
