@@ -71,7 +71,7 @@
 
 {#snippet ligne(livre: NumeroLivre, episode: EpisodeListe)}
   <li>
-    <div class="ligne">
+    <div class="ligne" class:actif={estActif(livre, episode.episode)}>
       <button
         type="button"
         class="jouer"
@@ -166,6 +166,35 @@
     align-items: center;
   }
 
+  /* Surlignage et survol portés par `.ligne` plutôt que par `.jouer` seul
+     (retour d'usage) : sans ça, ils s'arrêtaient net à la frontière avec
+     le chevron, laissant sa zone hors du surlignage/survol — `:hover`
+     remonte naturellement à `.ligne` depuis n'importe lequel de ses
+     enfants, chevron compris, aucun JS nécessaire. Rayon calé sur celui du
+     chevron (2rem de diamètre, donc 1rem de rayon) plutôt qu'un rayon du
+     design system : le bord droit doit épouser son contour, pas suivre
+     une valeur sans rapport avec lui. */
+  .ligne.actif {
+    background: var(--accent-voile);
+    border-radius: 0 1rem 1rem 0;
+  }
+
+  /* `(hover: hover)` plutôt qu'un `:hover` nu (retour d'usage) : sur un
+     écran tactile la pseudo-classe reste collée après un tap. */
+  @media (hover: hover) {
+    .ligne:hover {
+      background: var(--surface);
+      border-radius: 0 1rem 1rem 0;
+    }
+
+    /* Le survol ne doit pas maquiller l'état actif (retour d'usage) —
+       même logique que `.jouer.actif` plus bas, au niveau de la ligne
+       entière désormais. */
+    .ligne.actif:hover {
+      background: var(--accent-voile);
+    }
+  }
+
   .episodes li .jouer {
     display: grid;
     grid-template-columns: 1.5rem 1fr auto;
@@ -183,16 +212,7 @@
     cursor: pointer;
   }
 
-  /* `(hover: hover)` plutôt qu'un `:hover` nu (retour d'usage) : sur un
-     écran tactile la pseudo-classe reste collée après un tap. */
-  @media (hover: hover) {
-    .episodes li .jouer:hover {
-      background: var(--surface);
-    }
-  }
-
   .episodes li .jouer.actif {
-    background: var(--accent-voile);
     border-left-color: var(--accent);
   }
 
@@ -236,9 +256,14 @@
     transform: rotate(180deg);
   }
 
+  /* `--surface-haute` plutôt que `--surface` (retour d'usage, même
+     raison que `.boutons-reduit button:hover` dans Site.svelte) : la ligne
+     entière se survole désormais aussi en `--surface` (voir `.ligne:hover`
+     plus haut) — un survol du chevron dans la même couleur ne s'y
+     distinguerait pas du tout. */
   @media (hover: hover) {
     .chevron:hover {
-      background: var(--surface);
+      background: var(--surface-haute);
       color: var(--encre);
     }
   }
