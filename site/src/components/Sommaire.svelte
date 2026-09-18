@@ -173,16 +173,20 @@
   /* Bloc plat unique une fois déplié (issue #55, retour d'usage sur le
      premier essai — un encart séparé et bordé sous la ligne ne se lisait
      pas comme lui appartenant) : la ligne et son panneau partagent le même
-     fond, un seul rayon aux quatre coins de tout le bloc plutôt que
-     chacun le sien. `overflow: hidden` découpe proprement les enfants
-     (ligne active/survolée, voir plus bas) dans ce contour arrondi — sans
-     lui leurs propres coins carrés dépasseraient de la forme du bloc.
+     fond, un seul rayon plutôt que chacun le sien. Coin haut-gauche carré
+     (retour d'usage) : c'est celui de la bordure d'accent de `.jouer.actif`
+     (voir plus bas), qui doit rester une ligne verticale nette contre le
+     bord gauche de la liste plutôt qu'amorcer une courbe — même logique
+     que le surlignage (`.ligne.actif`), déjà carré à gauche pour la même
+     raison. `overflow: hidden` découpe proprement les enfants (ligne
+     active/survolée, voir plus bas) dans ce contour — sans lui leurs
+     propres coins carrés dépasseraient de la forme du bloc.
      `margin-bottom` compense l'absence de marge propre au panneau
      (supprimée, elle appartenait à l'ancien encart flottant) : garde un
      peu d'air avant la ligne suivante. */
   .episodes li.deplie {
     background: var(--surface);
-    border-radius: var(--rayon-encart);
+    border-radius: 0 var(--rayon-encart) var(--rayon-encart) var(--rayon-encart);
     overflow: hidden;
     margin-bottom: var(--esp-2);
   }
