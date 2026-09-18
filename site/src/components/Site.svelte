@@ -264,6 +264,16 @@
   );
   const episodeActifDetails = $derived(episodeEnCoursDetails);
 
+  // Distinct de `episodeActif` ci-dessus (issue #71) : la pastille « en
+  // direct » des onglets (`Onglets.svelte`, issue #18) signale qu'un livre
+  // *différent* de celui affiché a une lecture réellement en cours pendant
+  // qu'on en parcourt un autre — un vrai signal d'engagement, pas juste
+  // « ce livre est celui chargé dans le lecteur ». Sans cette distinction,
+  // elle resterait allumée en permanence sur le premier livre dès le
+  // chargement du site, l'intro étant toujours cuée dans le lecteur même
+  // sans qu'aucune lecture n'ait jamais démarré.
+  const episodeEnLecture = $derived(lectureEngagee ? episodeActif : null);
+
   // Bornes de l'épisode en cours pour la mini-timeline (issue #56) : même
   // liste que `episodeEnCoursDetails` ci-dessus, ses éléments y sont donc
   // retrouvables par référence (`indexOf`) sans reparcourir la logique de
@@ -605,7 +615,7 @@
       />
     </div>
   {/if}
-  <Onglets {livres} {livreActif} {episodeActif} {onLivreChange} />
+  <Onglets {livres} {livreActif} episodeActif={episodeEnLecture} {onLivreChange} />
 </div>
 
 <Sommaire {livres} {livreActif} {episodeActif} {onEpisodeClick} />
