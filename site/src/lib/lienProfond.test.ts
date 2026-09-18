@@ -38,19 +38,12 @@ describe('analyserLienProfond', () => {
     expect(analyserLienProfond(new URLSearchParams({ episode: 's1e02' }), livres)).toBeNull();
   });
 
-  it("renvoie null si le livre n'existe pas", () => {
-    const params = new URLSearchParams({ livre: '9', episode: 's1e02' });
-    expect(analyserLienProfond(params, livres)).toBeNull();
-  });
-
-  it("renvoie null si l'épisode n'existe pas dans ce livre", () => {
-    const params = new URLSearchParams({ livre: '2', episode: 's1e02' });
-    expect(analyserLienProfond(params, livres)).toBeNull();
-  });
-
-  it('renvoie null pour un livre non numérique (lien corrompu)', () => {
-    const params = new URLSearchParams({ livre: 'abc', episode: 's1e02' });
-    expect(analyserLienProfond(params, livres)).toBeNull();
+  it.each([
+    ["le livre n'existe pas", { livre: '9', episode: 's1e02' }],
+    ["l'épisode n'existe pas dans ce livre", { livre: '2', episode: 's1e02' }],
+    ['le livre est non numérique (lien corrompu)', { livre: 'abc', episode: 's1e02' }],
+  ])('renvoie null si %s', (_cas, params) => {
+    expect(analyserLienProfond(new URLSearchParams(params), livres)).toBeNull();
   });
 });
 
