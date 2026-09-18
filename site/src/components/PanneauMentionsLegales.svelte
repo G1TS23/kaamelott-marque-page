@@ -97,7 +97,10 @@
     align-items: center;
     justify-content: center;
     padding: var(--esp-4);
-    background: color-mix(in srgb, var(--encre) 55%, transparent);
+    /* `--fond-modale`, pas `--encre` (retour d'usage) : `--encre` bascule
+       en teinte claire en thème sombre (c'est le texte), un fond assombri
+       construit dessus devenait au contraire trop clair — voir tokens.css. */
+    background: color-mix(in srgb, var(--fond-modale) 55%, transparent);
   }
 
   /* Même famille visuelle que le panneau de résultats de recherche
@@ -162,5 +165,15 @@
   .corps {
     overflow-y: auto;
     padding: var(--esp-4);
+  }
+
+  /* Le premier `h2` de `MentionsLegalesContenu` porte son propre
+     `margin-top` (retour d'usage) : pensé pour la page statique, où il
+     espace le texte de son `<h1>` — ici il s'ajoute plutôt au padding de
+     `.corps`, un espace en double avant « Éditeur ». `:global` : ce style
+     de `PanneauMentionsLegales` cible un élément rendu par le composant
+     enfant, pas le sien propre. */
+  .corps :global(h2:first-child) {
+    margin-top: 0;
   }
 </style>

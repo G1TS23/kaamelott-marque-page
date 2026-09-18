@@ -111,7 +111,10 @@
     align-items: center;
     justify-content: center;
     padding: var(--esp-4);
-    background: color-mix(in srgb, var(--encre) 45%, transparent);
+    /* `--fond-modale`, pas `--encre` (retour d'usage) : `--encre` bascule
+       en teinte claire en thème sombre (c'est le texte), un fond assombri
+       construit dessus devenait au contraire trop clair — voir tokens.css. */
+    background: color-mix(in srgb, var(--fond-modale) 45%, transparent);
   }
 
   .popin {
