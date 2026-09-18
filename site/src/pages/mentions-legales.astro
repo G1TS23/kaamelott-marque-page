@@ -73,6 +73,15 @@ import PiedDePage from '../components/PiedDePage.svelte';
     padding: var(--esp-6) var(--esp-4) calc(2.75rem + var(--esp-6));
   }
 
+  /* Sous 640px (issue #74) : le pied de page passe sur deux lignes plutôt
+     que de déborder (`PiedDePage.svelte`), 4rem mesuré/arrondi plutôt que
+     2.75rem sur une ligne. */
+  @media (max-width: 640px) {
+    main {
+      padding-bottom: calc(4rem + var(--esp-6));
+    }
+  }
+
   .retour {
     margin-bottom: var(--esp-4);
   }

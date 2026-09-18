@@ -62,4 +62,14 @@ const livres: LivreEnListe[] = LIVRES.map((livre) => ({
        sommaire. */
     padding: calc(3rem + var(--esp-4)) var(--esp-4) calc(2.75rem + var(--esp-4));
   }
+
+  /* Sous 640px (issue #74) : le pied de page passe sur deux lignes plutôt
+     que de déborder (`PiedDePage.svelte`), 4rem mesuré/arrondi plutôt que
+     2.75rem sur une ligne — sans cet ajustement, sa hauteur réelle
+     recouvrirait la fin du sommaire. */
+  @media (max-width: 640px) {
+    main {
+      padding-bottom: calc(4rem + var(--esp-4));
+    }
+  }
 </style>

@@ -5,7 +5,8 @@
    * (`currentColor`, comme les autres icônes du site — pas de couleur de
    * marque en dur, cf. tokens.test.ts) — plus le site et le GitHub de
    * l'auteur du projet (GitHub en icône seule, sans libellé). Toujours
-   * visible en bas de l'écran, sur une seule ligne même en mobile.
+   * visible en bas de l'écran ; passe sur deux lignes en dessous de
+   * 640px plutôt que de déborder (issue #74).
    *
    * Accessibilité (retour d'usage) :
    * - Liens toujours soulignés, pas seulement au survol — WCAG 1.4.1 (« Use
@@ -16,12 +17,12 @@
    *   deux qui passe le contraste AA (~5.7:1 en clair, ~8.3:1 en sombre,
    *   contre ~2.8:1/4.4:1 pour `--encre-pale` — mesuré, `--encre-pale` est
    *   pensé pour du texte secondaire non interactif, pas des liens).
-   * - « Shisheyu » apparaît deux fois (YouTube, Twitch) : un texte visible
-   *   identique sur deux liens vers des destinations différentes est
-   *   ambigu au lecteur d'écran (l'icône seule ne porte pas cette
-   *   distinction, `aria-hidden`) — complété par un texte masqué qui
-   *   nomme la plateforme (WCAG 2.5.3, le nom accessible contient bien le
-   *   texte visible).
+   * - « Shisheyu » n'apparaît qu'une fois, en texte simple non cliquable,
+   *   à côté des deux icônes YouTube/Twitch (retour d'usage — remplace
+   *   l'ancien texte « Shisheyu » répété sur chaque lien) : chaque icône
+   *   reste un lien à part entière, nommé par un `aria-label` complet
+   *   (« Shisheyu sur YouTube (nouvel onglet) ») plutôt qu'un texte visible
+   *   dupliqué — même pattern que le lien GitHub, déjà icône seule.
    * - Chaque lien précise qu'il s'ouvre dans un nouvel onglet (texte
    *   masqué ou `aria-label` selon le lien) — changement de contexte pas
    *   annoncé autrement.
@@ -41,26 +42,45 @@
 </script>
 
 <footer class="pied-de-page" style="--gouttiere: {gouttiere}px">
-  <a href={URL_CHAINE_YOUTUBE_SHISHEYU} target="_blank" rel="noopener noreferrer" class="lien-icone">
-    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-      <path
-        d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
-        fill="currentColor"
-      />
-    </svg>
-    <span aria-hidden="true">Shisheyu</span>
-    <span class="sr-only">Shisheyu sur YouTube (nouvel onglet)</span>
-  </a>
-  <a href={URL_CHAINE_TWITCH_SHISHEYU} target="_blank" rel="noopener noreferrer" class="lien-icone">
-    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-      <path
-        d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0 1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0Zm14.571 11.143-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"
-        fill="currentColor"
-      />
-    </svg>
-    <span aria-hidden="true">Shisheyu</span>
-    <span class="sr-only">Shisheyu sur Twitch (nouvel onglet)</span>
-  </a>
+  <span class="groupe-shisheyu">
+    <span class="nom-shisheyu" aria-hidden="true">Shisheyu</span>
+    <a
+      href={URL_CHAINE_YOUTUBE_SHISHEYU}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Shisheyu sur YouTube (nouvel onglet)"
+      class="lien-icone"
+    >
+      <!-- viewBox recadré (retour d'usage) : le tracé officiel YouTube
+           laisse une marge verticale intégrée (le cadre arrondi va de
+           y=3.545 à y=20.455 dans le carré 24×24 d'origine, jamais
+           jusqu'aux bords) — à hauteur égale (18) avec Twitch/GitHub,
+           qui remplissent tous les deux leur carré, le logo YouTube
+           paraissait nettement plus petit. Recadré sur ce cadre puis
+           rendu à la même hauteur (18) que les autres icônes, largeur
+           ajustée en proportion (24/16.91) pour ne pas le déformer. -->
+      <svg viewBox="0 3.545 24 16.91" width="25.5" height="18" aria-hidden="true">
+        <path
+          d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+          fill="currentColor"
+        />
+      </svg>
+    </a>
+    <a
+      href={URL_CHAINE_TWITCH_SHISHEYU}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Shisheyu sur Twitch (nouvel onglet)"
+      class="lien-icone"
+    >
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path
+          d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0 1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0Zm14.571 11.143-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"
+          fill="currentColor"
+        />
+      </svg>
+    </a>
+  </span>
   <span class="separateur" aria-hidden="true">·</span>
   <a href={URL_SITE_AUTEUR} target="_blank" rel="noopener noreferrer">
     olivier.falahi.org <span class="sr-only">(nouvel onglet)</span>
@@ -136,6 +156,26 @@
     flex: none;
   }
 
+  /* « Shisheyu » une seule fois, texte simple non cliquable, à côté des
+     deux icônes (retour d'usage) — voir la note du script. `flex: none`
+     comme les liens : reste un seul bloc insécable si le pied de page
+     passe sur deux lignes (issue #74), jamais coupé entre le texte et
+     une icône ou entre les deux icônes. */
+  .groupe-shisheyu {
+    display: flex;
+    align-items: center;
+    gap: 0.35em;
+    flex: none;
+  }
+
+  /* `--profond`, pas la couleur héritée du pied de page (`--encre-pale`,
+     retour d'usage : trop clair à côté des icônes juste à droite, qui
+     l'utilisent déjà via `.pied-de-page a`) — non cliquable, mais doit
+     rester visuellement au même niveau que ce à quoi il se rapporte. */
+  .nom-shisheyu {
+    color: var(--profond);
+  }
+
   /* Un SVG inline garde par défaut l'espace de descente réservé au texte
      (vertical-align: baseline) — invisible sur un icône seul, mais décale
      verticalement de quelques pixels par rapport à un icône dans un
@@ -163,11 +203,24 @@
     border: 0;
   }
 
+  /* Sous ~430px (issue #74, mesuré) : le bandeau déborde encore même
+     réduit (18px à 414px, 65px à 320px) — la quasi-totalité des mobiles
+     réels, pas un cas limite. `overflow-x: auto` masquait le symptôme
+     (rien ne signale qu'il y a plus de liens à découvrir en scrollant un
+     pied de page) sans le résoudre. `flex-wrap: wrap` à la place : passe
+     sur deux lignes plutôt que de déborder ou de scroller, `height: auto`
+     avec un padding vertical au lieu de la hauteur fixe (variable selon
+     le nombre de lignes réellement nécessaire à la largeur de l'écran). */
   @media (max-width: 640px) {
     .pied-de-page {
-      gap: var(--esp-3);
-      padding: 0 var(--esp-3);
+      flex-wrap: wrap;
+      row-gap: var(--esp-1);
+      column-gap: var(--esp-3);
+      height: auto;
+      padding: var(--esp-2) var(--esp-3);
       font-size: 0.78rem;
+      white-space: normal;
+      overflow-x: visible;
     }
   }
 </style>
