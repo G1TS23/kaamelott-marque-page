@@ -42,7 +42,7 @@
         <span class="sr-only">En cours de lecture.</span>
       {/if}
       <span class="libelle-long">Livre {livre.livre}</span>
-      <span class="libelle-court">L.&nbsp;{livre.livre}</span>
+      <span class="libelle-court">Livre {livre.livre}</span>
     </button>
   {/each}
 </nav>
