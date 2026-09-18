@@ -178,15 +178,20 @@
      (voir plus bas), qui doit rester une ligne verticale nette contre le
      bord gauche de la liste plutôt qu'amorcer une courbe — même logique
      que le surlignage (`.ligne.actif`), déjà carré à gauche pour la même
-     raison. `overflow: hidden` découpe proprement les enfants (ligne
-     active/survolée, voir plus bas) dans ce contour — sans lui leurs
-     propres coins carrés dépasseraient de la forme du bloc.
-     `margin-bottom` compense l'absence de marge propre au panneau
-     (supprimée, elle appartenait à l'ancien encart flottant) : garde un
-     peu d'air avant la ligne suivante. */
+     raison. Coin haut-droit calé sur le rayon du chevron (1rem, la moitié
+     de ses 2rem de diamètre — voir `.ligne.actif` plus bas, déjà sur cette
+     valeur) plutôt que `--rayon-encart` : c'est ce coin-là qui touche le
+     chevron, il doit épouser son contour plutôt qu'un rayon sans rapport
+     avec lui. Bas-droit/bas-gauche restent sur `--rayon-encart` du design
+     system, aucun bouton ne les touche. `overflow: hidden` découpe
+     proprement les enfants (ligne active/survolée, voir plus bas) dans ce
+     contour — sans lui leurs propres coins carrés dépasseraient de la
+     forme du bloc. `margin-bottom` compense l'absence de marge propre au
+     panneau (supprimée, elle appartenait à l'ancien encart flottant) :
+     garde un peu d'air avant la ligne suivante. */
   .episodes li.deplie {
     background: var(--surface);
-    border-radius: 0 var(--rayon-encart) var(--rayon-encart) var(--rayon-encart);
+    border-radius: 0 1rem var(--rayon-encart) var(--rayon-encart);
     overflow: hidden;
     margin-bottom: var(--esp-2);
   }
