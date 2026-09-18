@@ -104,10 +104,6 @@
   // sans effet gênant, `bornesEpisode`/`ratioDepuisSecondes` restent
   // cohérents avec une borne haute à 0 le temps que la vraie durée arrive.
   let dureeVideo = $state(0);
-  // Lien profond (issue #21) : `allerA` ne fait rien tant que l'API IFrame
-  // n'a pas répondu (voir `Lecteur.svelte`) — attendre ce signal plutôt que
-  // deviner un délai avant de lancer l'épisode ciblé par l'URL.
-  let pret = $state(false);
   let lecteur: Lecteur;
   let sentinelle: HTMLDivElement;
   // Vrai une fois le groupe lecteur + onglets scrollé sous l'en-tête —
@@ -221,9 +217,8 @@
   // la lier à `livreActif` recréerait un player à chaque bascule d'onglet.
   // Celle d'un lien profond (issue #21) si présent, sans le risque de
   // clignotement de `livreActif`/`videoIdActif` (voir plus haut) : le
-  // conteneur du lecteur est vide tant que rien n'a tourné, charger
-  // directement la bonne vidéo ici évite juste un rechargement inutile une
-  // fois `allerA` appelé (l'effet plus bas s'en chargerait de toute façon).
+  // conteneur du lecteur est vide tant que rien n'a tourné, rien à faire
+  // clignoter en changeant la vidéo qui s'y chargera.
   const videoIdInitial = cibleInitiale?.episode.video_id ?? videoIdDuLivre(livres[0].livre);
 
   // Sens inverse de `videoIdDuLivre` : à quel livre appartient la vidéo
@@ -312,36 +307,18 @@
     return () => observateur.disconnect();
   });
 
-  // Lien profond (issue #21), en deux temps :
-  // - le sommaire bascule sur le bon livre dès le montage, sans attendre
-  //   le lecteur (rien à voir avec la lecture elle-même) ;
-  // - `allerA` n'est appelé qu'une fois `pret` vrai (Lecteur.svelte),
-  //   sans quoi il ne ferait rien. Optimiste sur `videoIdActif`/
-  //   `tempsCourant` pour la même raison que `onEpisodeClick` : ces deux
-  //   valeurs seraient rattrapées par `onProgression` de toute façon, mais
-  //   dans la seconde qui suit.
-  //
-  // `lienProfondApplique` (retour d'usage, régression corrigée) : un
-  // simple drapeau, pas un `$state` — sans lui, cet effet a bouclé à
-  // l'infini en production (`effect_update_depth_exceeded`). `pret` ne
-  // devrait changer qu'une fois, mais `onReady` de l'API IFrame a
-  // visiblement rappelé son callback une seconde fois dans ce cas précis
-  // (voir le garde ajouté dans Lecteur.svelte), et rien n'empêchait cet
-  // effet de relancer `allerA` à chaque fois. Le drapeau garantit que le
-  // lien profond ne s'applique qu'une seule fois, quelle que soit la
-  // cause d'un rebond de `pret`.
-  let lienProfondApplique = false;
-
+  // Lien profond (issue #21) : bascule le sommaire sur le bon livre dès le
+  // montage — `videoIdInitial`, `secondesInitiales` et `lireAuDemarrage`
+  // (plus bas) se chargent de positionner et lancer le lecteur lui-même,
+  // sans appel d'API supplémentaire à attendre ici. `videoIdActif`/
+  // `tempsCourant` suivent pour rester cohérents avec ce que le lecteur
+  // affiche déjà (repère, mini-timeline) — un simple effet une fois au
+  // montage, `cibleInitiale` n'étant jamais réévalué ensuite.
   $effect(() => {
-    if (cibleInitiale) livreActif = cibleInitiale.livre;
-  });
-
-  $effect(() => {
-    if (!pret || !cibleInitiale || lienProfondApplique) return;
-    lienProfondApplique = true;
+    if (!cibleInitiale) return;
+    livreActif = cibleInitiale.livre;
     videoIdActif = cibleInitiale.episode.video_id;
     tempsCourant = cibleInitiale.episode.start_seconds;
-    lecteur?.allerA(cibleInitiale.episode.video_id, cibleInitiale.episode.start_seconds);
   });
 
   // Un onglet ne fait que changer la liste affichée : ni la recherche
@@ -383,8 +360,15 @@
     await tick();
     // Retour en douceur en haut (issue #54, retour d'usage) : cliquer un
     // épisode pendant que le groupe est réduit doit ramener le lecteur en
-    // grand, pas juste changer ce qui joue hors champ.
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // grand, pas juste changer ce qui joue hors champ. `requestAnimationFrame`
+    // en plus de `tick()` (retour d'usage, régression Safari) : `tick()`
+    // garantit que Svelte a bien retiré `position: sticky` du DOM, pas que
+    // le navigateur a fini d'en recalculer la mise en page — laisser passer
+    // une frame de plus avant de lancer le scroll réduit encore le risque
+    // qu'un recalcul de layout en cours n'annule l'animation sur Safari.
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   }
 
   // Referme le panneau de résultats desktop après un clic (retour d'usage :
@@ -553,6 +537,8 @@
     <Lecteur
       bind:this={lecteur}
       {videoIdInitial}
+      secondesInitiales={cibleInitiale?.episode.start_seconds}
+      lireAuDemarrage={!!cibleInitiale}
       {reduit}
       onChangementEngagement={(v) => (lectureEngagee = v)}
       onLectureChange={(v) => (enLecture = v)}
@@ -560,7 +546,6 @@
         tempsCourant = s;
         dureeVideo = d;
       }}
-      onPret={() => (pret = true)}
     />
     {#if reduit}
       <div class="groupe-repere">
