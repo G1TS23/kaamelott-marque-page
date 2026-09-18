@@ -70,7 +70,7 @@
 </script>
 
 {#snippet ligne(livre: NumeroLivre, episode: EpisodeListe)}
-  <li>
+  <li class:deplie={ligneDepliee === episode.id}>
     <div class="ligne" class:actif={estActif(livre, episode.episode)}>
       <button
         type="button"
@@ -159,6 +159,23 @@
     padding: 0;
   }
 
+  /* Bloc plat unique une fois déplié (issue #55, retour d'usage sur le
+     premier essai — un encart séparé et bordé sous la ligne ne se lisait
+     pas comme lui appartenant) : la ligne et son panneau partagent le même
+     fond, un seul rayon aux quatre coins de tout le bloc plutôt que
+     chacun le sien. `overflow: hidden` découpe proprement les enfants
+     (ligne active/survolée, voir plus bas) dans ce contour arrondi — sans
+     lui leurs propres coins carrés dépasseraient de la forme du bloc.
+     `margin-bottom` compense l'absence de marge propre au panneau
+     (supprimée, elle appartenait à l'ancien encart flottant) : garde un
+     peu d'air avant la ligne suivante. */
+  .episodes li.deplie {
+    background: var(--surface);
+    border-radius: var(--rayon-encart);
+    overflow: hidden;
+    margin-bottom: var(--esp-2);
+  }
+
   /* Conteneur du bouton de lecture + chevron (issue #55) — deux boutons
      frères, pas un bouton imbriqué dans un autre (invalide en HTML). */
   .ligne {
@@ -192,6 +209,20 @@
        entière désormais. */
     .ligne.actif:hover {
       background: var(--accent-voile);
+    }
+  }
+
+  /* Déplié (voir `li.deplie` plus haut) : le rayon droit de la ligne
+     (pilule autour du chevron, hors dépliage) n'a plus lieu d'être — le
+     bloc entier a déjà son propre rayon sur les quatre coins, une
+     deuxième forme arrondie imbriquée dedans ferait double emploi. */
+  .episodes li.deplie .ligne.actif {
+    border-radius: 0;
+  }
+
+  @media (hover: hover) {
+    .episodes li.deplie .ligne:hover {
+      border-radius: 0;
     }
   }
 
@@ -274,14 +305,11 @@
     }
   }
 
-  /* Panneau déplié (issue #55) : `--surface`/`--rayon-encart` du design
-     system (#51), même famille visuelle que les autres encarts du site. */
+  /* Panneau déplié (issue #55) : ni fond, ni bordure, ni rayon propres —
+     hérite du fond plat de `li.deplie` (plus haut), dont il n'est que le
+     prolongement plutôt qu'un encart à part entière posé dessous. */
   .details {
-    margin: 0 var(--esp-2) var(--esp-2);
-    padding: var(--esp-3);
-    background: var(--surface);
-    border: 1px solid var(--trait);
-    border-radius: var(--rayon-encart);
+    padding: var(--esp-1) var(--esp-3) var(--esp-3);
     font-size: 0.85rem;
     color: var(--encre-douce);
   }
