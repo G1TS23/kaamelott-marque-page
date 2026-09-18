@@ -43,7 +43,7 @@
 
 <footer class="pied-de-page" style="--gouttiere: {gouttiere}px">
   <span class="groupe-shisheyu">
-    <span aria-hidden="true">Shisheyu</span>
+    <span class="nom-shisheyu" aria-hidden="true">Shisheyu</span>
     <a
       href={URL_CHAINE_YOUTUBE_SHISHEYU}
       target="_blank"
@@ -166,6 +166,14 @@
     align-items: center;
     gap: 0.35em;
     flex: none;
+  }
+
+  /* `--profond`, pas la couleur héritée du pied de page (`--encre-pale`,
+     retour d'usage : trop clair à côté des icônes juste à droite, qui
+     l'utilisent déjà via `.pied-de-page a`) — non cliquable, mais doit
+     rester visuellement au même niveau que ce à quoi il se rapporte. */
+  .nom-shisheyu {
+    color: var(--profond);
   }
 
   /* Un SVG inline garde par défaut l'espace de descente réservé au texte
