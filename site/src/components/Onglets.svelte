@@ -171,17 +171,34 @@
   }
 
   @media (max-width: 640px) {
-    /* `space-between` (retour d'usage) plutôt qu'un `gap` fixe réduit :
-       « Livre N » sur 4 onglets ne tient plus sur une seule ligne
-       (`flex-wrap: nowrap`) avec le `gap`/padding desktop en dessous
-       d'environ 350px de large — mais un `gap` fixe assez petit pour tenir
-       à 320px reste ensuite collé à toute largeur supérieure, y compris
-       quand la place ne manque pas. `space-between` distribue l'espace
-       disponible dynamiquement : aussi serré que nécessaire à 320px (0px
-       entre onglets, testé sans débordement), mais s'écarte naturellement
-       dès qu'il y a de la place (~15px à 414px) plutôt que de rester figé. */
+    /* Deux réglages distincts, pas interchangeables (erreur du commit
+       précédent : retirer le padding réduit en gardant seulement
+       `space-between` déborde de 73px à 320px — le padding desktop, seul,
+       ne tient déjà plus) :
+       - le padding réduit ci-dessous fait tenir le contenu *de base* des 4
+         onglets sur une seule ligne à 320px, sans lui `space-between` n'a
+         qu'un débordement à redistribuer, pas de l'espace libre ;
+       - `space-between` (plutôt qu'un `gap` fixe) distribue l'espace
+         restant dynamiquement une fois que ça tient : aussi serré que
+         nécessaire à 320px (0px entre onglets), mais s'écarte
+         naturellement dès qu'il y a de la place (~15px à 414px) plutôt que
+         de rester collé à toute largeur supérieure.
+       Testé (iframe à largeur fixe, hauteur des boutons y comprise pour
+       écarter un retour à la ligne du texte) : 0 débordement de 310px à
+       640px. */
     .onglets {
       justify-content: space-between;
+      gap: 0;
+    }
+
+    /* 0.75rem (12px) plutôt qu'un cran de l'échelle `--esp-*` (`--esp-2`
+       8px collerait trop la pastille du bord arrondi du bouton — sa
+       formule de position devient négative en dessous de 14px de padding
+       moins l'espace de la pastille elle-même — `--esp-3` 14px déborde
+       encore) : valeur choisie en testant directement contre 320px (le
+       plus petit mobile visé). */
+    .onglets button {
+      --onglet-pad-h: 0.75rem;
     }
   }
 
