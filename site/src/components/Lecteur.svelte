@@ -43,6 +43,14 @@
    * code (`loadVideoById`/`seekTo` sont bien appelés), une latence
    * réseau/CDN normale mais invisible sans ce retour.
    *
+   * Mis à `true` de façon optimiste à chaque tentative de lecture
+   * (`allerA`, autoplay du lien profond), pas seulement en réaction à
+   * `BUFFERING` (retour d'usage : l'événement met parfois plusieurs
+   * secondes à arriver après l'appel, laissant l'écran noir sans overlay
+   * pendant l'essentiel de l'attente). Sans risque de rester bloqué à
+   * `true` à tort : `onStateChange` (plus bas) réaligne `chargement` sur
+   * l'état réel dès le premier événement reçu, quel qu'il soit.
+   *
    * `onLectureChange` (contrôles de transport) : contrairement à
    * `chargement`, l'état lecture/pause doit remonter — le bouton qui
    * l'affiche vit dans `Site.svelte`, à côté de la mini-timeline, pas dans
@@ -159,7 +167,10 @@
           // décimale, `episodeEnCoursDetails` comparant la vraie position
           // arrondie à la borne exacte).
           if (secondesInitiales) player?.seekTo(secondesInitiales, true);
-          if (lireAuDemarrage) player?.playVideo();
+          if (lireAuDemarrage) {
+            chargement = true;
+            player?.playVideo();
+          }
         },
         // Une vignette jamais lancée (`CUED`/`UNSTARTED`) ne compte pas
         // comme « engagée » (retour d'usage sur #54) : sans quoi parcourir
@@ -239,6 +250,7 @@
     if (!pret || !player) return;
 
     const commande = commandePourEpisode(etat, videoId, secondes);
+    chargement = true; // optimiste, voir la note du script sur `chargement`
     if (commande.action === 'seek') {
       // `seekTo` ne relance pas la lecture si le lecteur était en pause.
       player.seekTo(commande.secondes, true);
@@ -267,6 +279,7 @@
     if (etatCourant === YT.PlayerState.PLAYING || etatCourant === YT.PlayerState.BUFFERING) {
       player.pauseVideo();
     } else {
+      chargement = true; // optimiste, voir la note du script sur `chargement`
       player.playVideo();
     }
   }
