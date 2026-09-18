@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { LIVRES, chargerLivre, chargerTousLesEpisodes } from './episodes.ts';
+import { LIVRES, avecIntro, chargerLivre, chargerTousLesEpisodes, estIntro } from './episodes.ts';
 
 /**
  * Ces tests portent sur les **vraies** données du pipeline, pas sur des
@@ -48,6 +48,32 @@ describe('chargerLivre', () => {
   it.each(LIVRES)('livre %i pointe vers une seule vidéo', (livre) => {
     const videos = new Set(chargerLivre(livre).map((e) => e.video_id));
     expect(videos.size).toBe(1);
+  });
+});
+
+describe('avecIntro', () => {
+  it.each(LIVRES)('préfixe le livre %i par une intro à la seconde 0', (livre) => {
+    const episodes = avecIntro(livre, chargerLivre(livre));
+    expect(episodes[0]).toMatchObject({ id: `s${livre}e00`, episode: 0, start_seconds: 0 });
+  });
+
+  it.each(LIVRES)('garde les épisodes réels du livre %i inchangés et dans l’ordre', (livre) => {
+    const reels = chargerLivre(livre);
+    const episodes = avecIntro(livre, reels);
+    expect(episodes.slice(1)).toEqual(reels);
+  });
+
+  it.each(LIVRES)('pointe l’intro du livre %i vers la même vidéo que ses épisodes', (livre) => {
+    const reels = chargerLivre(livre);
+    const [intro] = avecIntro(livre, reels);
+    expect(intro.video_id).toBe(reels[0].video_id);
+  });
+});
+
+describe('estIntro', () => {
+  it('reconnaît uniquement l’épisode 0', () => {
+    expect(estIntro({ episode: 0 })).toBe(true);
+    expect(estIntro({ episode: 1 })).toBe(false);
   });
 });
 

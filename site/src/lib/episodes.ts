@@ -96,6 +96,48 @@ export function aplatir(livres: LivreEnListe[]): EpisodeAvecLivre[] {
   return livres.flatMap((l) => l.episodes.map((e) => ({ ...e, livre: l.livre })));
 }
 
+/**
+ * `true` pour l'intro synthétique ajoutée par `avecIntro` ci-dessous — pas
+ * un vrai épisode numéroté (issue #71). `episode === 0` plutôt que de tester
+ * l'`id` : c'est la même valeur que celle posée par `introDuLivre`, et le
+ * marqueur naturel vu que les vrais épisodes commencent à 1 sans trou
+ * (garanti par `chargerLivre`).
+ */
+export function estIntro(episode: Pick<EpisodeListe, 'episode'>): boolean {
+  return episode.episode === 0;
+}
+
+/**
+ * Épisode synthétique représentant l'intro d'un livre — la portion de la
+ * vidéo avant le premier épisode réel (issue #71). Comble un trou identifié
+ * à l'usage : avant qu'une vidéo soit réellement engagée, `tempsCourant`
+ * (`Site.svelte`) n'a par défaut aucun épisode courant à résoudre (position
+ * 0, avant le `start_seconds` du premier épisode) — la ligne d'info sous le
+ * lecteur et la mise en évidence du sommaire n'apparaissaient qu'après coup,
+ * une fois une lecture engagée pour de vrai.
+ *
+ * Générée ici plutôt que stockée dans `data/episodes/livre-N.json` : entièrement
+ * dérivable du premier épisode réel, la dupliquer en JSON risquerait de s'en
+ * désynchroniser silencieusement à une future ré-génération des données.
+ */
+export function introDuLivre(livre: NumeroLivre, premierEpisode: EpisodeListe): EpisodeListe {
+  return {
+    id: `s${livre}e00`,
+    episode: 0,
+    title: 'Intro',
+    start_seconds: 0,
+    video_id: premierEpisode.video_id,
+  };
+}
+
+/**
+ * Préfixe la liste (déjà triée) des épisodes d'un livre par son intro —
+ * `episodes` ne doit jamais être vide, garanti par `chargerLivre`.
+ */
+export function avecIntro(livre: NumeroLivre, episodes: EpisodeListe[]): EpisodeListe[] {
+  return [introDuLivre(livre, episodes[0]), ...episodes];
+}
+
 // Une seule assertion, à la frontière des données : TypeScript infère des
 // `string` larges pour les champs à valeurs contraintes (`timestamp_source`,
 // `confidence`…) en lisant le JSON. Ces fichiers sont produits et validés par
