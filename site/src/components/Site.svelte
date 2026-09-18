@@ -56,6 +56,7 @@
   import Lecteur from './Lecteur.svelte';
   import MiniTimeline from './MiniTimeline.svelte';
   import Onglets from './Onglets.svelte';
+  import PanneauMentionsLegales from './PanneauMentionsLegales.svelte';
   import PiedDePage from './PiedDePage.svelte';
   import RechercheMobile from './RechercheMobile.svelte';
   import ResultatsRecherche from './ResultatsRecherche.svelte';
@@ -434,6 +435,21 @@
       minuteurLienCopie = undefined;
     }, 2000);
   }
+
+  // Mentions légales en panneau plutôt qu'en navigation (issue #77) : une
+  // vraie navigation démonterait cet îlot entier, relançant le lecteur
+  // vidéo depuis zéro juste pour lire un texte statique — voir
+  // `PanneauMentionsLegales.svelte`. Seul le clic simple est intercepté :
+  // clic du milieu, Ctrl/Cmd/Maj/Alt-clic doivent garder leur comportement
+  // natif (nouvel onglet/fenêtre), le `href` de `PiedDePage` reste posé
+  // pour ça et pour le secours sans JS.
+  let panneauMentionsLegalesOuvert = $state(false);
+
+  function surClicMentionsLegales(e: MouseEvent) {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    panneauMentionsLegalesOuvert = true;
+  }
 </script>
 
 <header class="entete-collante" style="--gouttiere: {gouttiere}px">
@@ -620,7 +636,11 @@
 
 <Sommaire {livres} {livreActif} {episodeActif} {onEpisodeClick} {donneesRecherche} />
 
-<PiedDePage {gouttiere} />
+<PiedDePage {gouttiere} onMentionsLegalesClick={surClicMentionsLegales} />
+
+{#if panneauMentionsLegalesOuvert}
+  <PanneauMentionsLegales onFermer={() => (panneauMentionsLegalesOuvert = false)} />
+{/if}
 
 <style>
   /* Toujours collée dès le chargement, comme YouTube (issue #54, retour
