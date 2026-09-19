@@ -3,8 +3,22 @@ import { defineConfig } from 'astro/config';
 
 import svelte from '@astrojs/svelte';
 
+// URL du déploiement courant (issue #79, retour d'usage) : nécessaire pour
+// que `Astro.site` résolve les URL absolues des balises OpenGraph (og:url,
+// og:image — le protocole n'admet pas de chemin relatif) dans Base.astro.
+// Un domaine fixe casserait les deploy previews Netlify — chaque PR a sa
+// propre URL, distincte de la prod, où `og-image.jpg` de cette PR-ci
+// n'existe pas encore tant qu'elle n'est pas mergée. `DEPLOY_PRIME_URL`
+// (Netlify, posée au build) vaut cette URL de déploiement — celle du
+// preview en contexte deploy-preview, celle de la prod en contexte
+// production (identique à `URL` dans ce cas). Repli sur la prod en dur
+// pour un `npm run build` local, hors Netlify, où ces variables n'existent
+// pas.
+const urlDeploiement = process.env.DEPLOY_PRIME_URL ?? 'https://kaamelott.falahi.org';
+
 // https://astro.build/config
 export default defineConfig({
+  site: urlDeploiement,
   integrations: [svelte()],
   vite: {
     server: {
