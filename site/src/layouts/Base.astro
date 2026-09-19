@@ -4,11 +4,31 @@
  * Le site tient sur une seule page (specs section 6), mais le layout est
  * isolé dès maintenant : la popin de première visite (#19) et le pied de
  * page (#20) viendront s'y greffer sans toucher au contenu.
+ *
+ * Favicon et balises de partage (issue #79) : `favicon.svg` (ruban de
+ * marque-page, même mécanique clair/sombre embarquée que l'ancien favicon
+ * du gabarit Astro qu'il remplace) avec repli `favicon.ico`/
+ * `apple-touch-icon.png`, tous trois dans `site/public/`, régénérés à
+ * partir du même tracé. `description` (nouveau prop, valeur par défaut =
+ * l'ancien texte fixe) alimente à la fois `<meta name="description">` et
+ * les balises `og:*`/`twitter:*`.
  */
 import '../styles/polices.css';
 import '../styles/tokens.css';
 
-const { titre = 'Kaamelott — Le Marque-Page de la Relecture' } = Astro.props;
+const {
+  titre = 'Kaamelott — Le Marque-Page de la Relecture',
+  description = 'Retrouver un épisode de Kaamelott dans les lectures de Shisheyu et sauter directement au bon instant.',
+} = Astro.props;
+
+// URL absolues (issue #79) : og:image et og:url n'admettent pas de chemin
+// relatif — `Astro.site` (astro.config.mjs) fournit le domaine de prod.
+// `og-image.jpg` : issue #79, une seule image de partage pour tout le
+// site plutôt qu'une par page (le contenu dynamique — épisode en cours —
+// n'existe que côté client une fois l'îlot monté, jamais au moment où un
+// crawler de réseau social récupère la page).
+const urlCanonique = new URL(Astro.url.pathname, Astro.site);
+const urlImagePartage = new URL('/og-image.jpg', Astro.site);
 ---
 
 <!doctype html>
@@ -17,11 +37,29 @@ const { titre = 'Kaamelott — Le Marque-Page de la Relecture' } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="canonical" href={urlCanonique} />
     <meta name="generator" content={Astro.generator} />
-    <meta
-      name="description"
-      content="Retrouver un épisode de Kaamelott dans les lectures de Shisheyu et sauter directement au bon instant."
-    />
+    <meta name="description" content={description} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Le Marque-Page de la Relecture" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content={titre} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={urlCanonique} />
+    <meta property="og:image" content={urlImagePartage} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Le Marque-Page de la Relecture — Shisheyu lit Kaamelott" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={titre} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={urlImagePartage} />
+
     <title>{titre}</title>
   </head>
   <body>
