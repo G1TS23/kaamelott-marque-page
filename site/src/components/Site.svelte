@@ -450,8 +450,21 @@
     e.preventDefault();
     panneauMentionsLegalesOuvert = true;
   }
+
+  // `inert` sur le reste de la page pendant qu'un dialogue est ouvert
+  // (RechercheMobile ou PanneauMentionsLegales — revue a11y) : le piège
+  // de focus au clavier de chacun (Tab) ne suffit pas seul, un lecteur
+  // d'écran en navigation libre (curseur virtuel, pas Tab) pouvait
+  // toujours atteindre et lire le contenu recouvert, même dimmé sous
+  // PanneauMentionsLegales. `inert` le retire complètement de l'arbre
+  // d'accessibilité et du flux d'interaction — posé sur un conteneur
+  // englobant plutôt que sur `<body>` : les deux dialogues eux-mêmes
+  // vivent hors de ce conteneur (voir le template), sans quoi l'un
+  // s'inerterait lui-même en s'ouvrant.
+  const unDialogueOuvert = $derived(rechercheMobileOuverte || panneauMentionsLegalesOuvert);
 </script>
 
+<div inert={unDialogueOuvert}>
 <header class="entete-collante" style="--gouttiere: {gouttiere}px">
   <div class="entete-interieur">
     <h1 class="marque">Le Marque-Page de la Relecture</h1>
@@ -505,16 +518,6 @@
     </button>
   </div>
 </header>
-
-{#if rechercheMobileOuverte}
-  <RechercheMobile
-    {requete}
-    {resultats}
-    onRequeteChange={(v) => (requete = v)}
-    {onEpisodeClick}
-    onFermer={() => (rechercheMobileOuverte = false)}
-  />
-{/if}
 
 {#snippet repereEpisode()}
   <span class="repere-livre">Livre {livreEnCours}</span>
@@ -637,6 +640,17 @@
 <Sommaire {livres} {livreActif} {episodeActif} {onEpisodeClick} {donneesRecherche} />
 
 <PiedDePage {gouttiere} onMentionsLegalesClick={surClicMentionsLegales} />
+</div>
+
+{#if rechercheMobileOuverte}
+  <RechercheMobile
+    {requete}
+    {resultats}
+    onRequeteChange={(v) => (requete = v)}
+    {onEpisodeClick}
+    onFermer={() => (rechercheMobileOuverte = false)}
+  />
+{/if}
 
 {#if panneauMentionsLegalesOuvert}
   <PanneauMentionsLegales onFermer={() => (panneauMentionsLegalesOuvert = false)} />
