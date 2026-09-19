@@ -10,8 +10,17 @@
  * applicatif tient sur une seule page, mais une page d'infos légales
  * séparée n'y déroge pas). `PiedDePage` est réutilisé tel quel, sans
  * `client:*` — aucune de ses props n'a besoin d'interactivité ici.
+ *
+ * Contenu dans `MentionsLegalesContenu.svelte` (issue #77), sans
+ * `client:*` non plus — un composant Svelte sans directive se rend en
+ * HTML pur au build, exactement comme du markup Astro, zéro JS expédié.
+ * Partagé avec `PanneauMentionsLegales.svelte`, ouvert depuis le site
+ * sans navigation (voir `Site.svelte`) pour ne pas relancer le lecteur
+ * vidéo juste pour lire ce texte — cette page reste le point d'entrée
+ * pour un accès direct ou un lien partagé.
  */
 import Base from '../layouts/Base.astro';
+import MentionsLegalesContenu from '../components/MentionsLegalesContenu.svelte';
 import PiedDePage from '../components/PiedDePage.svelte';
 ---
 
@@ -21,46 +30,7 @@ import PiedDePage from '../components/PiedDePage.svelte';
 
     <h1>Mentions légales</h1>
 
-    <h2>Éditeur</h2>
-    <p>
-      Ce site est édité par Olivier Falahi, agissant à titre non
-      professionnel. Contact : <a href="mailto:olivier@falahi.org">olivier@falahi.org</a>.
-    </p>
-
-    <h2>Hébergement</h2>
-    <p>
-      Netlify, Inc.<br />
-      101 2nd Street, San Francisco, CA 94105-2239, États-Unis<br />
-      <a href="https://www.netlify.com" target="_blank" rel="noopener noreferrer">
-        netlify.com
-      </a>
-    </p>
-
-    <h2>Propriété intellectuelle</h2>
-    <p>
-      Kaamelott et ses dialogues appartiennent à Alexandre Astier et aux
-      ayants droit d'origine de l'œuvre. Ce site n'est affilié ni à
-      Alexandre Astier et ses ayants droit, ni à Shisheyu, c'est un outil
-      non officiel qui aide à naviguer dans les lectures-interprétations
-      publiées par Shisheyu sur YouTube, sans en reproduire le contenu.
-    </p>
-
-    <h2>Données personnelles</h2>
-    <p>
-      Ce site ne collecte et ne transmet aucune donnée personnelle de son
-      propre fait : pas de compte, pas de suivi statistique, pas de cookie
-      posé par le site lui-même. Les recherches récentes affichées dans
-      l'écran de recherche mobile restent uniquement dans le navigateur
-      (stockage local), jamais envoyées où que ce soit.
-    </p>
-    <p>
-      Le lecteur vidéo intégré charge des vidéos depuis YouTube (Google
-      LLC), qui peut déposer ses propres cookies et traiter des données
-      selon ses propres règles. Voir la <a
-        href="https://policies.google.com/privacy"
-        target="_blank"
-        rel="noopener noreferrer">politique de confidentialité de Google</a>.
-    </p>
+    <MentionsLegalesContenu />
   </main>
 
   <PiedDePage />
@@ -88,16 +58,11 @@ import PiedDePage from '../components/PiedDePage.svelte';
 
   /* Soulignés en permanence, pas seulement au survol — même retour
      d'accessibilité que le pied de page (WCAG 1.4.1, la couleur seule ne
-     suffit pas à distinguer un lien). */
+     suffit pas à distinguer un lien). Ne couvre plus que « Retour au
+     site » : le style des h2/p/liens du contenu légal lui-même vit dans
+     `MentionsLegalesContenu.svelte` (issue #77) — les styles scopés
+     d'une page Astro ne s'appliquent pas au rendu d'un composant enfant. */
   main a {
     text-decoration: underline;
-  }
-
-  h2 {
-    margin-top: var(--esp-6);
-  }
-
-  p {
-    color: var(--encre-douce);
   }
 </style>

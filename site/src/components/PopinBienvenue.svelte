@@ -75,6 +75,24 @@
       document.body.style.overflow = original;
     };
   });
+
+  // `inert` sur le reste de la page pendant que la popin est affichée
+  // (revue a11y) : le piège de focus (`pieger`, ci-dessus) suffit au
+  // clavier séquentiel, mais un lecteur d'écran en navigation libre
+  // (curseur virtuel, pas Tab) pouvait toujours atteindre et lire le
+  // contenu recouvert — `inert` le retire complètement de l'arbre
+  // d'accessibilité, pas seulement masqué visuellement. Cette popin est
+  // un îlot à part (`client:only`, index.astro) : pas d'accès direct au
+  // reste de la page via des props, `<main>` (unique sur cette page)
+  // ciblé par sélecteur.
+  $effect(() => {
+    const principal = document.querySelector('main');
+    if (!principal) return;
+    principal.inert = visible;
+    return () => {
+      principal.inert = false;
+    };
+  });
 </script>
 
 <svelte:window onkeydown={pieger} />
@@ -111,7 +129,10 @@
     align-items: center;
     justify-content: center;
     padding: var(--esp-4);
-    background: color-mix(in srgb, var(--encre) 45%, transparent);
+    /* `--fond-modale`, pas `--encre` (retour d'usage) : `--encre` bascule
+       en teinte claire en thème sombre (c'est le texte), un fond assombri
+       construit dessus devenait au contraire trop clair — voir tokens.css. */
+    background: color-mix(in srgb, var(--fond-modale) 45%, transparent);
   }
 
   .popin {
@@ -138,11 +159,18 @@
     text-decoration: underline;
   }
 
+  /* `--accent-fort`, pas `--accent` (revue a11y) : texte `--surface-haute`
+     sur `--accent` ne donne que 4.22:1 en clair, sous le seuil AA de
+     4.5:1 pour du texte de cette taille (16.5px, même semi-gras) —
+     `--accent-fort` passe large (5.8:1 clair, 8.87:1 sombre). C'était
+     déjà la couleur de survol ci-dessous : distinguée maintenant par une
+     ombre plutôt qu'un changement de fond, qui aurait rendu les deux
+     états identiques. */
   button {
     padding: 0.6em 1.4em;
     border: none;
     border-radius: var(--rayon-pilule);
-    background: var(--accent);
+    background: var(--accent-fort);
     color: var(--surface-haute);
     font: inherit;
     font-weight: 600;
@@ -151,7 +179,7 @@
 
   @media (hover: hover) {
     button:hover {
-      background: var(--accent-fort);
+      box-shadow: var(--ombre);
     }
   }
 

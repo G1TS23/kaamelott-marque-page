@@ -56,6 +56,7 @@
   import Lecteur from './Lecteur.svelte';
   import MiniTimeline from './MiniTimeline.svelte';
   import Onglets from './Onglets.svelte';
+  import PanneauMentionsLegales from './PanneauMentionsLegales.svelte';
   import PiedDePage from './PiedDePage.svelte';
   import RechercheMobile from './RechercheMobile.svelte';
   import ResultatsRecherche from './ResultatsRecherche.svelte';
@@ -434,8 +435,36 @@
       minuteurLienCopie = undefined;
     }, 2000);
   }
+
+  // Mentions légales en panneau plutôt qu'en navigation (issue #77) : une
+  // vraie navigation démonterait cet îlot entier, relançant le lecteur
+  // vidéo depuis zéro juste pour lire un texte statique — voir
+  // `PanneauMentionsLegales.svelte`. Seul le clic simple est intercepté :
+  // clic du milieu, Ctrl/Cmd/Maj/Alt-clic doivent garder leur comportement
+  // natif (nouvel onglet/fenêtre), le `href` de `PiedDePage` reste posé
+  // pour ça et pour le secours sans JS.
+  let panneauMentionsLegalesOuvert = $state(false);
+
+  function surClicMentionsLegales(e: MouseEvent) {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    panneauMentionsLegalesOuvert = true;
+  }
+
+  // `inert` sur le reste de la page pendant qu'un dialogue est ouvert
+  // (RechercheMobile ou PanneauMentionsLegales — revue a11y) : le piège
+  // de focus au clavier de chacun (Tab) ne suffit pas seul, un lecteur
+  // d'écran en navigation libre (curseur virtuel, pas Tab) pouvait
+  // toujours atteindre et lire le contenu recouvert, même dimmé sous
+  // PanneauMentionsLegales. `inert` le retire complètement de l'arbre
+  // d'accessibilité et du flux d'interaction — posé sur un conteneur
+  // englobant plutôt que sur `<body>` : les deux dialogues eux-mêmes
+  // vivent hors de ce conteneur (voir le template), sans quoi l'un
+  // s'inerterait lui-même en s'ouvrant.
+  const unDialogueOuvert = $derived(rechercheMobileOuverte || panneauMentionsLegalesOuvert);
 </script>
 
+<div inert={unDialogueOuvert}>
 <header class="entete-collante" style="--gouttiere: {gouttiere}px">
   <div class="entete-interieur">
     <h1 class="marque">Le Marque-Page de la Relecture</h1>
@@ -490,16 +519,6 @@
   </div>
 </header>
 
-{#if rechercheMobileOuverte}
-  <RechercheMobile
-    {requete}
-    {resultats}
-    onRequeteChange={(v) => (requete = v)}
-    {onEpisodeClick}
-    onFermer={() => (rechercheMobileOuverte = false)}
-  />
-{/if}
-
 {#snippet repereEpisode()}
   <span class="repere-livre">Livre {livreEnCours}</span>
   {#if episodeActifDetails}
@@ -511,6 +530,23 @@
       {/if}
     </span>
   {/if}
+{/snippet}
+
+{#snippet boutonPartage()}
+  <button type="button" onclick={copierLien} aria-label={lienCopie ? 'Lien copié' : "Copier le lien de l'épisode"}>
+    {#if lienCopie}
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
+      </svg>
+    {:else}
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path
+                d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1M8 13h8v-2H8zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5"
+                fill="currentColor"
+        />
+      </svg>
+    {/if}
+  </button>
 {/snippet}
 
 {#snippet boutonsTransport()}
@@ -571,7 +607,10 @@
       <div class="groupe-repere">
         {@render repereEpisode()}
         {#if bornesEpisodeCourant}
-          <div class="boutons-reduit">{@render boutonsTransport()}</div>
+          <div class="boutons-reduit">
+            {@render boutonsTransport()}
+            {@render boutonPartage()}
+          </div>
         {/if}
       </div>
     {/if}
@@ -590,20 +629,7 @@
     <div class="transport">
       {#if !reduit}
         {@render boutonsTransport()}
-        <button type="button" onclick={copierLien} aria-label={lienCopie ? 'Lien copié' : "Copier le lien de l'épisode"}>
-          {#if lienCopie}
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-              <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
-            </svg>
-          {:else}
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-              <path
-                d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1M8 13h8v-2H8zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5"
-                fill="currentColor"
-              />
-            </svg>
-          {/if}
-        </button>
+        {@render boutonPartage()}
       {/if}
       <MiniTimeline
         bornes={bornesEpisodeCourant}
@@ -620,7 +646,22 @@
 
 <Sommaire {livres} {livreActif} {episodeActif} {onEpisodeClick} {donneesRecherche} />
 
-<PiedDePage {gouttiere} />
+<PiedDePage {gouttiere} onMentionsLegalesClick={surClicMentionsLegales} />
+</div>
+
+{#if rechercheMobileOuverte}
+  <RechercheMobile
+    {requete}
+    {resultats}
+    onRequeteChange={(v) => (requete = v)}
+    {onEpisodeClick}
+    onFermer={() => (rechercheMobileOuverte = false)}
+  />
+{/if}
+
+{#if panneauMentionsLegalesOuvert}
+  <PanneauMentionsLegales onFermer={() => (panneauMentionsLegalesOuvert = false)} />
+{/if}
 
 <style>
   /* Toujours collée dès le chargement, comme YouTube (issue #54, retour

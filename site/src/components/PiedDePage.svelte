@@ -30,6 +30,16 @@
    * `gouttiere` : même correction que l'en-tête (Site.svelte) pour que le
    * bord droit du bandeau touche vraiment le bord de la fenêtre malgré la
    * réserve de scrollbar (`scrollbar-gutter: stable`, Base.astro).
+   *
+   * `onMentionsLegalesClick` (issue #77, optionnel) : ce composant est
+   * utilisé dans deux contextes — dans l'îlot du site (`Site.svelte`, qui
+   * fournit ce callback pour ouvrir un panneau plutôt que naviguer, et
+   * garder le lecteur vidéo en vie) et seul sur la page des mentions
+   * légales elle-même (`mentions-legales.astro`, sans callback : le lien
+   * y navigue normalement, comportement déjà correct puisqu'on y est
+   * déjà). Le `href` reste posé dans tous les cas — secours sans JS, et
+   * clic du milieu/Ctrl-clic pour ouvrir dans un nouvel onglet toujours
+   * possibles, `Site.svelte` ne filtrant que le clic simple.
    */
   import {
     URL_CHAINE_TWITCH_SHISHEYU,
@@ -38,7 +48,13 @@
     URL_SITE_AUTEUR,
   } from '../lib/liens.ts';
 
-  let { gouttiere = 0 }: { gouttiere?: number } = $props();
+  let {
+    gouttiere = 0,
+    onMentionsLegalesClick,
+  }: {
+    gouttiere?: number;
+    onMentionsLegalesClick?: (e: MouseEvent) => void;
+  } = $props();
 </script>
 
 <footer class="pied-de-page" style="--gouttiere: {gouttiere}px">
@@ -100,7 +116,7 @@
     </svg>
   </a>
   <span class="separateur" aria-hidden="true">·</span>
-  <a href="/mentions-legales">Mentions légales</a>
+  <a href="/mentions-legales" onclick={onMentionsLegalesClick}>Mentions légales</a>
 </footer>
 
 <style>
