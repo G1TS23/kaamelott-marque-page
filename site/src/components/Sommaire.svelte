@@ -40,6 +40,7 @@
     type EpisodeListe,
     type LivreEnListe,
     type NumeroLivre,
+    type Episode,
   } from '../lib/episodes.ts';
   import { formaterTemps } from '../lib/temps.ts';
 
@@ -69,6 +70,13 @@
 
   function basculerDetails(id: string) {
     ligneDepliee = ligneDepliee === id ? null : id;
+  }
+
+  function getEpisodeWikipediaURL(episode: Pick<Episode, 'id' | 'title'>) : string {
+    const titre = episode.title.replace(/ /g, '_');
+    const livre = episode.id.split('e')[0].charAt(1);
+    const episodeNum = parseInt(episode.id.split('e')[1]).toString();
+    return `https://fr.wikipedia.org/wiki/Saison_${livre}_de_Kaamelott#Épisode_${episodeNum}_:_${titre}`;
   }
 
   // Recolle par id (même mécanisme que `joindreDonneesRecherche`,
@@ -144,6 +152,8 @@
               <span class="etiquette">Invités</span>{details.guests.join(', ')}
             </p>
           {/if}
+          Source :
+          <a href={getEpisodeWikipediaURL(episode)} target="_blank" rel="noopener noreferrer">Wikipedia</a>
         {:else}
           <p class="chargement">Chargement…</p>
         {/if}
