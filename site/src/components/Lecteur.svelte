@@ -303,6 +303,16 @@
     box-shadow: var(--ombre);
     flex-shrink: 0;
     transition: width 0.22s ease;
+    /* Retour d'usage, mobile : sans ça, le scroll fluide vers le haut
+       déclenché au clic d'un épisode (`Site.svelte`, `onEpisodeClick`)
+       entrait en concurrence avec l'ancrage de scroll natif du navigateur
+       — celui-ci ajuste `scrollTop` de lui-même pour compenser ce cadre
+       qui regrossit pendant la transition ci-dessus, ce qui contredisait
+       le `scrollTo` en cours de façon incohérente selon le timing (marche
+       un coup sur deux). Ce cadre est justement l'élément que ce
+       `scrollTo` cherche à amener en haut de l'écran : il ne doit jamais
+       servir de point d'ancrage à sa propre compensation. */
+    overflow-anchor: none;
   }
 
   /* Réduit en mini-lecteur une fois collé avec les onglets, et seulement si
