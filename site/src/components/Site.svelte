@@ -360,6 +360,12 @@
     videoIdActif = episode.video_id;
     tempsCourant = episode.start_seconds;
     lecteur?.allerA(episode.video_id, episode.start_seconds);
+    // Capturé avant de réinitialiser `collant` : seul ce cas (le lecteur
+    // était réellement réduit, `.cadre.reduit` appliquée) déclenche la
+    // transition CSS `width` de Lecteur.svelte (0.22s) ci-dessous — un
+    // simple `collant` sans lecture engagée n'a jamais réduit le lecteur,
+    // rien à attendre dans ce cas.
+    const etaitReduit = reduit;
     // `collant` remis à faux explicitement (retour d'usage, Safari) :
     // cliquer un épisode pendant que le groupe est déjà réduit ne doit
     // jamais le laisser réduit, quel que soit le sort du scroll qui suit
@@ -384,7 +390,22 @@
     // une frame de plus avant de lancer le scroll réduit encore le risque
     // qu'un recalcul de layout en cours n'annule l'animation sur Safari.
     requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Sur mobile (retour d'usage) : `tick()`/`rAF` ne couvrent que le
+      // retrait *instantané* de `position: sticky`, pas la transition CSS
+      // *continue* du lecteur qui reprend sa taille pleine juste après
+      // (`.cadre.reduit`, Lecteur.svelte, 0.22s) — la vidéo grossit encore
+      // pendant les ~220ms suivants, en même temps que ce `scrollTo`
+      // fluide. Ce grossissement concurrent interrompt le scroll avant le
+      // sommet, laissant la moitié haute de la vidéo (désormais pleine
+      // taille) hors champ. Retarder le scroll jusqu'à la fin de cette
+      // transition (uniquement si elle a bien été déclenchée, et pas sous
+      // `prefers-reduced-motion`, où elle est désactivée) laisse le layout
+      // se stabiliser avant de scroller, comme pour la sticky ci-dessus.
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const attente = etaitReduit && !reducedMotion ? 230 : 0;
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, attente);
     });
   }
 
