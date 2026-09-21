@@ -64,6 +64,15 @@ const urlImagePartage = new URL('/og-image.jpg', Astro.site);
   </head>
   <body>
     <slot />
+    <!-- Diagnostic temporaire (issue #83, retour d'usage : le correctif ne
+         marche pas de façon fiable sur mobile, pas reproduit malgré
+         plusieurs tentatives d'automatisation) — `debug-scroll.js`
+         (`public/`, hors du scan de `tokens.test.ts` qui ne porte que sur
+         `.css`/`.astro`/`.svelte` : ce script n'a rien à voir avec le
+         design system, ses couleurs fixes sont volontaires, comme une
+         console de devtools). N'agit que si `?debugScroll` est présent
+         dans l'URL. À retirer une fois la vraie cause identifiée. -->
+    <script is:inline src="/debug-scroll.js"></script>
   </body>
 </html>
 
