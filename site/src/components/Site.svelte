@@ -384,8 +384,39 @@
     // une frame de plus avant de lancer le scroll réduit encore le risque
     // qu'un recalcul de layout en cours n'annule l'animation sur Safari.
     requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollerVersLeHaut();
     });
+  }
+
+  /**
+   * Retour en haut animé nous-mêmes plutôt que via
+   * `scrollTo({behavior: 'smooth'})` (retour d'usage, mobile — issue #83) :
+   * un diagnostic embarqué (`public/debug-scroll.js`) a montré l'animation
+   * native démarrer et progresser normalement (813px → 127px en ~340ms)
+   * puis s'arrêter net sans jamais atteindre 0, sans erreur ni second appel
+   * à `scrollTo` — cohérent avec un reliquat de scroll par inertie du geste
+   * qui a fait défiler la liste juste avant le tap sur l'épisode, qui
+   * continue de piloter la position en concurrence avec l'animation native
+   * jusqu'à l'emporter. En reposant `scrollY` nous-mêmes à chaque frame
+   * (`behavior` implicite `auto`, pas d'animation native à interrompre),
+   * rien d'externe ne peut geler la position en cours de route : la valeur
+   * est réaffirmée à la frame suivante, jusqu'au sommet.
+   */
+  function scrollerVersLeHaut(duree = 400) {
+    const depart = window.scrollY;
+    if (depart === 0) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    const t0 = performance.now();
+    function etape(maintenant: number) {
+      const t = Math.min(1, (maintenant - t0) / duree);
+      const applique = 1 - Math.pow(1 - t, 3); // ease-out cubique
+      window.scrollTo(0, Math.round(depart * (1 - applique)));
+      if (t < 1) requestAnimationFrame(etape);
+    }
+    requestAnimationFrame(etape);
   }
 
   // Referme le panneau de résultats desktop après un clic (retour d'usage :
@@ -912,7 +943,16 @@
      doit pas coller un lecteur en pleine taille pour rien, la vidéo doit
      simplement défiler comme le reste du contenu. `.actif` (= `reduit` du
      script) active le collage réduit, avec une marge visible plutôt que
-     plaqué au bord. */
+     plaqué au bord. `overflow-anchor: none` sur ce conteneur (retour
+     d'usage, mobile) : ce passage de `sticky` à `static` au clic d'un
+     épisode (`onEpisodeClick`) est un autre changement de mise en page
+     concurrent au `scrollTo` qui suit — même raison que sur `.cadre`
+     (Lecteur.svelte), à qui l'ancrage de scroll natif ne doit pas non
+     plus se raccrocher ici. */
+  .groupe-collant {
+    overflow-anchor: none;
+  }
+
   .groupe-collant.actif {
     position: sticky;
     top: calc(3rem + var(--esp-2));
