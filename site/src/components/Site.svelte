@@ -52,6 +52,7 @@
     joindreDonneesRecherche,
   } from '../lib/recherche.ts';
   import { analyserLienProfond, parametresLienProfond } from '../lib/lienProfond.ts';
+  import { scrollerVersLeHaut } from '../lib/scroll.ts';
   import { bornesEpisode } from '../lib/timeline.ts';
   import Lecteur from './Lecteur.svelte';
   import MiniTimeline from './MiniTimeline.svelte';
@@ -386,37 +387,6 @@
     requestAnimationFrame(() => {
       scrollerVersLeHaut();
     });
-  }
-
-  /**
-   * Retour en haut animé nous-mêmes plutôt que via
-   * `scrollTo({behavior: 'smooth'})` (retour d'usage, mobile — issue #83) :
-   * un diagnostic embarqué (`public/debug-scroll.js`) a montré l'animation
-   * native démarrer et progresser normalement (813px → 127px en ~340ms)
-   * puis s'arrêter net sans jamais atteindre 0, sans erreur ni second appel
-   * à `scrollTo` — cohérent avec un reliquat de scroll par inertie du geste
-   * qui a fait défiler la liste juste avant le tap sur l'épisode, qui
-   * continue de piloter la position en concurrence avec l'animation native
-   * jusqu'à l'emporter. En reposant `scrollY` nous-mêmes à chaque frame
-   * (`behavior` implicite `auto`, pas d'animation native à interrompre),
-   * rien d'externe ne peut geler la position en cours de route : la valeur
-   * est réaffirmée à la frame suivante, jusqu'au sommet.
-   */
-  function scrollerVersLeHaut(duree = 400) {
-    const depart = window.scrollY;
-    if (depart === 0) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      window.scrollTo(0, 0);
-      return;
-    }
-    const t0 = performance.now();
-    function etape(maintenant: number) {
-      const t = Math.min(1, (maintenant - t0) / duree);
-      const applique = 1 - Math.pow(1 - t, 3); // ease-out cubique
-      window.scrollTo(0, Math.round(depart * (1 - applique)));
-      if (t < 1) requestAnimationFrame(etape);
-    }
-    requestAnimationFrame(etape);
   }
 
   // Referme le panneau de résultats desktop après un clic (retour d'usage :
