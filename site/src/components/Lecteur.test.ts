@@ -135,7 +135,7 @@ describe('Lecteur', () => {
     // Retour d'usage (voir la note `engage` du composant) : ignorés, ne
     // doivent déclencher aucun nouvel appel — sans quoi le repère et la
     // mini-timeline clignoteraient à chaque réapparition transitoire.
-    expect(onChangementEngagement.mock.calls.length).toBe(appelsAvant);
+    expect(onChangementEngagement.mock.calls).toHaveLength(appelsAvant);
 
     FausseYTPlayer.derniere.emettreEtat(PlayerState.ENDED);
     expect(onChangementEngagement).toHaveBeenLastCalledWith(false);
