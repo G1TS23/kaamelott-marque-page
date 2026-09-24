@@ -122,8 +122,12 @@
       </svg>
     </button>
     <div class="champ-recherche">
+      <label for="recherche-titre-mobile" class="sr-only">
+        Rechercher un épisode par titre, résumé ou personnage
+      </label>
       <input
         bind:this={champ}
+        id="recherche-titre-mobile"
         type="search"
         value={requete}
         oninput={(e) => onRequeteChange(e.currentTarget.value)}
@@ -333,5 +337,22 @@
   .recentes svg {
     flex-shrink: 0;
     color: var(--encre-pale);
+  }
+
+  /* Label du champ (issue 114, audit de stabilisation) : visuellement
+     masqué, comme le champ desktop équivalent (Site.svelte) — jusqu'ici
+     ce champ ne dépendait que du `aria-label` du `role="dialog"`
+     englobant, un nom accessible plus faible/indirect que la version
+     desktop, qui a les deux. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 </style>
