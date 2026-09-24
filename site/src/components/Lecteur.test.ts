@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { tick } from 'svelte';
 import { cleanup, render } from '@testing-library/svelte';
 import Lecteur from './Lecteur.svelte';
+import { verifierAccessibilite } from '../test-utils/axe';
 
 /**
  * `Lecteur.svelte` (issue #89, audit de stabilisation) porte 8 commentaires
@@ -185,5 +186,11 @@ describe('Lecteur', () => {
     FausseYTPlayer.derniere.etatCourant = PlayerState.PAUSED;
     (component as any).basculerLecture();
     expect(FausseYTPlayer.derniere.playVideoAppels).toBe(1);
+  });
+
+  it("ne présente aucune violation d'accessibilité (axe)", async () => {
+    const { container } = render(Lecteur, props());
+    FausseYTPlayer.derniere.events.onReady();
+    await verifierAccessibilite(container);
   });
 });

@@ -2,6 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/svelte';
 import PiedDePage from './PiedDePage.svelte';
+import { verifierAccessibilite } from '../test-utils/axe';
 
 // `@testing-library/svelte` ne démonte pas automatiquement le composant
 // rendu par un test précédent (contrairement à son intégration React) :
@@ -35,5 +36,10 @@ describe('PiedDePage', () => {
     );
 
     expect(onMentionsLegalesClick).toHaveBeenCalledOnce();
+  });
+
+  it("ne présente aucune violation d'accessibilité (axe)", async () => {
+    const { container } = render(PiedDePage);
+    await verifierAccessibilite(container);
   });
 });
