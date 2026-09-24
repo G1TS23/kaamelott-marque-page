@@ -118,9 +118,21 @@ describe('Lecteur — facade (issue 119)', () => {
 
     expect(FausseYTPlayer.appelsConstructeur).toBe(0);
     expect(screen.getByRole('button', { name: 'Lire Un épisode' })).toBeTruthy();
+    // `maxresdefault` d'abord (retour d'usage : `hqdefault` pixelisait une
+    // fois étiré) — voir le test suivant pour le repli.
     expect(container.querySelector('img')?.getAttribute('src')).toBe(
-      'https://i.ytimg.com/vi/vidABC/hqdefault.jpg',
+      'https://i.ytimg.com/vi/vidABC/maxresdefault.jpg',
     );
+  });
+
+  it("retombe sur hqdefault.jpg si maxresdefault.jpg n'existe pas pour cette vidéo", async () => {
+    const { container } = render(Lecteur, props({ videoIdInitial: 'vidSansHD' }));
+    const img = container.querySelector('img')!;
+
+    img.dispatchEvent(new Event('error'));
+    await tick();
+
+    expect(img.getAttribute('src')).toBe('https://i.ytimg.com/vi/vidSansHD/hqdefault.jpg');
   });
 
   it('lien profond (lireAuDemarrage) : construit le lecteur immédiatement, sans jamais afficher la facade', () => {

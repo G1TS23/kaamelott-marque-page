@@ -147,6 +147,13 @@
   let videoIdACreer = $state(videoIdInitial);
   let secondesACreer = $state(secondesInitiales);
   let jouerAuDemarrage = $state(lireAuDemarrage);
+  // Miniature de la facade (issue 119, retour d'usage) : `maxresdefault.jpg`
+  // (1280×720, vraie HD) d'abord — `hqdefault.jpg` (480×360) donnait un
+  // rendu pixelisé une fois étiré à la largeur réelle du cadre. Pas garanti
+  // pour toutes les vidéos (contrairement à `hqdefault.jpg`, toujours
+  // disponible) : `onerror` retombe dessus si `maxresdefault.jpg` n'existe
+  // pas pour cette vidéo précise.
+  let miniatureHaute = $state(true);
   // `charge: false` : le constructeur `YT.Player` ne fait que mettre la
   // vidéo en attente, comme `cueVideoById` — rien n'est encore bufferisé
   // (src/lib/lecteur.ts pour la raison de cette distinction).
@@ -358,13 +365,18 @@
   {#if demarre}
     <div bind:this={conteneur}></div>
   {:else}
-    <!-- Facade (issue 119) : miniature YouTube (toujours disponible en
-         hqdefault.jpg, contrairement aux résolutions plus hautes) + bouton
-         lecture, sans script ni iframe tant qu'elle est affichée. `alt=""`
-         sur l'image : le nom accessible vient du bouton qui l'englobe, pas
-         la peine de l'annoncer deux fois. -->
+    <!-- Facade (issue 119) : miniature YouTube (voir la note du script sur
+         `miniatureHaute`) + bouton lecture, sans script ni iframe tant
+         qu'elle est affichée. `alt=""` sur l'image : le nom accessible
+         vient du bouton qui l'englobe, pas la peine de l'annoncer deux
+         fois. -->
     <button type="button" class="facade" onclick={demarrerFacade} aria-label={`Lire ${titre}`}>
-      <img src={`https://i.ytimg.com/vi/${videoIdACreer}/hqdefault.jpg`} alt="" loading="lazy" />
+      <img
+        src={`https://i.ytimg.com/vi/${videoIdACreer}/${miniatureHaute ? 'maxresdefault' : 'hqdefault'}.jpg`}
+        onerror={() => (miniatureHaute = false)}
+        alt=""
+        loading="lazy"
+      />
       <svg class="bouton-lecture" viewBox="0 0 68 48" aria-hidden="true">
         <path
           d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55C3.97 2.33 2.27 4.81 1.48 7.74.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26Z"
