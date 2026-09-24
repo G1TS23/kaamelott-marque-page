@@ -44,13 +44,13 @@ jobs:
       # des paquets par plateforme, pas sur des postinstall.
       - run: npm ci --ignore-scripts
 
-      - name: Tests
-        run: npm test
-
-      # `build` enchaîne `astro check` (types) puis la construction. Il porte
-      # aussi les garde-fous de données : il échoue si un livre n'a pas son
-      # compte d'épisodes ou si l'un d'eux n'a pas de timestamp. Les données
-      # étant importées depuis `data/` à la racine, le dépôt complet est
-      # nécessaire — d'où le checkout sans `sparse-checkout`.
-      - name: Vérification des types et build
-        run: npm run build
+      # `npm run ci` (package.json) enchaîne les tests puis `build`
+      # (`astro check` pour les types, puis la construction — qui porte
+      # aussi les garde-fous de données : échoue si un livre n'a pas son
+      # compte d'épisodes ou si l'un d'eux n'a pas de timestamp). Un seul
+      # script, appelé ici comme en local : reproduire CI à l'identique ne
+      # demande pas de deviner l'enchaînement exact de ce fichier. Les
+      # données étant importées depuis `data/` à la racine, le dépôt
+      # complet est nécessaire — d'où le checkout sans `sparse-checkout`.
+      - name: Tests, vérification des types et build
+        run: npm run ci
