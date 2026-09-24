@@ -614,6 +614,7 @@
       secondesInitiales={cibleInitiale?.episode.start_seconds}
       lireAuDemarrage={!!cibleInitiale}
       {reduit}
+      titre={episodeActifDetails?.title}
       onChangementEngagement={(v) => (lectureEngagee = v)}
       onLectureChange={(v) => (enLecture = v)}
       onProgression={(s, d) => {

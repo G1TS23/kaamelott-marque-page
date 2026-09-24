@@ -97,12 +97,29 @@
    * `engage`) : le retour de `BUFFERING` à `CUED` après un blocage
    * laissait l'overlay affiché pour de bon, plus aucun événement suivant
    * pour le corriger.
+   *
+   * `demarre`/facade (issue 119, audit de stabilisation — Core Web
+   * Vitals) : jusqu'ici l'API IFrame (script externe + `YT.Player`) se
+   * chargeait dès le montage de ce composant, donc dès le chargement de
+   * la page — même si personne ne cliquait jamais sur lecture. `demarre`
+   * (faux par défaut, vrai d'emblée pour un lien profond — voir plus bas)
+   * retarde tout ça derrière un écran-titre léger (miniature YouTube +
+   * bouton), sans script ni iframe tant qu'il est affiché. `videoIdACreer`/
+   * `secondesACreer`/`jouerAuDemarrage` sont des copies mutables des props
+   * `videoIdInitial`/`secondesInitiales`/`lireAuDemarrage` : `allerA`/
+   * `basculerLecture` appelés *avant* que la facade n'ait jamais été
+   * quittée (clic sur un épisode du sommaire, ou bouton lecture des
+   * contrôles de transport, tous deux atteignables avant tout premier
+   * clic sur la vidéo elle-même) doivent créer le lecteur directement sur
+   * la bonne vidéo/position — pas question de construire d'abord sur
+   * `videoIdInitial` puis appeler `loadVideoById` pour rien.
    */
   import { commandePourEpisode, type EtatLecteur } from '../lib/lecteur';
 
   let {
     videoIdInitial,
     reduit,
+    titre = "l'épisode",
     onChangementEngagement,
     onLectureChange,
     onProgression,
@@ -111,6 +128,9 @@
   }: {
     videoIdInitial: string;
     reduit: boolean;
+    /** Nom accessible du bouton de la facade (issue 119) — pas de titre
+     * d'épisode connu de ce composant sinon, seulement des identifiants. */
+    titre?: string;
     onChangementEngagement: (engagee: boolean) => void;
     onLectureChange: (enLecture: boolean) => void;
     onProgression: (secondes: number, duree: number) => void;
@@ -121,6 +141,19 @@
   let conteneur: HTMLDivElement;
   let player: YT.Player | undefined;
   let pret = $state(false);
+  // Lien profond (issue #21) : la facade n'a pas lieu d'être, la vidéo doit
+  // démarrer tout de suite à la bonne position — voir la note du script.
+  let demarre = $state(lireAuDemarrage);
+  let videoIdACreer = $state(videoIdInitial);
+  let secondesACreer = $state(secondesInitiales);
+  let jouerAuDemarrage = $state(lireAuDemarrage);
+  // Miniature de la facade (issue 119, retour d'usage) : `maxresdefault.jpg`
+  // (1280×720, vraie HD) d'abord — `hqdefault.jpg` (480×360) donnait un
+  // rendu pixelisé une fois étiré à la largeur réelle du cadre. Pas garanti
+  // pour toutes les vidéos (contrairement à `hqdefault.jpg`, toujours
+  // disponible) : `onerror` retombe dessus si `maxresdefault.jpg` n'existe
+  // pas pour cette vidéo précise.
+  let miniatureHaute = $state(true);
   // `charge: false` : le constructeur `YT.Player` ne fait que mettre la
   // vidéo en attente, comme `cueVideoById` — rien n'est encore bufferisé
   // (src/lib/lecteur.ts pour la raison de cette distinction).
@@ -147,8 +180,8 @@
   function creerPlayer() {
     if (player) return; // une seule instance pour la vie du composant
     player = new YT.Player(conteneur, {
-      videoId: videoIdInitial,
-      playerVars: { rel: 0, start: Math.floor(secondesInitiales) },
+      videoId: videoIdACreer,
+      playerVars: { rel: 0, start: Math.floor(secondesACreer) },
       events: {
         onReady: () => {
           // Garde par précaution (retour d'usage) : l'API ne devrait
@@ -158,7 +191,7 @@
           // rechargerait alors pour rien à chaque appel.
           if (pret) return;
           pret = true;
-          etat = { videoId: videoIdInitial, charge: false };
+          etat = { videoId: videoIdACreer, charge: false };
           demarrerSuiviProgression();
           // `playerVars.start` (ci-dessus) n'accepte qu'un entier — un
           // `seekTo` de précision corrige l'arrondi avant de lancer la
@@ -166,8 +199,8 @@
           // l'épisode précédent tant que `start_seconds` a une partie
           // décimale, `episodeEnCoursDetails` comparant la vraie position
           // arrondie à la borne exacte).
-          if (secondesInitiales) player?.seekTo(secondesInitiales, true);
-          if (lireAuDemarrage) {
+          if (secondesACreer) player?.seekTo(secondesACreer, true);
+          if (jouerAuDemarrage) {
             chargement = true;
             player?.playVideo();
           }
@@ -209,14 +242,21 @@
   }
 
   $effect(() => {
+    // Tant que la facade est affichée (issue 119), aucun script ni iframe
+    // ne se charge — voir la note du script sur `demarre`. Cet effet se
+    // relance automatiquement dès que `demarre` passe à vrai (Svelte
+    // réagit à la lecture de cette valeur), pas besoin de le déclencher
+    // manuellement depuis `demarrerFacade`/`allerA`/`basculerLecture`.
+    if (!demarre) return;
+
     // Le script externe iframe_api cherche `window.onYouTubeIframeAPIReady` :
     // une déclaration top-level dans un module n'est pas attachée à `window`
     // automatiquement (contrairement à un script classique), il faut
     // l'exposer explicitement (même piège que tools/pointage-manuel.html).
     //
-    // Le garde de `creerPlayer` et la constance de `videoIdInitial` (fixée
-    // par Site.svelte) évitent qu'une réexécution de cet effet ne crée un
-    // second player.
+    // Le garde de `creerPlayer` et la constance de `videoIdACreer` (figée
+    // une fois `demarre` passé à vrai) évitent qu'une réexécution de cet
+    // effet ne crée un second player.
     if (window.YT?.Player) {
       creerPlayer();
     } else {
@@ -243,10 +283,38 @@
   });
 
   /**
+   * Quitte la facade et crée le vrai lecteur (issue 119) — factorisé entre
+   * le clic sur la facade elle-même et les deux autres façons d'atteindre
+   * une action de lecture avant d'y avoir jamais cliqué (`allerA` depuis le
+   * sommaire, `basculerLecture` depuis les contrôles de transport : les
+   * deux restent visibles/actifs même quand la facade est encore affichée,
+   * voir `Site.svelte`).
+   */
+  function demarrer() {
+    jouerAuDemarrage = true;
+    chargement = true; // optimiste, voir la note du script sur `chargement`
+    demarre = true;
+  }
+
+  /** Clic direct sur la facade (miniature + bouton). */
+  function demarrerFacade() {
+    demarrer();
+  }
+
+  /**
    * Naviguer vers un épisode précis — clic sur un résultat de titre (lecture
    * immédiate, specs section 6) ou sur un épisode du sommaire.
    */
   export function allerA(videoId: string, secondes: number) {
+    if (!demarre) {
+      // Facade jamais quittée : construit directement sur la bonne vidéo/
+      // position plutôt que de créer d'abord le lecteur sur `videoIdInitial`
+      // pour appeler `loadVideoById` juste après.
+      videoIdACreer = videoId;
+      secondesACreer = secondes;
+      demarrer();
+      return;
+    }
     if (!pret || !player) return;
 
     const commande = commandePourEpisode(etat, videoId, secondes);
@@ -274,6 +342,14 @@
    * mettre en pause pour de vrai.
    */
   export function basculerLecture() {
+    if (!demarre) {
+      // Bouton lecture des contrôles de transport, cliqué avant tout clic
+      // sur la facade elle-même (les contrôles restent visibles dès qu'un
+      // épisode est affiché, pas seulement une fois la lecture engagée) :
+      // démarre directement sur la vidéo/position déjà prévues.
+      demarrer();
+      return;
+    }
     if (!pret || !player) return;
     const etatCourant = player.getPlayerState();
     if (etatCourant === YT.PlayerState.PLAYING || etatCourant === YT.PlayerState.BUFFERING) {
@@ -286,7 +362,31 @@
 </script>
 
 <div class="cadre" class:reduit>
-  <div bind:this={conteneur}></div>
+  {#if demarre}
+    <div bind:this={conteneur}></div>
+  {:else}
+    <!-- Facade (issue 119) : miniature YouTube (voir la note du script sur
+         `miniatureHaute`) + bouton lecture, sans script ni iframe tant
+         qu'elle est affichée. `alt=""` sur l'image : le nom accessible
+         vient du bouton qui l'englobe, pas la peine de l'annoncer deux
+         fois. -->
+    <button type="button" class="facade" onclick={demarrerFacade} aria-label={`Lire ${titre}`}>
+      <img
+        src={`https://i.ytimg.com/vi/${videoIdACreer}/${miniatureHaute ? 'maxresdefault' : 'hqdefault'}.jpg`}
+        onerror={() => (miniatureHaute = false)}
+        alt=""
+        loading="lazy"
+      />
+      <svg class="bouton-lecture" viewBox="0 0 68 48" aria-hidden="true">
+        <path
+          d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55C3.97 2.33 2.27 4.81 1.48 7.74.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26Z"
+          fill="var(--encre)"
+          opacity="0.8"
+        />
+        <path d="M45 24 27 14v20Z" fill="var(--surface-haute)" />
+      </svg>
+    </button>
+  {/if}
   {#if chargement}
     <div class="chargement" aria-live="polite">Chargement…</div>
   {/if}
@@ -339,7 +439,61 @@
     border: 0;
   }
 
+  /* Facade (issue 119) : occupe tout --cadre comme le ferait l'iframe,
+     miniature en fond (`object-fit: cover`, comme l'iframe elle ne doit
+     jamais laisser voir de bande vide sur les bords) et bouton de lecture
+     centré par-dessus. */
+  .facade {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: var(--surface);
+    cursor: pointer;
+  }
+
+  .facade img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .bouton-lecture {
+    position: relative;
+    width: 30%;
+    max-width: 4.5rem;
+    /* Légèrement grossi au survol/focus (retour d'usage habituel sur ce
+       genre d'affordance) — respecte `prefers-reduced-motion` ci-dessous. */
+    transition: transform 0.15s ease;
+  }
+
+  @media (hover: hover) {
+    .facade:hover .bouton-lecture {
+      transform: scale(1.08);
+    }
+  }
+
+  .facade:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  .facade:focus-visible .bouton-lecture {
+    transform: scale(1.08);
+  }
+
   @media (prefers-reduced-motion: reduce) {
+    .bouton-lecture {
+      transition: none;
+    }
+
     .cadre {
       transition: none;
     }
