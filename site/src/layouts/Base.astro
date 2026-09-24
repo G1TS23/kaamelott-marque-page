@@ -33,18 +33,30 @@ const urlImagePartage = new URL('/og-image.jpg', Astro.site);
 // Données structurées (issue 118, audit de stabilisation) : `WebSite`
 // minimal, `url` = la racine du site (pas `urlCanonique`, qui varie par
 // page — l'entité `WebSite` représente le site entier, pas une page
-// précise). Volontairement sans `description`/`inLanguage` ni `Person` :
-// même forme que sur les autres petits sites de l'auteur (pont-chaban,
-// boom-boom-boom, radiant-radiation), où seuls `name`/`url` pilotent le
-// nom de site affiché par Google (developers.google.com/search/docs/
-// appearance/site-names) — `Person` reste propre au portfolio central
-// (randomfolio), pas dupliqué ici.
+// précise). Volontairement sans `description`/`inLanguage` ni `Person`
+// complet dupliqué : même forme que sur les autres petits sites de
+// l'auteur (pont-chaban, boom-boom-boom, radiant-radiation), où seuls
+// `name`/`url` pilotent le nom de site affiché par Google
+// (developers.google.com/search/docs/appearance/site-names) — le
+// `Person` détaillé (compétences, adresse...) reste propre au portfolio
+// central (randomfolio).
+//
+// `author` minimal ajouté quand même (retour d'usage) : sans lui, rien
+// ne relie ce site à l'auteur de façon structurée — les mentions légales
+// le disent en texte, mais Google n'en tire rien. Volontairement réduit
+// à `name`/`url` (vers le portfolio, l'entité `Person` complète avec
+// `sameAs` GitHub/LinkedIn) plutôt que de redéclarer tout le `Person` ici.
 const urlRacine = new URL('/', Astro.site);
 const jsonLdSite = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'Le Marque-Page de la Relecture',
   url: urlRacine,
+  author: {
+    '@type': 'Person',
+    name: 'Olivier Falahi',
+    url: 'https://olivier.falahi.org',
+  },
 };
 ---
 
