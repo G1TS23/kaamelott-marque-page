@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { tick } from 'svelte';
-import { cleanup, render } from '@testing-library/svelte';
+import { cleanup, render, screen } from '@testing-library/svelte';
 import Lecteur from './Lecteur.svelte';
 import { verifierAccessibilite } from '../test-utils/axe';
 
@@ -11,26 +11,44 @@ import { verifierAccessibilite } from '../test-utils/axe';
  * overlay de chargement resté affiché, arrondi de `start_seconds`…), sans
  * aucun test. L'API IFrame réelle (réseau, postMessage) est hors de portée
  * d'un test de composant : ce faux `YT.Player` capture les méthodes
- * appelées et permet de déclencher `onStateChange`/`onReady` à la main,
- * exactement ce que fait `Site.test.ts` (#87) pour son propre scénario —
- * dupliqué ici en plus détaillé (suivi individuel des appels) plutôt que
- * partagé, les deux tests n'ayant pas besoin du même niveau de détail.
+ * appelées (et depuis l'issue 119, les arguments du constructeur aussi —
+ * `videoId`/`start`, nécessaires pour vérifier que la facade construit
+ * directement sur la bonne vidéo) et permet de déclencher
+ * `onStateChange`/`onReady` à la main.
+ *
+ * Facade (issue 119) : par défaut (pas de lien profond), le lecteur
+ * n'existe pas tant que la facade n'a pas été quittée — les tests qui
+ * portent sur le lecteur déjà engagé passent `lireAuDemarrage: true` pour
+ * la sauter, comme le ferait un vrai lien profond (issue #21).
  */
 
 const PlayerState = { UNSTARTED: -1, ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 };
 
 class FausseYTPlayer {
   static derniere: FausseYTPlayer;
+  static appelsConstructeur = 0;
   events: { onReady: () => void; onStateChange: (e: { data: number }) => void };
+  videoId: string;
+  start: number;
   seekToAppels: [number, boolean][] = [];
   loadVideoByIdAppels: { videoId: string; startSeconds: number }[] = [];
   playVideoAppels = 0;
   pauseVideoAppels = 0;
   etatCourant = PlayerState.UNSTARTED;
 
-  constructor(_conteneur: unknown, options: { events: FausseYTPlayer['events'] }) {
+  constructor(
+    _conteneur: unknown,
+    options: {
+      videoId: string;
+      playerVars: { start: number };
+      events: FausseYTPlayer['events'];
+    },
+  ) {
     this.events = options.events;
+    this.videoId = options.videoId;
+    this.start = options.playerVars.start;
     FausseYTPlayer.derniere = this;
+    FausseYTPlayer.appelsConstructeur++;
   }
   getCurrentTime() {
     return 42;
@@ -63,6 +81,7 @@ class FausseYTPlayer {
 }
 
 beforeEach(() => {
+  FausseYTPlayer.appelsConstructeur = 0;
   vi.stubGlobal('YT', { Player: FausseYTPlayer, PlayerState });
 });
 
@@ -74,6 +93,7 @@ afterEach(() => {
 interface PropsLecteur {
   videoIdInitial: string;
   reduit: boolean;
+  titre?: string;
   onChangementEngagement: (engagee: boolean) => void;
   onLectureChange: (enLecture: boolean) => void;
   onProgression: (secondes: number, duree: number) => void;
@@ -92,9 +112,70 @@ function props(overrides: Partial<PropsLecteur> = {}): PropsLecteur {
   };
 }
 
+describe('Lecteur — facade (issue 119)', () => {
+  it("affiche une facade (miniature + bouton lecture) tant qu'aucune lecture n'a été demandée, sans construire de lecteur", () => {
+    const { container } = render(Lecteur, props({ videoIdInitial: 'vidABC', titre: 'Un épisode' }));
+
+    expect(FausseYTPlayer.appelsConstructeur).toBe(0);
+    expect(screen.getByRole('button', { name: 'Lire Un épisode' })).toBeTruthy();
+    expect(container.querySelector('img')?.getAttribute('src')).toBe(
+      'https://i.ytimg.com/vi/vidABC/hqdefault.jpg',
+    );
+  });
+
+  it('lien profond (lireAuDemarrage) : construit le lecteur immédiatement, sans jamais afficher la facade', () => {
+    render(Lecteur, props({ videoIdInitial: 'vid1', secondesInitiales: 42, lireAuDemarrage: true }));
+
+    expect(FausseYTPlayer.appelsConstructeur).toBe(1);
+    expect(FausseYTPlayer.derniere.videoId).toBe('vid1');
+    expect(FausseYTPlayer.derniere.start).toBe(42);
+    expect(screen.queryByRole('button', { name: /^Lire/ })).toBeNull();
+  });
+
+  it('clic sur la facade construit le lecteur sur la vidéo affichée et lance la lecture', async () => {
+    render(Lecteur, props({ videoIdInitial: 'vid1' }));
+
+    screen.getByRole('button', { name: /^Lire/ }).click();
+    // La création du lecteur passe par l'effet réactif sur `demarre`, pas
+    // synchrone avec le clic — un `tick()` laisse Svelte le flusher.
+    await tick();
+
+    expect(FausseYTPlayer.appelsConstructeur).toBe(1);
+    expect(FausseYTPlayer.derniere.videoId).toBe('vid1');
+    FausseYTPlayer.derniere.events.onReady();
+    expect(FausseYTPlayer.derniere.playVideoAppels).toBe(1);
+  });
+
+  it("cliquer un épisode différent avant d'avoir jamais quitté la facade construit directement sur cette vidéo (pas de loadVideoById superflu)", async () => {
+    const { component } = render(Lecteur, props({ videoIdInitial: 'vid1' }));
+
+    (component as any).allerA('vid2', 77);
+    await tick();
+
+    expect(FausseYTPlayer.appelsConstructeur).toBe(1);
+    expect(FausseYTPlayer.derniere.videoId).toBe('vid2');
+    expect(FausseYTPlayer.derniere.start).toBe(77);
+    FausseYTPlayer.derniere.events.onReady();
+    expect(FausseYTPlayer.derniere.loadVideoByIdAppels).toEqual([]); // construit directement, pas rechargé
+    expect(FausseYTPlayer.derniere.playVideoAppels).toBe(1);
+  });
+
+  it("cliquer lecture sur les contrôles de transport avant d'avoir jamais quitté la facade démarre la vidéo déjà affichée", async () => {
+    const { component } = render(Lecteur, props({ videoIdInitial: 'vid1', secondesInitiales: 5 }));
+
+    (component as any).basculerLecture();
+    await tick();
+
+    expect(FausseYTPlayer.appelsConstructeur).toBe(1);
+    expect(FausseYTPlayer.derniere.videoId).toBe('vid1');
+    FausseYTPlayer.derniere.events.onReady();
+    expect(FausseYTPlayer.derniere.playVideoAppels).toBe(1);
+  });
+});
+
 describe('Lecteur', () => {
   it("affiche l'overlay de chargement seulement pendant BUFFERING", async () => {
-    const { container } = render(Lecteur, props());
+    const { container } = render(Lecteur, props({ lireAuDemarrage: true }));
     FausseYTPlayer.derniere.events.onReady();
 
     expect(container.querySelector('.chargement')).toBeNull();
@@ -109,17 +190,17 @@ describe('Lecteur', () => {
   });
 
   it('bascule la classe CSS .reduit avec la prop reduit', async () => {
-    const { container, rerender } = render(Lecteur, props({ reduit: false }));
+    const { container, rerender } = render(Lecteur, props({ reduit: false, lireAuDemarrage: true }));
     expect(container.querySelector('.cadre.reduit')).toBeNull();
 
-    await rerender(props({ reduit: true }));
+    await rerender(props({ reduit: true, lireAuDemarrage: true }));
     expect(container.querySelector('.cadre.reduit')).not.toBeNull();
   });
 
   it('signale l’engagement sur PLAYING/PAUSED/BUFFERING, jamais sur UNSTARTED/CUED intercalés, et le retire sur ENDED', () => {
     const onChangementEngagement = vi.fn();
     const onLectureChange = vi.fn();
-    render(Lecteur, props({ onChangementEngagement, onLectureChange }));
+    render(Lecteur, props({ onChangementEngagement, onLectureChange, lireAuDemarrage: true }));
     FausseYTPlayer.derniere.events.onReady();
 
     FausseYTPlayer.derniere.emettreEtat(PlayerState.PLAYING);
@@ -147,7 +228,7 @@ describe('Lecteur', () => {
     // `bind:this` n'existe pas hors d'un composant Svelte parent : l'instance
     // exportée s'obtient via `component`, retourné par `render`
     // (@testing-library/svelte).
-    const { component } = render(Lecteur, props());
+    const { component } = render(Lecteur, props({ lireAuDemarrage: true }));
     FausseYTPlayer.derniere.events.onReady();
 
     // Le constructeur ne fait que « cuer » la vidéo (retour d'usage, voir
@@ -161,11 +242,14 @@ describe('Lecteur', () => {
 
     expect(FausseYTPlayer.derniere.seekToAppels).toEqual([[120, true]]);
     expect(FausseYTPlayer.derniere.loadVideoByIdAppels).toEqual([{ videoId: 'vid1', startSeconds: 10 }]);
-    expect(FausseYTPlayer.derniere.playVideoAppels).toBe(1); // relance après le seek
+    // 2, pas 1 : `lireAuDemarrage: true` (facade sautée) déclenche déjà un
+    // premier `playVideo()` dans `onReady`, avant même ces deux `allerA` —
+    // le second (`seek`) en relance un deuxième.
+    expect(FausseYTPlayer.derniere.playVideoAppels).toBe(2);
   });
 
   it('allerA charge (load) une vidéo différente', () => {
-    const { component } = render(Lecteur, props());
+    const { component } = render(Lecteur, props({ lireAuDemarrage: true }));
     FausseYTPlayer.derniere.events.onReady();
     FausseYTPlayer.derniere.emettreEtat(PlayerState.PLAYING);
 
@@ -176,7 +260,7 @@ describe('Lecteur', () => {
   });
 
   it('basculerLecture met en pause pendant la lecture, relance sinon', () => {
-    const { component } = render(Lecteur, props());
+    const { component } = render(Lecteur, props({ lireAuDemarrage: true }));
     FausseYTPlayer.derniere.events.onReady();
 
     FausseYTPlayer.derniere.etatCourant = PlayerState.PLAYING;
@@ -185,11 +269,18 @@ describe('Lecteur', () => {
 
     FausseYTPlayer.derniere.etatCourant = PlayerState.PAUSED;
     (component as any).basculerLecture();
-    expect(FausseYTPlayer.derniere.playVideoAppels).toBe(1);
+    // 2, pas 1 : `lireAuDemarrage: true` (facade sautée) a déjà déclenché
+    // un premier `playVideo()` dans `onReady`.
+    expect(FausseYTPlayer.derniere.playVideoAppels).toBe(2);
   });
 
-  it("ne présente aucune violation d'accessibilité (axe)", async () => {
+  it("ne présente aucune violation d'accessibilité (axe) — facade", async () => {
     const { container } = render(Lecteur, props());
+    expect(await verifierAccessibilite(container)).toEqual([]);
+  });
+
+  it("ne présente aucune violation d'accessibilité (axe) — lecteur engagé", async () => {
+    const { container } = render(Lecteur, props({ lireAuDemarrage: true }));
     FausseYTPlayer.derniere.events.onReady();
     expect(await verifierAccessibilite(container)).toEqual([]);
   });
