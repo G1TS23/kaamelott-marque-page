@@ -44,13 +44,18 @@ jobs:
       # des paquets par plateforme, pas sur des postinstall.
       - run: npm ci --ignore-scripts
 
-      # `npm run ci` (package.json) enchaîne les tests puis `build`
+      # `npm run verify` (package.json) enchaîne les tests puis `build`
       # (`astro check` pour les types, puis la construction — qui porte
       # aussi les garde-fous de données : échoue si un livre n'a pas son
       # compte d'épisodes ou si l'un d'eux n'a pas de timestamp). Un seul
       # script, appelé ici comme en local : reproduire CI à l'identique ne
-      # demande pas de deviner l'enchaînement exact de ce fichier. Les
-      # données étant importées depuis `data/` à la racine, le dépôt
-      # complet est nécessaire — d'où le checkout sans `sparse-checkout`.
+      # demande pas de deviner l'enchaînement exact de ce fichier. Nommé
+      # `verify`, pas `ci` : ce dernier nom, une fois écrit `npm run ci`,
+      # se lit comme la commande d'installation `npm ci` par l'analyse
+      # statique de Sonar (règle githubactions:S6505 sur `--ignore-scripts`)
+      # — un faux positif détecté sur ce fichier, réglé en évitant le nom
+      # ambigu plutôt qu'en le faisant taire. Les données étant importées
+      # depuis `data/` à la racine, le dépôt complet est nécessaire — d'où
+      # le checkout sans `sparse-checkout`.
       - name: Tests, vérification des types et build
-        run: npm run ci
+        run: npm run verify
