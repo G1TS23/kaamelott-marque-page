@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 
 import svelte from '@astrojs/svelte';
+import sitemap from '@astrojs/sitemap';
 
 // URL du déploiement courant (issue #79, retour d'usage) : nécessaire pour
 // que `Astro.site` résolve les URL absolues des balises OpenGraph (og:url,
@@ -19,7 +20,10 @@ const urlDeploiement = process.env.DEPLOY_PRIME_URL ?? 'https://kaamelott.falahi
 // https://astro.build/config
 export default defineConfig({
   site: urlDeploiement,
-  integrations: [svelte()],
+  // Gain limité vu la taille du site (2 pages : accueil + mentions légales),
+  // mais standard peu coûteux à poser — vérifié par la plupart des outils/
+  // audits SEO (issue #117).
+  integrations: [svelte(), sitemap()],
   vite: {
     server: {
       fs: {
