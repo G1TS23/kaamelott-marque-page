@@ -90,6 +90,22 @@
   // en ligne débordait sur un petit écran, pas la place pour le nom du
   // site *et* un champ utilisable (voir le CSS de l'en-tête).
   let rechercheMobileOuverte = $state(false);
+  // Rendu du focus au déclencheur à la fermeture (retour d'usage, revue
+  // a11y — WCAG 2.4.3) : ni `RechercheMobile` ni `PanneauMentionsLegales`
+  // ne le faisaient, le focus retombait où le navigateur le met par
+  // défaut (typiquement `<body>`) plutôt que sur le bouton loupe ou le
+  // lien « Mentions légales » qui a ouvert le dialogue. `e.currentTarget`
+  // plutôt que `document.activeElement` au moment du clic : Safari ne
+  // donne pas le focus à un `<button>` cliqué à la souris par défaut
+  // (seulement au clavier), `document.activeElement` y serait resté sur
+  // l'élément précédent.
+  let declencheurRecherche: HTMLElement | null = null;
+  let declencheurMentionsLegales: HTMLElement | null = null;
+
+  function ouvrirRechercheMobile(e: MouseEvent) {
+    declencheurRecherche = e.currentTarget as HTMLElement;
+    rechercheMobileOuverte = true;
+  }
   // La vidéo actuellement chargée dans le lecteur et la position de lecture
   // (secondes) — c'est ce couple, pas « le dernier épisode cliqué », qui
   // détermine l'épisode en cours (`episodeActif` plus bas, issue #56) :
@@ -449,6 +465,7 @@
   function surClicMentionsLegales(e: MouseEvent) {
     if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
+    declencheurMentionsLegales = e.currentTarget as HTMLElement;
     panneauMentionsLegalesOuvert = true;
   }
 
@@ -507,7 +524,7 @@
     <button
       type="button"
       class="recherche-bouton"
-      onclick={() => (rechercheMobileOuverte = true)}
+      onclick={ouvrirRechercheMobile}
       aria-label="Rechercher un épisode par titre"
     >
       <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
@@ -656,12 +673,32 @@
     {resultats}
     onRequeteChange={(v) => (requete = v)}
     {onEpisodeClick}
-    onFermer={() => (rechercheMobileOuverte = false)}
+    onFermer={async () => {
+      rechercheMobileOuverte = false;
+      // `tick()` avant `.focus()` (retour d'usage) : le conteneur englobant
+      // (`unDialogueOuvert`, plus haut) est encore `inert` à l'instant
+      // synchrone de cette affectation — Svelte ne retire l'attribut qu'au
+      // prochain flush réactif, et `.focus()` sur un élément dans un
+      // sous-arbre `inert` est un no-op silencieux (spec HTML). Sans ce
+      // `tick()`, le focus restait sur le champ de recherche en train de
+      // disparaître au lieu de revenir sur le bouton loupe.
+      await tick();
+      declencheurRecherche?.focus();
+    }}
   />
 {/if}
 
 {#if panneauMentionsLegalesOuvert}
-  <PanneauMentionsLegales onFermer={() => (panneauMentionsLegalesOuvert = false)} />
+  <PanneauMentionsLegales
+    onFermer={async () => {
+      panneauMentionsLegalesOuvert = false;
+      // `tick()` avant `.focus()` : même raison que pour la recherche
+      // mobile ci-dessus (`unDialogueOuvert` encore `inert` au moment
+      // synchrone de cette affectation).
+      await tick();
+      declencheurMentionsLegales?.focus();
+    }}
+  />
 {/if}
 
 <style>
