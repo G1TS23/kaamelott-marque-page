@@ -4,6 +4,7 @@ import { cleanup, render, screen } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import Sommaire from './Sommaire.svelte';
 import type { DonneesRecherche, EpisodeListe, LivreEnListe, NumeroLivre } from '../lib/episodes.ts';
+import { verifierAccessibilite } from '../test-utils/axe';
 
 afterEach(cleanup);
 
@@ -131,5 +132,10 @@ describe('Sommaire', () => {
 
     expect(details.textContent).toContain('Un résumé.');
     expect(details.textContent).not.toContain('Chargement…');
+  });
+
+  it("ne présente aucune violation d'accessibilité (axe)", async () => {
+    const { container } = render(Sommaire, props());
+    expect(await verifierAccessibilite(container)).toEqual([]);
   });
 });
