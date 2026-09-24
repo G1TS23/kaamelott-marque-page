@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           # Même version que Netlify (netlify.toml) : tester sur une
           # version et déployer sur une autre reviendrait à ne pas vraiment
