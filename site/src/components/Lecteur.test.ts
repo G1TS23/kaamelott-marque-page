@@ -191,6 +191,6 @@ describe('Lecteur', () => {
   it("ne présente aucune violation d'accessibilité (axe)", async () => {
     const { container } = render(Lecteur, props());
     FausseYTPlayer.derniere.events.onReady();
-    await verifierAccessibilite(container);
+    expect(await verifierAccessibilite(container)).toEqual([]);
   });
 });

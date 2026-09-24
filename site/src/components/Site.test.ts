@@ -145,6 +145,6 @@ describe('Site — retour en haut au clic d’un épisode (issue #83)', () => {
 describe('Site — accessibilité', () => {
   it("ne présente aucune violation d'accessibilité (axe) dans son état par défaut", async () => {
     const { container } = render(Site, { livres });
-    await verifierAccessibilite(container);
+    expect(await verifierAccessibilite(container)).toEqual([]);
   });
 });

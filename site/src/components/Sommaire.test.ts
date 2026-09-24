@@ -136,6 +136,6 @@ describe('Sommaire', () => {
 
   it("ne présente aucune violation d'accessibilité (axe)", async () => {
     const { container } = render(Sommaire, props());
-    await verifierAccessibilite(container);
+    expect(await verifierAccessibilite(container)).toEqual([]);
   });
 });

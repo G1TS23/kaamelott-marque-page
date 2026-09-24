@@ -40,6 +40,6 @@ describe('PiedDePage', () => {
 
   it("ne présente aucune violation d'accessibilité (axe)", async () => {
     const { container } = render(PiedDePage);
-    await verifierAccessibilite(container);
+    expect(await verifierAccessibilite(container)).toEqual([]);
   });
 });
