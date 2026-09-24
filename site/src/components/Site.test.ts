@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render } from '@testing-library/svelte';
 import Site from './Site.svelte';
 import type { LivreEnListe } from '../lib/episodes.ts';
+import { verifierAccessibilite } from '../test-utils/axe';
 
 /**
  * Reproduit le scénario exact de l'issue #83 (retour d'usage, mobile) :
@@ -138,5 +139,12 @@ describe('Site — retour en haut au clic d’un épisode (issue #83)', () => {
     await new Promise((resolve) => setTimeout(resolve, 600));
 
     expect(scrollYActuel).toBe(0);
+  });
+});
+
+describe('Site — accessibilité', () => {
+  it("ne présente aucune violation d'accessibilité (axe) dans son état par défaut", async () => {
+    const { container } = render(Site, { livres });
+    expect(await verifierAccessibilite(container)).toEqual([]);
   });
 });
