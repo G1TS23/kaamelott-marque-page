@@ -12,7 +12,8 @@
     "astro": "astro",
     "check": "astro check",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "verify": "npm test && npm run build"
   },
   "dependencies": {
     "@astrojs/svelte": "^9.0.1",
