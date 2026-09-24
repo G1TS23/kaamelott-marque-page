@@ -1,8 +1,9 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render } from '@testing-library/svelte';
+import { cleanup, fireEvent, render } from '@testing-library/svelte';
 import Site from './Site.svelte';
 import type { LivreEnListe } from '../lib/episodes.ts';
+import { verifierAccessibilite } from '../test-utils/axe';
 
 /**
  * Reproduit le scénario exact de l'issue #83 (retour d'usage, mobile) :
@@ -138,5 +139,44 @@ describe('Site — retour en haut au clic d’un épisode (issue #83)', () => {
     await new Promise((resolve) => setTimeout(resolve, 600));
 
     expect(scrollYActuel).toBe(0);
+  });
+});
+
+describe('Site — retour du focus au déclencheur à la fermeture (issue #110)', () => {
+  it('rend le focus au bouton loupe après fermeture de la recherche mobile', async () => {
+    const { container } = render(Site, { livres });
+    const boutonLoupe = container.querySelector<HTMLButtonElement>(
+      'button.recherche-bouton',
+    )!;
+
+    await fireEvent.click(boutonLoupe);
+    const boutonFermer = container.querySelector<HTMLButtonElement>(
+      'button.retour',
+    )!;
+    await fireEvent.click(boutonFermer);
+
+    expect(document.activeElement).toBe(boutonLoupe);
+  });
+
+  it('rend le focus au lien « Mentions légales » après fermeture du panneau', async () => {
+    const { container } = render(Site, { livres });
+    const lienMentionsLegales = [...container.querySelectorAll('a')].find((a) =>
+      a.textContent?.includes('Mentions légales'),
+    )!;
+
+    await fireEvent.click(lienMentionsLegales, { button: 0 });
+    const boutonFermer = [...container.querySelectorAll('button')].find(
+      (b) => b.getAttribute('aria-label') === 'Fermer',
+    )!;
+    await fireEvent.click(boutonFermer);
+
+    expect(document.activeElement).toBe(lienMentionsLegales);
+  });
+});
+
+describe('Site — accessibilité', () => {
+  it("ne présente aucune violation d'accessibilité (axe) dans son état par défaut", async () => {
+    const { container } = render(Site, { livres });
+    expect(await verifierAccessibilite(container)).toEqual([]);
   });
 });
