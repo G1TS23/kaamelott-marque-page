@@ -1,0 +1,32 @@
+Portée : cette licence MIT couvre le code de ce dépôt (site/, .github/,
+scripts, configuration). Elle NE couvre PAS le contenu du dossier data/
+(transcriptions, résumés, timestamps et autres données dérivées des
+lectures-interprétations de Kaamelott publiées par Shisheyu sur YouTube,
+elles-mêmes basées sur l'œuvre de Kaamelott). Ce contenu reste soumis aux
+droits de leurs auteurs et ayants droit respectifs (Alexandre Astier et
+les ayants droit de Kaamelott, Shisheyu) et n'est couvert par aucune
+licence accordée par ce dépôt.
+
+---
+
+MIT License
+
+Copyright (c) 2026 Olivier Falahi
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
