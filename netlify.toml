@@ -26,3 +26,27 @@
   # type "dernière LTS" qui décalerait les deux côtés à des moments
   # différents.
   NODE_VERSION = "24"
+
+# Headers de sécurité (issue #95, audit de stabilisation) : risque réel
+# faible pour ce site (statique, sans compte utilisateur ni cookie), mais
+# peu coûteux à ajouter.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # `script-src`/`style-src` gardent `'unsafe-inline'` : Astro injecte des
+    # `<script>` inline sans `src` pour démarrer l'hydratation des îlots
+    # (`client:load`/`client:only`, vérifié dans `dist/index.html` après
+    # build), et des attributs `style="--gouttiere: …px"` calculés en JS
+    # (largeur de la réserve de scrollbar, `Site.svelte`/`PiedDePage.svelte`)
+    # — ni l'un ni l'autre n'a de contenu fixe qu'on pourrait figer par un
+    # hash SHA, un site purement statique ne peut pas générer de nonce par
+    # requête. Le reste de la CSP se resserre autant que possible : seule
+    # ressource tierce nécessaire, l'iframe YouTube (`Lecteur.svelte`) —
+    # les polices sont auto-hébergées (Fontsource, `polices.css`), aucun
+    # autre domaine à whitelister. `frame-ancestors 'none'` couvre le même
+    # besoin que `X-Frame-Options` pour les navigateurs qui le supportent ;
+    # gardé quand même en repli pour les autres.
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.youtube.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src https://www.youtube.com; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
