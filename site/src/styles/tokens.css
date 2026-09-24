@@ -28,7 +28,13 @@
 
   --encre: #20241d; /* ink — texte principal */
   --encre-douce: #565c4c; /* ink-soft — texte secondaire, chapôs */
-  --encre-pale: #8b9080; /* ink-faint — étiquettes, numéros, méta */
+  /* Assombri (issue #112, audit de stabilisation) : la teinte d'origine
+     (#8b9080) ne passait que 2.80:1 sur --fond (sous le seuil AA de 4.5:1
+     pour du texte de cette taille) — mesuré sur les 14 usages réels, tous
+     du texte, jamais un élément large/décoratif où le seuil relâché à
+     3:1 aurait suffi. Reste plus clair que --encre-douce (hiérarchie
+     encre > encre-douce > encre-pale préservée). */
+  --encre-pale: #676b5e; /* ink-faint — étiquettes, numéros, méta */
 
   --trait: #d4d6c5; /* line — bordures et séparateurs */
 
@@ -66,7 +72,10 @@
 
   --sombre-encre: #e9e7d8;
   --sombre-encre-douce: #b3b39e;
-  --sombre-encre-pale: #7c8070;
+  /* Éclairci (issue #112) : la teinte d'origine (#7c8070) descendait à
+     3.71:1 sur --sombre-surface-haute, sous 4.5:1 — même raisonnement
+     qu'en clair ci-dessus. */
+  --sombre-encre-pale: #8b8f7f;
 
   --sombre-trait: #343827;
 
