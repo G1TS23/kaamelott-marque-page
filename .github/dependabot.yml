@@ -1,0 +1,21 @@
+version: 2
+updates:
+  # `package.json` vit dans `site/`, pas à la racine (voir netlify.toml,
+  # ci.yml) — Dependabot doit pointer dessus explicitement.
+  - package-ecosystem: 'npm'
+    directory: '/site'
+    schedule:
+      interval: 'weekly'
+    # Limite raisonnable (retour d'usage sur des dépôts similaires) : assez
+    # pour ne pas laisser traîner une alerte de sécurité des semaines, sans
+    # noyer les PR humaines sous une pile de mises à jour mineures.
+    open-pull-requests-limit: 5
+
+  # Les actions du seul workflow (.github/workflows/ci.yml) méritent le
+  # même suivi que les dépendances npm — une action épinglée par tag majeur
+  # (`actions/checkout@v4`) peut recevoir des correctifs de sécurité sans
+  # qu'on le sache autrement.
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
