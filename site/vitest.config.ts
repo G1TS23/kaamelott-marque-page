@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 /**
@@ -29,4 +29,9 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 export default defineConfig({
   plugins: [svelte()],
   resolve: process.env.VITEST ? { conditions: ['browser'] } : undefined,
+  // `e2e/` (issue #128) : suite Playwright, un exécuteur de test différent —
+  // sans cette exclusion, Vitest tente aussi de lancer ces fichiers (son
+  // `include` par défaut ne distingue pas *.spec.ts par dossier) et échoue,
+  // `test()` de Playwright n'ayant pas de sens hors de son propre exécuteur.
+  test: { exclude: [...configDefaults.exclude, 'e2e/**'] },
 });
