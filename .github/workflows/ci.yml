@@ -59,3 +59,35 @@ jobs:
       # le checkout sans `sparse-checkout`.
       - name: Tests, vérification des types et build
         run: npm run verify
+
+  e2e:
+    name: E2e (lecteur collant, bascule d'onglet)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - run: npm ci --ignore-scripts
+
+      # Pas couvert par --ignore-scripts (aucun postinstall de dépendance
+      # n'est autorisé à tourner) : installation explicite des navigateurs,
+      # seul chromium étant utilisé (playwright.config.ts). Binaire local
+      # appelé directement plutôt que via `npx` (SonarCloud
+      # githubactions:S6505/S8543) : `npx` peut installer et exécuter à la
+      # volée un paquet non épinglé — le binaire posé par `npm ci` ci-dessus
+      # est déjà le bon, pas la peine de repasser par une résolution npx.
+      - run: ./node_modules/.bin/playwright install --with-deps chromium
+
+      # `webServer` (playwright.config.ts) construit et sert le site lui-même
+      # — pas besoin d'un `npm run build` séparé ici.
+      - name: Suite e2e Playwright (issue #128)
+        run: npm run test:e2e
