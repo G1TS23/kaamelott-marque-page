@@ -30,14 +30,14 @@ export async function installerFausseAPIYoutube(page: Page): Promise<void> {
 
     class LecteurFactice {
       videoId: string;
-      appelsChargement: Array<{ videoId: string; startSeconds?: number }> = [];
-      appelsSeek: number[] = [];
+      readonly appelsChargement: Array<{ videoId: string; startSeconds?: number }> = [];
+      readonly appelsSeek: number[] = [];
       appelsPlay = 0;
       appelsPause = 0;
       private temps: number;
-      private duree = 3600;
+      private readonly duree = 3600;
       private etat: number = ETATS.UNSTARTED;
-      private events: {
+      private readonly events: {
         onReady?: (e: { target: LecteurFactice }) => void;
         onStateChange?: (e: { data: number; target: LecteurFactice }) => void;
       };
@@ -96,7 +96,12 @@ export async function installerFausseAPIYoutube(page: Page): Promise<void> {
         return this.etat;
       }
 
-      destroy(): void {}
+      destroy(): void {
+        // Rien à libérer : pas de vraie ressource (iframe, écouteur DOM) côté
+        // fausse implémentation — présente seulement pour respecter la
+        // même surface que `YT.Player`, appelée par `Lecteur.svelte` au
+        // démontage.
+      }
 
       private passerA(etat: number): void {
         this.etat = etat;
