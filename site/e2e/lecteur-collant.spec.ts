@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
-import { installerFausseAPIYoutube } from './aides/fausse-api-youtube';
+import { test, expect, type Page } from '@playwright/test';
+import { installerFausseAPIYoutube, pauserLecteurFactice } from './aides/fausse-api-youtube';
 
 /**
  * Parcours documentés à la main dans docs/qc-lecteur-collant.md (issue #54
@@ -10,10 +10,26 @@ import { installerFausseAPIYoutube } from './aides/fausse-api-youtube';
  * dans le doc QC).
  */
 
-test('scroller sans lecture active ne réduit pas le lecteur', async ({ page }) => {
+test.beforeEach(async ({ page }) => {
   await installerFausseAPIYoutube(page);
   await page.goto('/');
+});
 
+/**
+ * Clique la facade, attend que la lecture soit réellement engagée, puis
+ * scrolle jusqu'à ce que le groupe lecteur+onglets se réduise — point de
+ * départ commun à la plupart des scénarios ci-dessous.
+ */
+async function demarrerEtReduire(page: Page): Promise<void> {
+  await page.locator('button.facade').click();
+  // La facade est quittée dès le clic (le lecteur se construit puis se lance
+  // automatiquement — voir `demarrer()`, Lecteur.svelte).
+  await expect(page.getByRole('button', { name: 'Mettre en pause', exact: true })).toBeVisible();
+  await page.mouse.wheel(0, 2000);
+  await expect(page.locator('.groupe-collant')).toHaveClass(/actif/);
+}
+
+test('scroller sans lecture active ne réduit pas le lecteur', async ({ page }) => {
   // Facade jamais quittée : aucune lecture n'a été demandée.
   await expect(page.locator('button.facade')).toBeVisible();
 
@@ -23,39 +39,17 @@ test('scroller sans lecture active ne réduit pas le lecteur', async ({ page }) 
 });
 
 test('scroller pendant une lecture engagée réduit le lecteur (issue #54)', async ({ page }) => {
-  await installerFausseAPIYoutube(page);
-  await page.goto('/');
+  await demarrerEtReduire(page);
 
-  await page.locator('button.facade').click();
-  // La facade est quittée dès le clic (le lecteur se construit puis se lance
-  // automatiquement — voir `demarrer()`, Lecteur.svelte).
-  await expect(page.getByRole('button', { name: 'Mettre en pause', exact: true })).toBeVisible();
-
-  await page.mouse.wheel(0, 2000);
-
-  await expect(page.locator('.groupe-collant')).toHaveClass(/actif/);
   await expect(page.locator('.cadre')).toHaveClass(/reduit/);
 });
 
 test("mettre en pause pendant la réduction ne décolle pas le lecteur (retour d'usage #54)", async ({
   page,
 }) => {
-  await installerFausseAPIYoutube(page);
-  await page.goto('/');
+  await demarrerEtReduire(page);
 
-  await page.locator('button.facade').click();
-  await expect(page.getByRole('button', { name: 'Mettre en pause', exact: true })).toBeVisible();
-  await page.mouse.wheel(0, 2000);
-  await expect(page.locator('.groupe-collant')).toHaveClass(/actif/);
-
-  // Pause déclenchée côté IFrame (contrôles natifs YouTube, pas notre
-  // bouton) — c'est bien cette origine-là que #54 avait ratée à l'origine
-  // (seul PLAYING comptait comme « engagé »).
-  await page.evaluate(() => {
-    const lecteurs = (window as unknown as { __lecteursFactices: { pauseVideo(): void }[] })
-      .__lecteursFactices;
-    lecteurs[0].pauseVideo();
-  });
+  await pauserLecteurFactice(page);
 
   await expect(page.locator('.groupe-collant')).toHaveClass(/actif/);
 });
@@ -63,13 +57,7 @@ test("mettre en pause pendant la réduction ne décolle pas le lecteur (retour d
 test('cliquer un épisode pendant la réduction remonte en haut et repasse le lecteur en grand', async ({
   page,
 }) => {
-  await installerFausseAPIYoutube(page);
-  await page.goto('/');
-
-  await page.locator('button.facade').click();
-  await expect(page.getByRole('button', { name: 'Mettre en pause', exact: true })).toBeVisible();
-  await page.mouse.wheel(0, 2000);
-  await expect(page.locator('.groupe-collant')).toHaveClass(/actif/);
+  await demarrerEtReduire(page);
 
   await page.locator('.jouer', { hasText: 'Heat' }).click();
 

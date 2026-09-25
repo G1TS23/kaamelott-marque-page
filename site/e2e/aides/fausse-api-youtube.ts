@@ -14,8 +14,22 @@ import type { Page } from '@playwright/test';
  *
  * Les instances créées sont exposées sur `window.__lecteursFactices` (un
  * tableau, une seule entrée en pratique — le composant ne construit jamais
- * plus d'un player) pour être pilotées depuis les tests via `page.evaluate`.
+ * plus d'un player) — jamais accédé directement depuis les specs, toujours
+ * via les fonctions ci-dessous : un seul endroit connaît la forme exacte de
+ * cet objet côté navigateur.
  */
+
+interface LecteurFacticePublic {
+  videoId: string;
+  appelsChargement: unknown[];
+  appelsSeek: number[];
+  appelsPlay: number;
+  appelsPause: number;
+  pauseVideo(): void;
+}
+
+type FenetreDeTest = typeof window & { __lecteursFactices: LecteurFacticePublic[] };
+
 export async function installerFausseAPIYoutube(page: Page): Promise<void> {
   await page.addInitScript(() => {
     // Popin de première visite (PopinBienvenue.svelte) : hors sujet pour ces
@@ -110,5 +124,41 @@ export async function installerFausseAPIYoutube(page: Page): Promise<void> {
     }
 
     (window as unknown as { YT: unknown }).YT = { Player: LecteurFactice, PlayerState: ETATS };
+  });
+}
+
+/** Vidéo actuellement chargée dans la fausse instance, ou `undefined` si le lecteur n'a jamais été construit. */
+export function lireVideoIdLecteurFactice(page: Page): Promise<string | undefined> {
+  return page.evaluate(
+    () => (window as unknown as FenetreDeTest).__lecteursFactices[0]?.videoId,
+  );
+}
+
+/**
+ * Simule une pause déclenchée côté IFrame (contrôles natifs YouTube) plutôt
+ * que par nos propres boutons — l'origine que #54 avait ratée à l'origine
+ * (seul `PLAYING` comptait comme « engagé »).
+ */
+export function pauserLecteurFactice(page: Page): Promise<void> {
+  return page.evaluate(() => (window as unknown as FenetreDeTest).__lecteursFactices[0].pauseVideo());
+}
+
+export interface CompteursLecteurFactice {
+  play: number;
+  pause: number;
+  seek: number;
+  chargement: number;
+}
+
+/** Nombre d'appels reçus par la fausse instance depuis sa création — pour vérifier qu'un geste de pure navigation (changer d'onglet) ne touche jamais au lecteur. */
+export function lireCompteursLecteurFactice(page: Page): Promise<CompteursLecteurFactice> {
+  return page.evaluate(() => {
+    const l = (window as unknown as FenetreDeTest).__lecteursFactices[0];
+    return {
+      play: l.appelsPlay,
+      pause: l.appelsPause,
+      seek: l.appelsSeek.length,
+      chargement: l.appelsChargement.length,
+    };
   });
 }
